@@ -1,197 +1,134 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#FFFFFF"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <ScrollView
-        android:clipToPadding="false"
-        android:id="@+id/r9cum0kdr3r9"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#16181F"
-        android:paddingTop="69dp">
+    android:layout_height="match_parent"
+    android:background="#16181F">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/linearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+    <ImageButton
+        android:id="@+id/manageAppButton"
+        android:layout_width="136dp"
+        android:layout_height="162dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/rounded_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/joinEventsTextView"
+        app:layout_constraintVertical_bias="0.067"
+        app:srcCompat="@drawable/person_image" />
 
-            <ImageView
-                android:id="@+id/r837b8xaaa3j"
-                android:layout_width="14dp"
-                android:layout_height="30dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginLeft="24dp"
-                android:layout_marginTop="69dp"
-                android:scaleType="fitXY"
-                android:src="@mipmap/ic_launcher"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+    <ImageButton
+        android:id="@+id/joinEventButton"
+        android:layout_width="136dp"
+        android:layout_height="162dp"
+        android:layout_marginStart="60dp"
+        android:background="@drawable/rounded_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.337"
+        app:srcCompat="@drawable/listview_image" />
 
-            <LinearLayout
-                android:id="@+id/rbls2idaxv7k"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="19dp"
-                android:layout_marginEnd="16dp"
-                android:background="@drawable/cr16b20232d"
-                android:orientation="vertical"
-                android:paddingTop="62dp"
-                android:paddingBottom="35dp"
-                app:layout_constraintBottom_toTopOf="@+id/view"
-                app:layout_constraintEnd_toEndOf="@+id/view2"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/view">
+    <ImageButton
+        android:id="@+id/manageEventsButton"
+        android:layout_width="136dp"
+        android:layout_height="162dp"
+        android:layout_marginEnd="60dp"
+        android:background="@drawable/rounded_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.337"
+        app:srcCompat="@drawable/clock_image" />
 
-                <ImageView
-                    android:id="@+id/rd9tg7t6sfwf"
-                    android:layout_width="52dp"
-                    android:layout_height="35dp"
-                    android:layout_marginHorizontal="46dp"
-                    android:layout_marginBottom="48dp"
-                    android:scaleType="fitXY"
-                    android:src="@mipmap/ic_launcher" />
+    <ImageButton
+        android:id="@+id/imageButton7"
+        android:layout_width="136dp"
+        android:layout_height="162dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="60dp"
+        android:background="@drawable/rounded_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/manageEventsTextView"
+        app:layout_constraintVertical_bias="0.072"
+        app:srcCompat="@drawable/waitlist_image" />
 
-                <TextView
-                    android:id="@+id/rtcecpv5gie"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="31dp"
-                    android:text=" Join Events"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp" />
-            </LinearLayout>
+    <TextView
+        android:id="@+id/manageAppTextView"
+        android:layout_width="136dp"
+        android:layout_height="33dp"
+        android:layout_marginStart="60dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Manage App"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/manageAppButton"
+        app:layout_constraintVertical_bias="0.0" />
 
-            <View
-                android:id="@+id/view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/viewWaitlistTextView"
+        android:layout_width="136dp"
+        android:layout_height="33dp"
+        android:layout_marginEnd="60dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="View My Waitlist"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageButton7"
+        app:layout_constraintVertical_bias="0.0" />
 
+    <TextView
+        android:id="@+id/joinEventsTextView"
+        android:layout_width="136dp"
+        android:layout_height="33dp"
+        android:layout_marginStart="60dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Join Events"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/joinEventButton"
+        app:layout_constraintVertical_bias="0.0" />
 
-            <TextView
-                android:id="@+id/rnfm0k018mp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="21dp"
-                android:layout_marginLeft="21dp"
-                android:layout_marginTop="47dp"
-                android:layout_marginEnd="22dp"
-                android:layout_marginRight="22dp"
-                android:text=" Manage Events"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toStartOf="@+id/rgxayrb4ougm"
-                app:layout_constraintStart_toEndOf="@+id/view"
-                app:layout_constraintTop_toTopOf="@+id/view" />
+    <TextView
+        android:id="@+id/manageEventsTextView"
+        android:layout_width="136dp"
+        android:layout_height="33dp"
+        android:layout_marginEnd="60dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Manage Events"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/manageEventsButton"
+        app:layout_constraintVertical_bias="0.0" />
 
+    <ImageButton
+        android:id="@+id/imageButton8"
+        android:layout_width="27dp"
+        android:layout_height="68dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/button_image" />
 
-            <ImageView
-                android:id="@+id/rftplrj32zp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="58dp"
-                android:layout_marginLeft="58dp"
-                android:layout_marginTop="68dp"
-                android:layout_marginEnd="57dp"
-                android:layout_marginRight="57dp"
-                android:layout_marginBottom="68dp"
-                android:scaleType="fitXY"
-                android:src="@mipmap/ic_launcher"
-                app:layout_constraintBottom_toBottomOf="@+id/r2l3q3u7sr7n"
-                app:layout_constraintEnd_toStartOf="@+id/view2"
-                app:layout_constraintStart_toStartOf="@+id/rbls2idaxv7k"
-                app:layout_constraintTop_toBottomOf="@+id/rbls2idaxv7k" />
-
-            <TextView
-                android:id="@+id/r7gtcct0c1q2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="51dp"
-                android:layout_marginLeft="51dp"
-                android:text="     Manage App"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <View
-                android:id="@+id/view2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="34dp"
-                android:layout_marginLeft="34dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="35dp"
-                android:layout_marginRight="35dp"
-                app:layout_constraintEnd_toEndOf="@+id/view"
-                app:layout_constraintStart_toEndOf="@+id/r7gtcct0c1q2"
-                app:layout_constraintTop_toBottomOf="@+id/rbls2idaxv7k" />
-
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/ruu9jumrd3r"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="45dp"
-                android:layout_marginLeft="45dp"
-                android:layout_marginTop="47dp"
-                android:layout_marginEnd="42dp"
-                android:layout_marginRight="42dp"
-                android:layout_marginBottom="48dp"
-                android:scaleType="fitXY"
-                android:src="@mipmap/ic_launcher"
-                app:layout_constraintBottom_toBottomOf="@+id/r2l3q3u7sr7n"
-                app:layout_constraintEnd_toStartOf="@+id/view3"
-                app:layout_constraintStart_toStartOf="@+id/view2"
-                app:layout_constraintTop_toBottomOf="@+id/rbls2idaxv7k"
-                app:shapeAppearanceOverlay="@style/cr9" />
-
-            <TextView
-                android:id="@+id/r2l3q3u7sr7n"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="94dp"
-                android:layout_marginRight="94dp"
-                android:layout_marginBottom="2dp"
-                android:text="View My Waitlist"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <View
-                android:id="@+id/view3"
-                android:layout_width="16dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="37dp"
-                android:layout_marginRight="37dp"
-                app:layout_constraintBottom_toTopOf="@+id/rgxayrb4ougm"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/rgxayrb4ougm" />
-
-            <ImageView
-                android:id="@+id/rgxayrb4ougm"
-                android:layout_width="wrap_content"
-                android:layout_height="10dp"
-                android:layout_marginStart="15dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginBottom="156dp"
-                android:scaleType="fitXY"
-                android:src="@mipmap/ic_launcher"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/view3" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
