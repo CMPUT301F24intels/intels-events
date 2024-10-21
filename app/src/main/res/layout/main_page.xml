@@ -1,196 +1,134 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#FFFFFF"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <ScrollView
-        android:clipToPadding="false"
-        android:id="@+id/r9cum0kdr3r9"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#16181F"
-        android:paddingTop="69dp">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-            <ImageView
-                android:id="@+id/r837b8xaaa3j"
-                android:layout_width="14dp"
-                android:layout_height="30dp"
-                android:layout_marginBottom="94dp"
-                android:layout_marginHorizontal="24dp"
-                android:src="@mipmap/ic_launcher"
-                android:scaleType="fitXY"
-                />
-            <LinearLayout
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/rzbtr4utt25c"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="24dp"
-                android:layout_marginHorizontal="19dp"
-                android:orientation="horizontal">
-                <LinearLayout
-                    xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:tools="http://schemas.android.com/tools"
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/rbls2idaxv7k"
-                    android:layout_width="161dp"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/cr16b20232d"
-                    android:paddingTop="62dp"
-                    android:paddingBottom="35dp"
-                    android:orientation="vertical">
-                    <ImageView
-                        android:id="@+id/rd9tg7t6sfwf"
-                        android:layout_width="52dp"
-                        android:layout_height="35dp"
-                        android:layout_marginBottom="48dp"
-                        android:layout_marginHorizontal="46dp"
-                        android:src="@mipmap/ic_launcher"
-                        android:scaleType="fitXY"
-                        />
-                    <TextView
-                        android:id="@+id/rtcecpv5gie"
-                        android:textColor="#FFFFFF"
-                        android:textSize="14sp"
-                        android:layout_marginStart="31dp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:text=" Join Events"
-                        />
-                </LinearLayout>
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    />
-                <LinearLayout
-                    xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:tools="http://schemas.android.com/tools"
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/reu4wcgegfur"
-                    android:layout_width="161dp"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="51dp"
-                    android:paddingBottom="33dp"
-                    android:orientation="vertical">
-                    <LinearLayout
-                        xmlns:android="http://schemas.android.com/apk/res/android"
-                        xmlns:tools="http://schemas.android.com/tools"
-                        xmlns:app="http://schemas.android.com/apk/res-auto"
-                        android:id="@+id/r6bqocne9jmk"
-                        android:layout_width="match_parent"
-                        android:layout_height="58dp"
-                        android:layout_marginBottom="38dp"
-                        android:layout_marginHorizontal="51dp"
-                        android:orientation="vertical">
-                    </LinearLayout>
-                    <TextView
-                        android:id="@+id/rnfm0k018mp"
-                        android:textColor="#FFFFFF"
-                        android:textSize="14sp"
-                        android:layout_marginStart="21dp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:text=" Manage Events"
-                        />
-                </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/rjjwm9uip1nq"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:orientation="horizontal">
-                <LinearLayout
-                    xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:tools="http://schemas.android.com/tools"
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/rjb39hlfw31g"
-                    android:layout_width="161dp"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="44dp"
-                    android:paddingBottom="33dp"
-                    android:orientation="vertical">
-                    <ImageView
-                        android:id="@+id/rftplrj32zp"
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:layout_marginBottom="51dp"
-                        android:layout_marginHorizontal="57dp"
-                        android:src="@mipmap/ic_launcher"
-                        android:scaleType="fitXY"
-                        />
-                    <TextView
-                        android:id="@+id/r7gtcct0c1q2"
-                        android:textColor="#FFFFFF"
-                        android:textSize="14sp"
-                        android:layout_marginStart="31dp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:text="     Manage App"
-                        />
-                </LinearLayout>
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    />
-                <LinearLayout
-                    xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:tools="http://schemas.android.com/tools"
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/rfrvf3z2vohb"
-                    android:layout_width="161dp"
-                    android:layout_height="wrap_content"
-                    android:paddingTop="23dp"
-                    android:paddingBottom="35dp"
-                    android:orientation="vertical">
-                    <com.google.android.material.imageview.ShapeableImageView
-                        android:id="@+id/ruu9jumrd3r"
-                        app:shapeAppearanceOverlay="@style/cr9"
-                        android:layout_width="90dp"
-                        android:layout_height="93dp"
-                        android:layout_marginBottom="29dp"
-                        android:layout_marginHorizontal="29dp"
-                        android:src="@mipmap/ic_launcher"
-                        android:scaleType="fitXY"
-                        />
-                    <TextView
-                        android:id="@+id/r2l3q3u7sr7n"
-                        android:textColor="#FFFFFF"
-                        android:textSize="14sp"
-                        android:layout_marginStart="16dp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:text="View My Waitlist"
-                        />
-                </LinearLayout>
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    />
-                <ImageView
-                    android:id="@+id/rgxayrb4ougm"
-                    android:layout_width="18dp"
-                    android:layout_height="10dp"
-                    android:src="@mipmap/ic_launcher"
-                    android:scaleType="fitXY"
-                    />
-            </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+    android:layout_height="match_parent"
+    android:background="#16181F">
+
+    <ImageButton
+        android:id="@+id/manageAppButton"
+        android:layout_width="136dp"
+        android:layout_height="162dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/rounded_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/joinEventsTextView"
+        app:layout_constraintVertical_bias="0.067"
+        app:srcCompat="@drawable/person_image" />
+
+    <ImageButton
+        android:id="@+id/joinEventButton"
+        android:layout_width="136dp"
+        android:layout_height="162dp"
+        android:layout_marginStart="60dp"
+        android:background="@drawable/rounded_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.337"
+        app:srcCompat="@drawable/listview_image" />
+
+    <ImageButton
+        android:id="@+id/manageEventsButton"
+        android:layout_width="136dp"
+        android:layout_height="162dp"
+        android:layout_marginEnd="60dp"
+        android:background="@drawable/rounded_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.337"
+        app:srcCompat="@drawable/clock_image" />
+
+    <ImageButton
+        android:id="@+id/imageButton7"
+        android:layout_width="136dp"
+        android:layout_height="162dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="60dp"
+        android:background="@drawable/rounded_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/manageEventsTextView"
+        app:layout_constraintVertical_bias="0.072"
+        app:srcCompat="@drawable/waitlist_image" />
+
+    <TextView
+        android:id="@+id/manageAppTextView"
+        android:layout_width="136dp"
+        android:layout_height="33dp"
+        android:layout_marginStart="60dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Manage App"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/manageAppButton"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/viewWaitlistTextView"
+        android:layout_width="136dp"
+        android:layout_height="33dp"
+        android:layout_marginEnd="60dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="View My Waitlist"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageButton7"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/joinEventsTextView"
+        android:layout_width="136dp"
+        android:layout_height="33dp"
+        android:layout_marginStart="60dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Join Events"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/joinEventButton"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/manageEventsTextView"
+        android:layout_width="136dp"
+        android:layout_height="33dp"
+        android:layout_marginEnd="60dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Manage Events"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/manageEventsButton"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <ImageButton
+        android:id="@+id/imageButton8"
+        android:layout_width="27dp"
+        android:layout_height="68dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/button_image" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
