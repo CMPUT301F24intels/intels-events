@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#16181F">
+
+    <ImageButton
+        android:id="@+id/manageAppButton"
+        android:layout_width="136dp"
+        android:layout_height="162dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginBottom="194dp"
+        android:background="#20232D"
+        android:text="Manage App"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/person_image" />
+
+    <ImageButton
+        android:id="@+id/joinEventButton"
+        android:layout_width="136dp"
+        android:layout_height="162dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="194dp"
+        android:background="#20232D"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/listview_image" />
+
+    <ImageButton
+        android:id="@+id/manageEventsButton"
+        android:layout_width="136dp"
+        android:layout_height="162dp"
+        android:layout_marginTop="194dp"
+        android:layout_marginEnd="60dp"
+        android:background="#20232D"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/clock_image" />
+
+    <ImageButton
+        android:id="@+id/imageButton7"
+        android:layout_width="136dp"
+        android:layout_height="162dp"
+        android:layout_marginEnd="60dp"
+        android:layout_marginBottom="192dp"
+        android:background="#20232D"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/waitlist_image" />
+</androidx.constraintlayout.widget.ConstraintLayout>
