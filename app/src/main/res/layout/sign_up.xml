@@ -61,7 +61,7 @@
         android:id="@+id/enter_phone_number"
         android:layout_width="376dp"
         android:layout_height="45dp"
-        android:layout_marginTop="500dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="18dp"
         android:background="@drawable/rounded_button"
         android:fontFamily="sans-serif-condensed"
@@ -120,10 +120,12 @@
         android:id="@+id/imageButton"
         android:layout_width="45dp"
         android:layout_height="43dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
         android:backgroundTint="#16181F"
-        app:srcCompat="@drawable/back_button"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="16dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/back_button" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
