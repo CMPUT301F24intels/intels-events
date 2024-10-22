@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         db = FirebaseFirestore.getInstance();
-      
+
         setContentView(R.layout.main_page);
         qrCodeScanner = new QRCodeScanner(this);
 
