@@ -2,4 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="orange">#FF6600</color> <!-- Orange for selected state -->
+    <color name="dark_background">#000000</color> <!-- Black background for unselected -->
+    <color name="switchThumb">#FFFFFF</color> <!-- Switch thumb color -->
+    <color name="switchTrack">#B2FF59</color> <!-- Switch track color -->
+    <color name="custom_blue">#2196F3</color>
 </resources>
