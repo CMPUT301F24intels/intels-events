@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         qrCodeScanner = new QRCodeScanner(this);
 
         // Change it to qr code scanner button ion UI later
-        qrCodeScanner.startScan();
+        //qrCodeScanner.startScan();
     }
 
     @Override
