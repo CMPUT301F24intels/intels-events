@@ -43,4 +43,14 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+    <string name="event_details_title">Event Details</string>
+    <string name="edit_image">Edit Image</string>
+    <string name="event_name">Event Name</string>
+    <string name="facility">Facility</string>
+    <string name="location">Location</string>
+    <string name="date_time">Date/Time</string>
+    <string name="description">Description</string>
+    <string name="geo_location_requirement">Geo Location Requirement</string>
+    <string name="notification_preferences">Notification Preferences</string>
+    <string name="add_event">Add Event</string>
 </resources>
