@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#16181F">
+
+    <ImageButton
+        android:id="@+id/qrcodescanbutton"
+        android:layout_width="177dp"
+        android:layout_height="176dp"
+        android:layout_marginStart="124dp"
+        android:background="@drawable/scan"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.737"
+        app:srcCompat="@drawable/qrcodeimage" />
+
+    <ImageButton
+        android:id="@+id/back_button"
+        android:layout_width="53dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="40dp"
+        android:backgroundTint="#16181F"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/back_button" />
+
+    <TextView
+        android:id="@+id/scan_text"
+        android:layout_width="363dp"
+        android:layout_height="69dp"
+        android:layout_marginTop="52dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="Scan an Event to join the waitlist"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <RadioButton
+        android:id="@+id/textmiddle"
+        android:layout_width="252dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="68dp"
+        android:layout_weight="1"
+        android:background="@drawable/rounded_button"
+        android:button="@null"
+        android:gravity="center"
+        android:text="Point Your Camera At QR Code"
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/scan_text" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
