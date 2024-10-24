@@ -6,27 +6,21 @@
     android:background="#16181F"
     android:padding="16dp">
 
-    <!-- Back Button -->
     <ImageButton
         android:id="@+id/back_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/back_button"
-        android:contentDescription=""
+        android:contentDescription="@string/back"
         android:background="@null"
-        android:layout_margin="16dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"/>
-    />
+        android:layout_margin="16dp"/>
 
-    <!-- Entrant / Organizer Toggle Button -->
     <RadioGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center">
 
-        <!-- Entrant Button -->
         <RadioButton
             android:id="@+id/entrantButton"
             android:layout_width="0dp"
@@ -38,19 +32,18 @@
             android:text="Entrant"
             android:textColor="@android:color/white" />
 
-        <!-- Organizer Button -->
         <RadioButton
             android:id="@+id/organizerButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@drawable/toggle_selector"
             android:button="@null"
             android:gravity="center"
             android:text="Organizer"
             android:textColor="@android:color/white" />
     </RadioGroup>
 
-    <!-- Search Bar -->
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -61,69 +54,209 @@
         android:textColor="@android:color/white"
         android:textColorHint="@android:color/darker_gray"/>
 
-    <!-- Grid of Events -->
-    <ScrollView
+    <GridLayout
+        android:id="@+id/gridLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_weight="1"
+        android:columnCount="2"
+        android:rowCount="3">
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:id="@+id/event_box_1"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="8dp"
+            android:background="#20232D"
+            android:orientation="vertical"
+            android:gravity="center">
 
-            <!-- Event 1 -->
+            <TextView
+                android:id="@+id/event_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sample event #1"
+                android:textColor="#FFFFFF" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="8dp"
-                android:layout_marginTop="8dp"
-                android:elevation="4dp">
+                android:gravity="center">
 
-                <!-- Event Title -->
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="Sample Event #1"
-                    android:textColor="@android:color/white"
-                    android:textSize="16sp" />
+                <ImageView
+                    android:id="@+id/delete_icon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/delete_button"
+                    android:contentDescription="@string/delete_event"
+                    android:layout_marginEnd="8dp"/>
 
-                <!-- Toggle Button -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <!-- Information Icon (Reconsider for Draw) -->
-                    <ImageButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@null"
-                        android:src="@android:drawable/ic_menu_info_details"
-                        android:contentDescription="Reconsider for Draw"
-                        android:tint="@android:color/white" />
-
-                    <!-- Toggle Switch -->
-                    <Switch
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:thumbTint="@color/switchThumb"
-                        android:trackTint="@color/switchTrack" />
-                </LinearLayout>
-
-                <!-- Delete Button -->
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@null"
-                    android:src="@android:drawable/ic_menu_delete"
-                    android:contentDescription="Delete Event"
-                    android:tint="@android:color/white" />
+                <ToggleButton
+                    android:id="@+id/toggleButton_1"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/toggle"
+                    android:textOn="On"
+                    android:textOff=""
+                    android:layout_marginStart="8dp" />
             </LinearLayout>
-
-            <!-- Repeat similar layout for other events -->
         </LinearLayout>
-    </ScrollView>
+
+        <LinearLayout
+            android:id="@+id/event_box_2"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="8dp"
+            android:background="#20232D"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/event_title_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sample event #2"
+                android:textColor="#FFFFFF" />
+
+            <ImageView
+                android:id="@+id/delete_icon_2"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/delete_button"
+                android:contentDescription="@string/delete_event"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/event_box_3"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="8dp"
+            android:background="#20232D"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/event_title_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sample event #3"
+                android:textColor="#FFFFFF" />
+
+            <ImageView
+                android:id="@+id/delete_icon_3"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/delete_button"
+                android:contentDescription="@string/delete_event"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/event_box_4"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="8dp"
+            android:background="#20232D"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/event_title_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sample event #4"
+                android:textColor="#FFFFFF" />
+
+            <ImageView
+                android:id="@+id/delete_icon_4"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/delete_button"
+                android:contentDescription="@string/delete_event"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/event_box_5"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="8dp"
+            android:background="#20232D"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/event_title_5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sample event #5"
+                android:textColor="#FFFFFF" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <ImageView
+                    android:id="@+id/delete_icon_5"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/delete_button"
+                    android:contentDescription="@string/delete_event"
+                    android:layout_marginEnd="8dp"/>
+
+                <ToggleButton
+                    android:id="@+id/toggleButton_5"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/toggle"
+                    android:textOn="On"
+                    android:textOff=""
+                    android:layout_marginStart="8dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/event_box_6"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
+            android:layout_margin="8dp"
+            android:background="#20232D"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/event_title_6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sample event #6"
+                android:textColor="#FFFFFF" />
+
+            <ImageView
+                android:id="@+id/delete_icon_6"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/delete_button"
+                android:contentDescription="@string/delete_event"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+    </GridLayout>
 </LinearLayout>
