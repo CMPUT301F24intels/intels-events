@@ -37,6 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/rounded_button"
+            android:backgroundTint="#20232D"
             android:padding="8dp"
             android:layout_marginEnd="16dp"
             android:text="Entrant"
@@ -71,7 +72,7 @@
         app:rowCount="3">
 
         <Button
-            android:id="@+id/event_1_button"
+            android:id="@+id/event_1"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="8dp"
@@ -83,7 +84,7 @@
             app:layout_rowWeight="1" />
 
         <Button
-            android:id="@+id/event_2_button"
+            android:id="@+id/event_2"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="8dp"
@@ -95,7 +96,7 @@
             app:layout_rowWeight="1" />
 
         <Button
-            android:id="@+id/event_3_button"
+            android:id="@+id/event_3"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="8dp"
@@ -107,7 +108,7 @@
             app:layout_rowWeight="1" />
 
         <Button
-            android:id="@+id/event_4_button"
+            android:id="@+id/event_4"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="8dp"
@@ -119,7 +120,7 @@
             app:layout_rowWeight="1" />
 
         <Button
-            android:id="@+id/event_5_button"
+            android:id="@+id/event_5"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="8dp"
@@ -131,7 +132,7 @@
             app:layout_rowWeight="1" />
 
         <Button
-            android:id="@+id/event_6_button"
+            android:id="@+id/event_6"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="8dp"
