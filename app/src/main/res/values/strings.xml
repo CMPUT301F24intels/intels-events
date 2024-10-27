@@ -53,4 +53,6 @@
     <string name="geo_location_requirement">Geo Location Requirement</string>
     <string name="notification_preferences">Notification Preferences</string>
     <string name="add_event">Add Event</string>
+    <string name="back">back</string>
+    <string name="delete_event">delete event</string>
 </resources>
