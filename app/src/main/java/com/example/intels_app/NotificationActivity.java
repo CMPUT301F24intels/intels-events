@@ -6,6 +6,8 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -18,6 +20,16 @@ public class NotificationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notification);
+
+        // back arrow to go back to the main page
+        ImageView backArrow = findViewById(R.id.backArrow);
+        backArrow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         createNotificationChannel();
         showNotification();
     }
@@ -39,7 +51,7 @@ public class NotificationActivity extends AppCompatActivity {
     @SuppressLint("MissingPermission")
     private void showNotification() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.cat) //just testing
+                .setSmallIcon(R.drawable.cat) // Just testing
                 .setContentTitle("Lottery Result")
                 .setContentText("You were not chosen in the lottery. Better luck next time!")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
