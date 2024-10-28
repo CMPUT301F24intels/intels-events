@@ -1,148 +1,180 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#16181F">
+    android:orientation="vertical"
+    android:background="#16181F"
+    android:padding="16dp">
 
+    <!-- Back Button -->
     <ImageButton
         android:id="@+id/back_button"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_arrow_back"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/role_selector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="60dp"
-        android:background="@drawable/segment_background"
+        android:src="@drawable/back_button"
+        android:contentDescription="@string/back"
+        android:background="@null"
+        android:layout_margin="16dp"/>
+
+    <!-- Entrant / Organizer Toggle -->
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintHorizontal_bias="0.008"
-        app:layout_constraintStart_toEndOf="@+id/back_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteY="16dp">
+        android:gravity="center">
 
-        <Button
-            android:id="@+id/entrant_button"
-            android:layout_width="wrap_content"
+        <RadioButton
+            android:id="@+id/entrantButton"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/rounded_button"
-            android:backgroundTint="#20232D"
-            android:padding="8dp"
-            android:layout_marginEnd="16dp"
+            android:button="@null"
+            android:gravity="center"
             android:text="Entrant"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold" />
+            android:textColor="@android:color/white" />
 
-        <Button
-            android:id="@+id/organizer_button"
-            android:layout_width="wrap_content"
+        <RadioButton
+            android:id="@+id/organizerButton"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/rounded_button"
-            android:padding="8dp"
-            android:layout_marginStart="16dp"
+            android:button="@null"
+            android:gravity="center"
             android:text="Organizer"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold" />
-    </androidx.appcompat.widget.LinearLayoutCompat>
+            android:background="@android:drawable/ic_notification_overlay"
+            android:textColor="@android:color/white" />
+    </RadioGroup>
 
-    <androidx.gridlayout.widget.GridLayout
-        android:id="@+id/event_grid"
-        android:layout_width="0dp"
+    <!-- Events GridLayout for Organizer -->
+    <GridLayout
+        android:id="@+id/gridLayout"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="16dp"
-        app:columnCount="2"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/role_selector"
-        app:rowCount="3">
+        android:layout_marginTop="16dp"
+        android:layout_weight="1"
+        android:columnCount="2"
+        android:rowCount="3"
+        android:paddingBottom="24dp">
 
-        <Button
-            android:id="@+id/event_1"
+        <!-- Event Boxes for Organizer -->
+        <LinearLayout
+            android:id="@+id/event_box_1"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
             android:layout_margin="8dp"
-            android:background="@drawable/rounded_button"
-            android:text="Sample Event #1"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            app:layout_columnWeight="1"
-            app:layout_rowWeight="1" />
+            android:background="#20232D"
+            android:orientation="vertical"
+            android:gravity="center">
 
-        <Button
-            android:id="@+id/event_2"
+            <TextView
+                android:id="@+id/event_title_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sample Event #1"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/event_box_2"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
             android:layout_margin="8dp"
-            android:background="@drawable/rounded_button"
-            android:text="Sample Event #2"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            app:layout_columnWeight="1"
-            app:layout_rowWeight="1" />
+            android:background="#20232D"
+            android:orientation="vertical"
+            android:gravity="center">
 
-        <Button
-            android:id="@+id/event_3"
+            <TextView
+                android:id="@+id/event_title_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sample Event #2"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/event_box_3"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
             android:layout_margin="8dp"
-            android:background="@drawable/rounded_button"
-            android:text="Sample Event #3"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            app:layout_columnWeight="1"
-            app:layout_rowWeight="1" />
+            android:background="#20232D"
+            android:orientation="vertical"
+            android:gravity="center">
 
-        <Button
-            android:id="@+id/event_4"
+            <TextView
+                android:id="@+id/event_title_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sample Event #3"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/event_box_4"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
             android:layout_margin="8dp"
-            android:background="@drawable/rounded_button"
-            android:text="Sample Event #4"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            app:layout_columnWeight="1"
-            app:layout_rowWeight="1" />
+            android:background="#20232D"
+            android:orientation="vertical"
+            android:gravity="center">
 
-        <Button
-            android:id="@+id/event_5"
+            <TextView
+                android:id="@+id/event_title_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sample Event #4"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/event_box_5"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
             android:layout_margin="8dp"
-            android:background="@drawable/rounded_button"
-            android:text="Sample Event #5"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            app:layout_columnWeight="1"
-            app:layout_rowWeight="1" />
+            android:background="#20232D"
+            android:orientation="vertical"
+            android:gravity="center">
 
-        <Button
-            android:id="@+id/event_6"
+            <TextView
+                android:id="@+id/event_title_5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sample Event #5"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/event_box_6"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_rowWeight="1"
+            android:layout_columnWeight="1"
             android:layout_margin="8dp"
-            android:background="@drawable/rounded_button"
-            android:text="Sample Event #6"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            app:layout_columnWeight="1"
-            app:layout_rowWeight="1" />
+            android:background="#20232D"
+            android:orientation="vertical"
+            android:gravity="center">
 
-    </androidx.gridlayout.widget.GridLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/event_title_6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sample Event #6"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"/>
+        </LinearLayout>
+    </GridLayout>
+</LinearLayout>
