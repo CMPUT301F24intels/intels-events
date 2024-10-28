@@ -10,8 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuInflater;
 import android.view.View;
 
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
@@ -52,6 +52,14 @@ public class MainActivity extends AppCompatActivity {
 
         // Change it to qr code scanner button ion UI later
         //qrCodeScanner.startScan();
+        ImageButton ViewWaitListButton = findViewById(R.id.imageButton7);
+        ViewWaitListButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, EventGridActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     // Method to display the popup menu

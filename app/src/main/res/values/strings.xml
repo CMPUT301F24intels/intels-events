@@ -6,6 +6,8 @@
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+    <string name="back">Back</string>
+    <string name="delete_event">Delete Event</string>
 
     <string name="lorem_ipsum">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
@@ -53,6 +55,6 @@
     <string name="geo_location_requirement">Geo Location Requirement</string>
     <string name="notification_preferences">Notification Preferences</string>
     <string name="add_event">Add Event</string>
-    <string name="back">back</string>
-    <string name="delete_event">delete event</string>
+    <string name="entrant">Entrant</string>
+    <string name="organizer">Organizer</string>
 </resources>
