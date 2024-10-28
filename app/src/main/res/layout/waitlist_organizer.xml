@@ -28,7 +28,7 @@
         app:layout_constraintStart_toEndOf="@+id/back_button"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="20dp"
-        app:layout_constraintBottom_toTopOf=""
+        app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteY="16dp">
 
         <Button
