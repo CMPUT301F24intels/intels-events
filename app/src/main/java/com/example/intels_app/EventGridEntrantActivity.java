@@ -46,7 +46,7 @@ public class EventGridEntrantActivity extends AppCompatActivity {
         organizer_button = findViewById(R.id.organizer_button);
 
         // Set up initial button states
-        entrant_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
+        entrant_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
         organizer_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
 
         // Set click listeners
@@ -55,6 +55,9 @@ public class EventGridEntrantActivity extends AppCompatActivity {
             public void onClick(View v) {
                 entrant_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
                 organizer_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
+
+                Intent intent = new Intent(EventGridEntrantActivity.this, EventGridEntrantActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -63,7 +66,15 @@ public class EventGridEntrantActivity extends AppCompatActivity {
             public void onClick(View v) {
                 organizer_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
                 entrant_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
+
+                Intent intent = new Intent(EventGridEntrantActivity.this, EventGridOrganizerActivity.class);
+                startActivity(intent);
             }
         });
     }
 }
+
+
+
+
+
