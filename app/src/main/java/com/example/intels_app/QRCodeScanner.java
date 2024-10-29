@@ -9,7 +9,7 @@ import com.journeyapps.barcodescanner.CaptureActivity;
 
 public class QRCodeScanner {
 
-    private Activity activity;
+    private final Activity activity;
 
     public QRCodeScanner(Activity activity) {
         this.activity = activity;
@@ -17,10 +17,11 @@ public class QRCodeScanner {
 
     public void startScan() {
         IntentIntegrator integrator = new IntentIntegrator(activity);
-        integrator.setCaptureActivity(CaptureActivity.class); // Use default CaptureActivity
+        integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
         integrator.setPrompt("Scan a QR Code");
-        integrator.setOrientationLocked(false); // Lock orientation to current mode
-        integrator.setBeepEnabled(true); // Enable beep sound
+        integrator.setCameraId(0);  // Right now using a specific camera of the device, Change later
+        integrator.setBeepEnabled(true);
+        integrator.setBarcodeImageEnabled(true);
         integrator.initiateScan();
     }
 
@@ -30,13 +31,9 @@ public class QRCodeScanner {
             if (result.getContents() == null) {
                 Toast.makeText(activity, "Cancelled", Toast.LENGTH_LONG).show();
             } else {
-                String qrData = result.getContents();
-                fetchEventDetails(qrData);
+                Toast.makeText(activity, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+                // Need to Handle the scanned qr content here
             }
         }
-    }
-
-    private void fetchEventDetails(String qrData) {
-        // Implement fetching event details from Firebase or other sources
     }
 }
