@@ -3,28 +3,17 @@ package com.example.intels_app;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.google.android.material.snackbar.Snackbar;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.MenuInflater;
 import android.view.View;
 
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
 //import com.example.intels_app.databinding.ActivityMainBinding;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 import android.widget.PopupMenu;
 
 
@@ -51,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         viewWaitListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, EventGridActivity.class);
+                Intent intent = new Intent(MainActivity.this, EventGridOrganizerActivity.class);
                 startActivity(intent);
             }
         });

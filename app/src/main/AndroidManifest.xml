@@ -33,7 +33,8 @@
             android:name=".ScanQRActivity">
 
         </activity>
-        <activity android:name=".EventGridActivity" />
+        <activity android:name=".EventGridOrganizerActivity" />
+        <activity android:name=".EventGridEntrantActivity" />
         <activity
             android:name=".NotificationActivity"
             android:exported="false"

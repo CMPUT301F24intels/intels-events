@@ -9,11 +9,11 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class CustomAdapter extends BaseAdapter {
+public class CustomAdapterOrganizer extends BaseAdapter {
     private Context context;
     private List<String> data;
 
-    public CustomAdapter(Context context, List<String> data) {
+    public CustomAdapterOrganizer(Context context, List<String> data) {
         this.context = context;
         this.data = data;
     }
@@ -32,7 +32,7 @@ public class CustomAdapter extends BaseAdapter {
 
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.grid_item, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.grid_item_organizer, parent, false);
         }
 
         TextView eventText = convertView.findViewById(R.id.event_text);
