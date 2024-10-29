@@ -42,6 +42,21 @@
         android:layout_marginEnd="25dp"
         android:layout_marginTop="8dp" />
 
+    <EditText
+        android:id="@+id/search_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="          Search"
+        android:background="@drawable/search_background"
+        android:padding="8dp"
+        android:textColorHint="@android:color/white"
+        app:layout_constraintTop_toBottomOf="@id/entrant_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"/>
+
     <GridView
         android:id="@+id/grid_view"
         android:layout_width="0dp"
@@ -50,9 +65,9 @@
         android:horizontalSpacing="8dp"
         android:verticalSpacing="8dp"
         android:scrollbars="none"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_bar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
