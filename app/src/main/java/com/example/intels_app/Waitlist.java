@@ -21,4 +21,3 @@ public class Waitlist {
         entrants.remove(entrant);
     }
 }
-
