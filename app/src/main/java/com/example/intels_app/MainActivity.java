@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         // Change it to qr code scanner button ion UI later
         //qrCodeScanner.startScan();
         ImageButton ViewWaitListButton = findViewById(R.id.imageButton7);
@@ -60,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+
+
     }
 
     // Method to display the popup menu
@@ -91,4 +95,5 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         qrCodeScanner.handleActivityResult(requestCode, resultCode, data);
     }
+
 }
