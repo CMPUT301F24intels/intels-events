@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         viewWaitListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, EventGridOrganizerActivity.class);
+                Intent intent = new Intent(MainActivity.this, EventGridEntrantActivity.class);
                 startActivity(intent);
             }
         });
