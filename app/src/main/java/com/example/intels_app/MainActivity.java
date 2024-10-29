@@ -30,6 +30,8 @@ import android.widget.PopupMenu;
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db;
+    private AppBarConfiguration appBarConfiguration;
+    //private ActivityMainBinding binding;
     private QRCodeScanner qrCodeScanner;
 
     @Override
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         setContentView(R.layout.main_page);
+        qrCodeScanner = new QRCodeScanner(this);
 
         ImageButton optionsButton = findViewById(R.id.imageButton8);
         optionsButton.setOnClickListener(new View.OnClickListener() {
@@ -47,8 +50,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        ImageButton viewWaitListButton = findViewById(R.id.imageButton7);
-        viewWaitListButton.setOnClickListener(new View.OnClickListener() {
+
+        // Change it to qr code scanner button ion UI later
+        //qrCodeScanner.startScan();
+        ImageButton ViewWaitListButton = findViewById(R.id.imageButton7);
+        ViewWaitListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, EventGridActivity.class);
