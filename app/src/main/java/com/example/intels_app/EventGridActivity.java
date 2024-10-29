@@ -28,6 +28,7 @@ public class EventGridActivity extends AppCompatActivity {
         eventData.add("Event 2");
         eventData.add("Event 3");
         eventData.add("Event 4");
+        eventData.add("Event 5");
 
 
         CustomAdapter adapter = new CustomAdapter(this, eventData);
