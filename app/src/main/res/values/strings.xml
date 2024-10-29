@@ -57,4 +57,5 @@
     <string name="add_event">Add Event</string>
     <string name="entrant">Entrant</string>
     <string name="organizer">Organizer</string>
+    <string name="title_activity_waitlistactivity">waitlistactivity</string>
 </resources>
