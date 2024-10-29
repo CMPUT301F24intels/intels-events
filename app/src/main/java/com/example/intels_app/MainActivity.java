@@ -10,8 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuInflater;
 import android.view.View;
 
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
@@ -30,8 +30,6 @@ import android.widget.PopupMenu;
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db;
-    private AppBarConfiguration appBarConfiguration;
-    //private ActivityMainBinding binding;
     private QRCodeScanner qrCodeScanner;
 
     @Override
@@ -40,7 +38,6 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         setContentView(R.layout.main_page);
-        qrCodeScanner = new QRCodeScanner(this);
 
         ImageButton optionsButton = findViewById(R.id.imageButton8);
         optionsButton.setOnClickListener(new View.OnClickListener() {
@@ -50,11 +47,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        // Change it to qr code scanner button ion UI later
-        //qrCodeScanner.startScan();
-        ImageButton ViewWaitListButton = findViewById(R.id.imageButton7);
-        ViewWaitListButton.setOnClickListener(new View.OnClickListener() {
+        ImageButton viewWaitListButton = findViewById(R.id.imageButton7);
+        viewWaitListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, EventGridActivity.class);
@@ -62,8 +56,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
+        // Set up the Join Events button to navigate to ScanQRActivity
+        ImageButton joinEventButton = findViewById(R.id.joinEventButton);
+        joinEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, ScanQRActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     // Method to display the popup menu
@@ -88,12 +89,13 @@ public class MainActivity extends AppCompatActivity {
 
         // Show the popup menu
         popupMenu.show();
-        }
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        qrCodeScanner.handleActivityResult(requestCode, resultCode, data);
+        if (qrCodeScanner != null) {
+            qrCodeScanner.handleActivityResult(requestCode, resultCode, data);
+        }
     }
-
 }
