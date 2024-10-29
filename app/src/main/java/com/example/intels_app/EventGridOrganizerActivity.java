@@ -47,7 +47,7 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
 
         // Set up initial button states
         entrant_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-        organizer_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
+        organizer_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
 
         // Set click listeners
         entrant_button.setOnClickListener(new View.OnClickListener() {
