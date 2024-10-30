@@ -13,4 +13,11 @@ public class AddEvent extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_event);
     }
+
+    EditText maxAttendees = findViewById(R.id.max_attendees_number);
+    EditText eventName = findViewById(R.id.eventNameEditText);
+    EditText facility = findViewById(R.id.facilityEditText);
+    EditText location = findViewById(R.id.locationEditText);
+    EditText dateTime = findViewById(R.id.dateTimeEditText);
+    EditText description = findViewById(R.id.descriptionEditText);
 }
