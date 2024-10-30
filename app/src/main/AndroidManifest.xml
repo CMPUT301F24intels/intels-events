@@ -14,6 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Intelsapp"
         tools:targetApi="31">
+      
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -31,6 +32,7 @@
         <activity android:name=".EventGridOrganizerActivity" />
         <activity android:name=".EventGridEntrantActivity" />
         <activity android:name=".ManageEventsActivity" />
+
         <activity
             android:name=".NotificationActivity"
             android:exported="false"
