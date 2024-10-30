@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.ui.AppBarConfiguration;
 
 import android.view.MenuInflater;
 import android.view.View;
@@ -16,9 +17,14 @@ import android.widget.ImageButton;
 
 import android.widget.PopupMenu;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db;
+    private AppBarConfiguration appBarConfiguration;
+    //private ActivityMainBinding binding;
     private QRCodeScanner qrCodeScanner;
 
     @Override
@@ -27,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         setContentView(R.layout.main_page);
+        qrCodeScanner = new QRCodeScanner(this);
 
         ImageButton optionsButton = findViewById(R.id.imageButton8);
         optionsButton.setOnClickListener(new View.OnClickListener() {
@@ -36,8 +43,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        ImageButton viewWaitListButton = findViewById(R.id.imageButton7);
-        viewWaitListButton.setOnClickListener(new View.OnClickListener() {
+
+        // Change it to qr code scanner button ion UI later
+        //qrCodeScanner.startScan();
+        ImageButton ViewWaitListButton = findViewById(R.id.imageButton7);
+        ViewWaitListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, EventGridEntrantActivity.class);
@@ -54,6 +64,16 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        ImageButton manageEventsButton = findViewById(R.id.manageEventsButton);
+        manageEventsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, ManageEventsActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
     // Method to display the popup menu

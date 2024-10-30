@@ -10,6 +10,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.SwitchCompat;
+
 import java.util.List;
 
 public class CustomAdapterEntrant extends BaseAdapter {
@@ -44,7 +46,7 @@ public class CustomAdapterEntrant extends BaseAdapter {
 
         TextView eventText = convertView.findViewById(R.id.event_text);
         ImageButton deleteButton = convertView.findViewById(R.id.delete_button);
-        Switch reconsiderSwitch = convertView.findViewById(R.id.reconsider_switch);
+        SwitchCompat reconsiderSwitch = convertView.findViewById(R.id.reconsider_switch);
 
         eventText.setText(data.get(position));
 
