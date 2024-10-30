@@ -117,6 +117,7 @@
         android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="15sp"
+        android:inputType="number"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.208"
         app:layout_constraintStart_toEndOf="@+id/pfpPlaceholder"

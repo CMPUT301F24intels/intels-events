@@ -12,9 +12,9 @@ import java.util.List;
 
 public class CustomAdapterManageEvents extends BaseAdapter {
     private Context context;
-    private ArrayList<String> data;
+    private ArrayList<Event> data;
 
-    public CustomAdapterManageEvents(Context context, ArrayList<String> data) {
+    public CustomAdapterManageEvents(Context context, ArrayList<Event> data) {
         this.context = context;
         this.data = data;
     }
@@ -38,7 +38,7 @@ public class CustomAdapterManageEvents extends BaseAdapter {
         }
 
         TextView eventText = convertView.findViewById(R.id.event_text);
-        eventText.setText(data.get(position)); // Populate each item’s text
+        eventText.setText(data.get(position).getEventName()); // Populate each item’s text
 
         return convertView;
     }

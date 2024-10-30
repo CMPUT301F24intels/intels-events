@@ -3,6 +3,7 @@ package com.example.intels_app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -23,16 +24,27 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
 
         // Initialize the GridView and set the adapter
         GridView gridView = findViewById(R.id.grid_view);
-        List<String> eventData = new ArrayList<>();
-        eventData.add("Event 1");
-        eventData.add("Event 2");
-        eventData.add("Event 3");
-        eventData.add("Event 4");
-        eventData.add("Event 5");
+        List<Event> eventData = new ArrayList<>();
+        eventData.add(new Event("1", "Event 1"));
+        eventData.add(new Event("2", "Event 2"));
+        eventData.add(new Event("3", "Event 3"));
+        eventData.add(new Event("4", "Event 4"));
+        eventData.add(new Event("5", "Event 5"));
 
 
         CustomAdapterOrganizer adapter = new CustomAdapterOrganizer(this, eventData);
         gridView.setAdapter(adapter);
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Event selectedEvent = (Event) parent.getItemAtPosition(position);
+
+                Intent intent = new Intent(EventGridOrganizerActivity.this, EntrantInWaitlist.class);
+                intent.putExtra("eventId", selectedEvent.getId()); // Use appropriate method to get ID
+                startActivity(intent);
+            }
+        });
 
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
