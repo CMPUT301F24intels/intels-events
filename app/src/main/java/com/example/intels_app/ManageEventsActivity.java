@@ -1,6 +1,7 @@
 package com.example.intels_app;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.GridView;
@@ -36,6 +37,15 @@ public class ManageEventsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ManageEventsActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        ImageButton addButton = findViewById(R.id.addButton);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ManageEventsActivity.this, AddEvent.class);
                 startActivity(intent);
             }
         });

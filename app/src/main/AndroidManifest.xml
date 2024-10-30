@@ -31,6 +31,7 @@
         <activity android:name=".EventGridOrganizerActivity" />
         <activity android:name=".EventGridEntrantActivity" />
         <activity android:name=".ManageEventsActivity" />
+        <activity android:name=".AddEvent" />
         <activity
             android:name=".NotificationActivity"
             android:exported="false"
