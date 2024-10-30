@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntrantInWaitlist extends AppCompatActivity {
+public class EntrantInCancelledWaitlist extends AppCompatActivity {
     private Button waitlist_button, cancelled_button;
     private ListView listView;
     private List<Profile> profileList;
@@ -20,13 +20,14 @@ public class EntrantInWaitlist extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.waitlist_with_entrants);
+        setContentView(R.layout.waitlist_with_cancelled_entrants);
 
         listView = findViewById(R.id.profile_list);
 
         profileList = new ArrayList<>();
-        profileList.add(new Profile("Gopi Modi", R.drawable.gopimodi));
-        profileList.add(new Profile("Mr.Bean", R.drawable.bean));
+        profileList.add(new Profile("Spongebob", R.drawable.spongebob));
+        profileList.add(new Profile("Patrick", R.drawable.patrick));
+        profileList.add(new Profile("Squidward", R.drawable.squidward));
 
         ProfileAdapter adapter = new ProfileAdapter(this, profileList);
         listView.setAdapter(adapter);
@@ -42,8 +43,8 @@ public class EntrantInWaitlist extends AppCompatActivity {
         waitlist_button = findViewById(R.id.btn_waitlist);
         cancelled_button = findViewById(R.id.btn_cancelled);
 
-        cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-        waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
+        cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
+        waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
 
         waitlist_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,7 +52,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
                 cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
                 waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
 
-                Intent intent = new Intent(EntrantInWaitlist.this, EntrantInWaitlist.class);
+                Intent intent = new Intent(EntrantInCancelledWaitlist.this, EntrantInWaitlist.class);
                 startActivity(intent);
             }
         });
@@ -62,7 +63,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
                 cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
                 waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
 
-                Intent intent = new Intent(EntrantInWaitlist.this, EntrantInCancelledWaitlist.class);
+                Intent intent = new Intent(EntrantInCancelledWaitlist.this, EntrantInCancelledWaitlist.class);
                 startActivity(intent);
             }
         });

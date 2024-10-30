@@ -4,7 +4,8 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="8dp"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:background="@drawable/rounded_corner_rectangle_light_black">
 
     <ImageView
         android:id="@+id/profile_image"
@@ -16,6 +17,8 @@
         android:id="@+id/profile_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:text="Profile Name"
+        android:textStyle="bold"
         android:layout_weight="1"
         android:paddingStart="8dp"
         android:textColor="@android:color/white"
@@ -28,4 +31,5 @@
         android:src="@drawable/delete_button"
         android:background="@null"
         android:contentDescription="Delete Profile" />
+
 </LinearLayout>
