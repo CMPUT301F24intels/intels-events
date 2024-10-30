@@ -7,20 +7,25 @@
     android:background="#16181F"
     tools:context=".ManageEventsActivity">
 
+    <!-- Back Button -->
+
     <GridView
         android:id="@+id/gridViewEvents"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:numColumns="2"
+        android:layout_width="387dp"
+        android:layout_height="703dp"
         android:horizontalSpacing="8dp"
-        android:verticalSpacing="8dp"
+        android:numColumns="2"
         android:scrollbars="none"
-        app:layout_constraintTop_toTopOf="parent"
+        android:verticalSpacing="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.484"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.496" />
 
-    <!-- Back Button -->
     <ImageButton
         android:id="@+id/backButton"
         android:layout_width="45dp"

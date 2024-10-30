@@ -1,7 +1,10 @@
 package com.example.intels_app;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,15 +21,23 @@ public class ManageEventsActivity extends AppCompatActivity {
 
         // Initialize the GridView and set the adapter
         GridView grid = findViewById(R.id.gridViewEvents);
-        List<String> eventData = new ArrayList<>();
+        ArrayList<String> eventData = new ArrayList<>();
         eventData.add("Event 1");
         eventData.add("Event 2");
         eventData.add("Event 3");
         eventData.add("Event 4");
         eventData.add("Event 5");
 
+        CustomAdapterManageEvents eventsAdapter = new CustomAdapterManageEvents(this, eventData);
+        grid.setAdapter(eventsAdapter);
 
-        CustomAdapter adapter = new CustomAdapter(this, eventData);
-        grid.setAdapter(adapter);
+        ImageButton backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ManageEventsActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 }

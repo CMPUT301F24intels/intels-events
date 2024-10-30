@@ -60,6 +60,15 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        ImageButton manageEventsButton = findViewById(R.id.manageEventsButton);
+        manageEventsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, ManageEventsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     // Method to display the popup menu
