@@ -7,8 +7,7 @@ public class Event {
     private String eventName;
     private String facilityName;
     private String location;
-    private String date;
-    private String time;
+    private String dateTime;
     private String description;
     private int maxAttendees;
     private boolean geolocationRequirement;
@@ -17,19 +16,18 @@ public class Event {
     private ImageView qrCode;
 
     // Constructor
-    public Event(String eventName, String facilityName, String location, String date, String time, String description,
-                 int maxAttendees, boolean geolocationRequirement, boolean notifPreference, ImageView poster, ImageView qrCode) {
+    public Event(String eventName, String facilityName, String location, String dateTime, String description,
+                 int maxAttendees, boolean geolocationRequirement, boolean notifPreference) {
         this.eventName = eventName;
         this.facilityName = facilityName;
         this.location = location;
-        this.date = date;
-        this.time = time;
+        this.dateTime = dateTime;
         this.description = description;
         this.maxAttendees = maxAttendees;
         this.geolocationRequirement = geolocationRequirement;
         this.notifPreference = notifPreference;
-        this.poster = poster;
-        this.qrCode = qrCode;
+        //this.poster = poster;
+        //this.qrCode = qrCode;
     }
 
     // Getters and setters
@@ -62,20 +60,12 @@ public class Event {
         this.location = location;
     }
 
-    public String getDate() {
-        return date;
+    public String getDateTime() {
+        return dateTime;
     }
 
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
+    public void setDateTime(String dateTime) {
+        this.dateTime = dateTime;
     }
 
     public String getDescription() {
@@ -124,6 +114,11 @@ public class Event {
 
     public void setQrCode(ImageView qrCode) {
         this.qrCode = qrCode;
+    }
+
+    public void addEvent() {
+        // Add event to database
+        // https://firebase.google.com/docs/firestore/manage-data/add-data
     }
 
     // Add poster
