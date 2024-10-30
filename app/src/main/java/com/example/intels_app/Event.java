@@ -1,6 +1,7 @@
 package com.example.intels_app;
 
 public class Event {
+    private String id;
     private String eventName;
     private String facilityName;
     private String location;
@@ -14,4 +15,16 @@ public class Event {
     // Add pfp
     // https://developer.android.com/training/data-storage/shared
 
+    public Event(String id, String name) {
+        this.id = id;
+        this.eventName = name;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getEventName() {
+        return eventName;
+    }
 }

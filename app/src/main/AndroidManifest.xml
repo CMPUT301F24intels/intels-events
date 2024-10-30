@@ -35,6 +35,7 @@
         </activity>
         <activity android:name=".EventGridOrganizerActivity" />
         <activity android:name=".EventGridEntrantActivity" />
+        <activity android:name=".EntrantInWaitlist" />
         <activity
             android:name=".NotificationActivity"
             android:exported="false"
