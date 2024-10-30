@@ -33,6 +33,11 @@ public class Event {
     }
 
     // Getters and setters
+
+    public String getId() {
+        return id;
+    }
+
     public String getEventName() {
         return eventName;
     }
@@ -129,11 +134,4 @@ public class Event {
         this.eventName = name;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getEventName() {
-        return eventName;
-    }
 }
