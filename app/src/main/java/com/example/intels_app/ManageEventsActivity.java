@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,12 +23,11 @@ public class ManageEventsActivity extends AppCompatActivity {
 
         // Initialize the GridView and set the adapter
         GridView grid = findViewById(R.id.gridViewEvents);
-        ArrayList<String> eventData = new ArrayList<>();
-        eventData.add("Event 1");
-        eventData.add("Event 2");
-        eventData.add("Event 3");
-        eventData.add("Event 4");
-        eventData.add("Event 5");
+        ArrayList<Event> eventData = new ArrayList<>();
+
+        Event event = new Event("Event 1", "Facility 1", "Location 1", "DateTime 1", "Description 1", 10, true, true);
+
+        eventData.add(event);
 
         CustomAdapterManageEvents eventsAdapter = new CustomAdapterManageEvents(this, eventData);
         grid.setAdapter(eventsAdapter);
