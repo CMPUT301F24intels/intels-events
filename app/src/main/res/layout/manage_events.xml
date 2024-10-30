@@ -7,6 +7,19 @@
     android:background="#16181F"
     tools:context=".ManageEventsActivity">
 
+    <GridView
+        android:id="@+id/gridViewEvents"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:numColumns="2"
+        android:horizontalSpacing="8dp"
+        android:verticalSpacing="8dp"
+        android:scrollbars="none"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
     <!-- Back Button -->
     <ImageButton
         android:id="@+id/backButton"
@@ -36,7 +49,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Event Boxes with Margins for Spacing -->
+    <!-- Event Boxes with Margins for Spacing
     <GridLayout
         android:id="@+id/gridLayout"
         android:layout_width="0dp"
@@ -49,9 +62,9 @@
         app:layout_constraintBottom_toTopOf="@+id/buttonLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title">
+        app:layout_constraintTop_toBottomOf="@+id/title"
 
-        <!-- Event Box 1 with spacing -->
+        Event Box 1 with spacing
         <TextView
             android:id="@+id/textView2"
             android:layout_width="0dp"
@@ -64,7 +77,7 @@
             android:text="Sample event #1"
             android:textColor="#FFFFFF" />
 
-        <!-- Event Box 2 with spacing -->
+         Event Box 2 with spacing
         <TextView
             android:id="@+id/textView3"
             android:layout_width="0dp"
@@ -77,7 +90,7 @@
             android:text="Sample event #2"
             android:textColor="#FFFFFF" />
 
-        <!-- Event Box 3 with spacing -->
+        Event Box 3 with spacing
         <TextView
             android:id="@+id/textView4"
             android:layout_width="0dp"
@@ -90,7 +103,7 @@
             android:text="Sample event #3"
             android:textColor="#FFFFFF" />
 
-        <!-- Event Box 4 with spacing -->
+        Event Box 4 with spacing
         <TextView
             android:id="@+id/textView5"
             android:layout_width="0dp"
@@ -103,7 +116,7 @@
             android:text="Sample event #4"
             android:textColor="#FFFFFF" />
 
-        <!-- Event Box 5 with spacing -->
+        Event Box 5 with spacing
         <TextView
             android:id="@+id/textView6"
             android:layout_width="0dp"
@@ -116,7 +129,7 @@
             android:text="Sample event #5"
             android:textColor="#FFFFFF" />
 
-        <!-- Event Box 6 with spacing -->
+        Event Box 6 with spacing
         <TextView
             android:id="@+id/textView7"
             android:layout_width="0dp"
@@ -128,7 +141,7 @@
             android:gravity="center"
             android:text="Sample event #6"
             android:textColor="#FFFFFF" />
-    </GridLayout>
+    </GridLayout> -->
     <LinearLayout
         android:id="@+id/buttonLayout"
         android:layout_width="wrap_content"
