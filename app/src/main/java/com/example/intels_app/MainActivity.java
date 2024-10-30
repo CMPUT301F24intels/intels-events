@@ -17,6 +17,9 @@ import android.widget.ImageButton;
 
 import android.widget.PopupMenu;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db;
@@ -70,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
     }
 
     // Method to display the popup menu
