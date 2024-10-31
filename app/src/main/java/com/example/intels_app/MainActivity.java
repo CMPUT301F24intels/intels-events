@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         // Change it to qr code scanner button ion UI later
         //qrCodeScanner.startScan();
         ImageButton ViewWaitListButton = findViewById(R.id.imageButton7);
@@ -65,6 +64,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        ImageButton manageApp = findViewById(R.id.manageAppButton);
+        manageApp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, AdminLogin.class);
+                startActivity(intent);
+            }
+        });
+
         ImageButton manageEventsButton = findViewById(R.id.manageEventsButton);
         manageEventsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
     // Method to display the popup menu
     private void showPopupMenu(View view) {
         PopupMenu popupMenu = new PopupMenu(this, view);
@@ -102,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
         // Show the popup menu
         popupMenu.show();
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
