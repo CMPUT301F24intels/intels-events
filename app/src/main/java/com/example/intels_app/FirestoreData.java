@@ -2,11 +2,46 @@ package com.example.intels_app;
 
 import android.graphics.Bitmap;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import java.io.ByteArrayOutputStream;
+import java.util.Collection;
 
-public class EventRepository {
+public class FirestoreData {
+
+    public static FirebaseFirestore getDB() {
+        return FirebaseFirestore.getInstance();
+    }
+
+    public static CollectionReference getEventReference() {
+        return FirebaseFirestore.getInstance().collection("events");
+    }
+
+    public static CollectionReference getProfileReference()  {
+        return FirebaseFirestore.getInstance().collection("profiles");
+    }
+
+    public static CollectionReference getEntrantEventsReference(String profile) {
+        return FirebaseFirestore.getInstance().collection("profiles").document(profile).collection("events");
+    }
+
+    public static void deleteEventReference(String documentId, CollectionReference collectionReference) {
+        FirestoreData.getEventReference().document(documentId).delete();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
     private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     private FirebaseStorage storage = FirebaseStorage.getInstance();
 
@@ -52,5 +87,5 @@ public class EventRepository {
 
     private interface OnImageUploadListener {
         void onSuccess(String imageUrl);
-    }
+    } */
 }
