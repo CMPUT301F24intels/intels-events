@@ -1,8 +1,10 @@
 package com.example.intels_app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +29,12 @@ public class AddEvent extends AppCompatActivity {
         Button addEvent = findViewById(R.id.add_event_button);
         addEvent.setOnClickListener(view -> {
             //addEvent();
+        });
+
+        ImageButton backButton = findViewById(R.id.back_button);
+        backButton.setOnClickListener(view -> {
+            Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
+            startActivity(intent);
         });
 
 
