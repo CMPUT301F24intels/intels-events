@@ -41,7 +41,7 @@ public class CustomAdapterFinalList extends BaseAdapter{
             public void onClick(View view) {
                 data.remove(position);
                 notifyDataSetChanged();
-                Toast.makeText(context, "Entrant Delelted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Entrant Deleted", Toast.LENGTH_SHORT).show();
             }
         });
         return convertView;
