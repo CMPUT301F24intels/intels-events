@@ -12,8 +12,8 @@ public class Event {
     private int maxAttendees;
     private boolean geolocationRequirement;
     private boolean notifPreference;
-    private ImageView poster;
-    private ImageView qrCode;
+    private String posterUrl;
+    private String qrCodeUrl;
 
     // Constructor
     public Event(String eventName, String facilityName, String location, String dateTime, String description,
@@ -100,20 +100,21 @@ public class Event {
         this.notifPreference = notifPreference;
     }
 
-    public ImageView getPoster() {
-        return poster;
+    public String getPosterUrl() {
+        return posterUrl;
     }
 
-    public void setPoster(ImageView poster) {
-        this.poster = poster;
+    public void setPosterUrl(String posterUrl) {
+        this.posterUrl = posterUrl;
     }
 
-    public ImageView getQrCode() {
-        return qrCode;
+    // Getter and Setter for qrCodeUrl
+    public String getQrCodeUrl() {
+        return qrCodeUrl;
     }
 
-    public void setQrCode(ImageView qrCode) {
-        this.qrCode = qrCode;
+    public void setQrCodeUrl(String qrCodeUrl) {
+        this.qrCodeUrl = qrCodeUrl;
     }
 
     public void addEvent() {
