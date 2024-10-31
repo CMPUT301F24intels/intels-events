@@ -3,8 +3,6 @@ package com.example.intels_app;
 import android.graphics.Bitmap;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import java.io.ByteArrayOutputStream;
 import java.util.Collection;
 
@@ -28,6 +26,10 @@ public class FirestoreData {
 
     public static void deleteEventReference(String documentId, CollectionReference collectionReference) {
         FirestoreData.getEventReference().document(documentId).delete();
+    }
+
+    public static void addEvent(Event event) {
+        FirestoreData.getEventReference().add(event);
     }
 
 
