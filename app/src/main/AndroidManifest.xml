@@ -33,7 +33,7 @@
         <activity android:name=".EventGridEntrantActivity" />
         <activity android:name=".ManageEventsActivity" />
         <activity android:name=".AddEvent" />
-
+        <activity android:name=".AdminLogin"/>
         <activity android:name=".EntrantInWaitlist" />
         <activity android:name=".EntrantInCancelledWaitlist" />
 
@@ -41,7 +41,8 @@
             android:name=".NotificationActivity"
             android:exported="false"
             android:theme="@style/Theme.Intelsapp" />
-
+        <activity
+            android:name=".EditProfileActivity"/>
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

@@ -30,7 +30,6 @@ public class EventGridEntrantActivity extends AppCompatActivity {
         eventData.add("Event 4");
         eventData.add("Event 5");
 
-
         CustomAdapterEntrant adapter = new CustomAdapterEntrant(this, eventData);
         gridView.setAdapter(adapter);
 
