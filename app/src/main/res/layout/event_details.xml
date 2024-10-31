@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#16181F">
+
+    <ImageButton
+        android:id="@+id/back_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/back_button" />
+
+    <TextView
+        android:id="@+id/eventDetailsTextview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="136dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="@string/event_details_title"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.96"
+        app:layout_constraintStart_toEndOf="@+id/back_button"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/qrCodeImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        app:layout_constraintEnd_toStartOf="@+id/posterImageView"
+        app:layout_constraintHorizontal_bias="0.575"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/eventDetailsTextview"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <ImageView
+        android:id="@+id/posterImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="56dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/eventDetailsTextview"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/eventNameEditText"
+        android:layout_width="349dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/rounded_corner_rectangle_light_black"
+        android:fontFamily="@font/poppins_semibold"
+        android:hint="@string/event_name"
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="#848A94"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/qrCodeImageView" />
+
+    <TextView
+        android:id="@+id/facilityEditText"
+        android:layout_width="349dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/rounded_corner_rectangle_light_black"
+        android:fontFamily="@font/poppins_semibold"
+        android:hint="@string/facility"
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="#848A94"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/eventNameEditText" />
+
+    <TextView
+        android:id="@+id/locationEditText"
+        android:layout_width="349dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/rounded_corner_rectangle_light_black"
+        android:fontFamily="@font/poppins_semibold"
+        android:hint="@string/location"
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="#848A94"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/facilityEditText" />
+
+    <TextView
+        android:id="@+id/dateTimeEditText"
+        android:layout_width="349dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/rounded_corner_rectangle_light_black"
+        android:fontFamily="@font/poppins_semibold"
+        android:hint="@string/date_time"
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="#848A94"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/locationEditText" />
+
+    <TextView
+        android:id="@+id/descriptionEditText"
+        android:layout_width="349dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/rounded_corner_rectangle_light_black"
+        android:fontFamily="@font/poppins_semibold"
+        android:hint="@string/description"
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="#848A94"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dateTimeEditText" />
+
+    <TextView
+        android:id="@+id/max_attendees_textview"
+        android:layout_width="349dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="7dp"
+        android:background="@drawable/rounded_corner_rectangle_light_black"
+        android:fontFamily="@font/poppins_semibold"
+        android:hint="Max Attendees"
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="#848A94"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/descriptionEditText" />
+
+    <TextView
+        android:id="@+id/geolocationRequirementTextView"
+        android:layout_width="349dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="7dp"
+        android:background="@drawable/rounded_corner_rectangle_light_black"
+        android:fontFamily="@font/poppins_semibold"
+        android:hint="Geolocation Requirement"
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="#848A94"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/max_attendees_textview" />
+
+    <TextView
+        android:id="@+id/notificationPreferenceTextView"
+        android:layout_width="349dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="7dp"
+        android:background="@drawable/rounded_corner_rectangle_light_black"
+        android:fontFamily="@font/poppins_semibold"
+        android:hint="Notification Preference"
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="#848A94"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/geolocationRequirementTextView" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
