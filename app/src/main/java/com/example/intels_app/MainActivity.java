@@ -91,11 +91,14 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = new Intent(MainActivity.this, NotificationActivity.class);
                     startActivity(intent);
                     return true;
+                } else if (item.getItemId() == R.id.action_settings) {
+                    Intent intent = new Intent(MainActivity.this, EditProfileActivity.class);
+                    startActivity(intent);
+                    return true;
                 }
                 return false;
             }
         });
-
         // Show the popup menu
         popupMenu.show();
     }
