@@ -21,15 +21,6 @@ public class CreateQR extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.qr_code_display);
 
-        Button eventDetailsButton = findViewById(R.id.eventDetailsButton);
-        eventDetailsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(CreateQR.this, EventDetails.class);
-                startActivity(intent);
-            }
-        });
-
         ImageView qrCodeImageView = findViewById(R.id.qrCodeImageView);
 
         // Data to encode in the QR code
@@ -44,5 +35,14 @@ public class CreateQR extends AppCompatActivity {
         } catch (WriterException e) {
             e.printStackTrace();
         }
+
+        Button eventDetailsButton = findViewById(R.id.eventDetailsButton);
+        eventDetailsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(CreateQR.this, EventDetails.class);
+                startActivity(intent);
+            }
+        });
     }
 }
