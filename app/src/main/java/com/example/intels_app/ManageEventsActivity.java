@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -22,15 +23,26 @@ public class ManageEventsActivity extends AppCompatActivity {
         setContentView(R.layout.manage_events);
 
         // Initialize the GridView and set the adapter
-        GridView grid = findViewById(R.id.gridViewEvents);
+        GridView gridview = findViewById(R.id.gridViewEvents);
         ArrayList<Event> eventData = new ArrayList<>();
 
         Event event = new Event("Event 1", "Facility 1", "Location 1", "DateTime 1", "Description 1", 10, true, true);
 
         eventData.add(event);
 
-        CustomAdapterManageEvents eventsAdapter = new CustomAdapterManageEvents(this, eventData);
-        grid.setAdapter(eventsAdapter);
+        CustomAdapterManageEvents adapter = new CustomAdapterManageEvents(this, eventData);
+        gridview.setAdapter(adapter);
+
+        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Event selectedEvent = (Event) parent.getItemAtPosition(position);
+
+                Intent intent = new Intent(ManageEventsActivity.this, EventDetails.class);
+                intent.putExtra("eventId", selectedEvent.getId()); // Use appropriate method to get ID
+                startActivity(intent);
+            }
+        });
 
         ImageButton backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -47,6 +59,15 @@ public class ManageEventsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(ManageEventsActivity.this, AddEvent.class);
                 startActivity(intent);
+            }
+        });
+
+        ImageButton deleteButton = findViewById(R.id.deleteButton);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Remove event from Firestore
+                // Notify the user that the event has been deleted
             }
         });
     }

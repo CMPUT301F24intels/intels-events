@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -33,6 +34,8 @@
         <activity android:name=".EventGridEntrantActivity" />
         <activity android:name=".ManageEventsActivity" />
         <activity android:name=".AddEvent" />
+        <activity android:name=".CreateQR" />
+        <activity android:name=".EventDetails" />
         <activity android:name=".AdminLogin"/>
         <activity android:name=".EntrantInWaitlist" />
         <activity android:name=".EntrantInCancelledWaitlist" />

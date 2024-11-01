@@ -10,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.View;
 
 //import com.example.intels_app.databinding.ActivityMainBinding;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import android.view.MenuItem;
@@ -30,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        db = FirebaseFirestore.getInstance();
+        FirebaseApp.initializeApp(this);
+        //db = FirebaseFirestore.getInstance();
 
         setContentView(R.layout.main_page);
         qrCodeScanner = new QRCodeScanner(this);
