@@ -17,6 +17,56 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/back_button" />
 
+    <!-- Navigation Button -->
+
+    <ImageButton
+        android:id="@+id/drawButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="116dp"
+        android:background="@drawable/circular_button"
+        android:backgroundTint="#FF8C00"
+        android:contentDescription="Draw"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/notificationPreferenceTextView"
+        app:layout_constraintVertical_bias="0.529"
+        app:srcCompat="@drawable/draw_text" />
+
+    <ImageButton
+        android:id="@+id/navigationButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="108dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/circular_button"
+        android:backgroundTint="#FFD700"
+        android:contentDescription="Navigation"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/notificationPreferenceTextView"
+        app:layout_constraintVertical_bias="0.529"
+        app:srcCompat="@drawable/map_pin" />
+
+    <ImageButton
+        android:id="@+id/editButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/circular_button"
+        android:backgroundTint="#32CD32"
+        android:contentDescription="Edit"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/drawButton"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/navigationButton"
+        app:layout_constraintTop_toBottomOf="@+id/notificationPreferenceTextView"
+        app:layout_constraintVertical_bias="0.529"
+        app:srcCompat="@drawable/edit_icon" />
+
     <TextView
         android:id="@+id/eventDetailsTextview"
         android:layout_width="wrap_content"
@@ -37,7 +87,7 @@
         android:id="@+id/qrCodeImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="24dp"
         app:layout_constraintEnd_toStartOf="@+id/posterImageView"
         app:layout_constraintHorizontal_bias="0.575"
         app:layout_constraintStart_toStartOf="parent"
@@ -48,8 +98,8 @@
         android:id="@+id/posterImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="56dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="60dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/eventDetailsTextview"
         tools:srcCompat="@tools:sample/avatars" />
@@ -58,7 +108,7 @@
         android:id="@+id/eventNameEditText"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="32dp"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="@string/event_name"
