@@ -2,7 +2,9 @@ package com.example.intels_app;
 
 import android.widget.ImageView;
 
-public class Event {
+import java.io.Serializable;
+
+public class Event implements Serializable {
     private String id;
     private String eventName;
     private String facilityName;

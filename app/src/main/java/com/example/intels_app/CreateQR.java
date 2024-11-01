@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
@@ -40,9 +41,20 @@ public class CreateQR extends AppCompatActivity {
         eventDetailsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Bundle bundle = new Bundle();
+                bundle.putString("event_id", "event_id_value");
+
                 Intent intent = new Intent(CreateQR.this, EventDetails.class);
+                intent.putExtras(bundle);
                 startActivity(intent);
             }
         });
+
+        ImageButton backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(view -> {
+            Intent intent = new Intent(CreateQR.this, ManageEventsActivity.class);
+            startActivity(intent);
+        });
+
     }
 }

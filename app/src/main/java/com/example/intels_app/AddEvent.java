@@ -56,17 +56,6 @@ public class AddEvent extends AppCompatActivity {
         imageView = findViewById(R.id.camera_image);
         addPosterButton = findViewById(R.id.edit_poster_button);
 
-        /*
-        addPosterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType("image/*");
-                activityResultLauncher.launch(intent);
-                uploadImage(image);
-            }
-        });*/
-
         // Go back to Manage Events if back button clicked
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(view -> {
@@ -80,7 +69,6 @@ public class AddEvent extends AppCompatActivity {
 
             openGallery(); // Get image from gallery and show it on the UI
 
-            /*
             ImageView imageView = findViewById(R.id.camera_image);
 
             // Get the data from an ImageView as bytes
@@ -90,7 +78,7 @@ public class AddEvent extends AppCompatActivity {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] data = baos.toByteArray();
-            */
+
         });
 
         // Create a new event with entered details if Add Event button clicked
@@ -138,7 +126,7 @@ public class AddEvent extends AppCompatActivity {
             //uploadImage(image);
 
             // Return to Manage Events activity
-            Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
+            Intent intent = new Intent(AddEvent.this, CreateQR.class);
             startActivity(intent);
         });
     }
