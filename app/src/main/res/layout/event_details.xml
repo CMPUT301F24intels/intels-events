@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#16181F">
 
     <ImageButton
@@ -17,117 +17,98 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/back_button" />
 
+    <!-- Navigation Button -->
+
+    <ImageButton
+        android:id="@+id/drawButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="116dp"
+        android:background="@drawable/circular_button"
+        android:backgroundTint="#FF8C00"
+        android:contentDescription="Draw"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/notificationPreferenceTextView"
+        app:layout_constraintVertical_bias="0.529"
+        app:srcCompat="@drawable/draw_text" />
+
+    <ImageButton
+        android:id="@+id/navigationButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="108dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/circular_button"
+        android:backgroundTint="#FFD700"
+        android:contentDescription="Navigation"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/notificationPreferenceTextView"
+        app:layout_constraintVertical_bias="0.529"
+        app:srcCompat="@drawable/map_pin" />
+
+    <ImageButton
+        android:id="@+id/editButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/circular_button"
+        android:backgroundTint="#32CD32"
+        android:contentDescription="Edit"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/drawButton"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/navigationButton"
+        app:layout_constraintTop_toBottomOf="@+id/notificationPreferenceTextView"
+        app:layout_constraintVertical_bias="0.529"
+        app:srcCompat="@drawable/edit_icon" />
+
     <TextView
         android:id="@+id/eventDetailsTextview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="136dp"
         android:fontFamily="@font/poppins_semibold"
         android:text="@string/event_details_title"
         android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.96"
         app:layout_constraintStart_toEndOf="@+id/back_button"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.045" />
-
-    <ImageView
-        android:id="@+id/pfpPlaceholder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="38dp"
-        android:layout_marginBottom="472dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/back_button"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/pfp_placeholder_image" />
-
-    <ImageView
-        android:id="@+id/camera_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/pfpPlaceholder"
-        app:layout_constraintEnd_toEndOf="@+id/pfpPlaceholder"
-        app:layout_constraintHorizontal_bias="0.516"
-        app:layout_constraintStart_toStartOf="@+id/pfpPlaceholder"
-        app:layout_constraintTop_toTopOf="@+id/pfpPlaceholder"
-        app:layout_constraintVertical_bias="0.487"
-        app:srcCompat="@drawable/camera_image" />
-
-    <Button
-        android:id="@+id/edit_poster_button"
-        android:layout_width="148dp"
-        android:layout_height="45dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="116dp"
-        android:backgroundTint="#3580FF"
-        android:fontFamily="@font/poppins_semibold"
-        android:text="@string/edit_image"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.283"
-        app:layout_constraintStart_toEndOf="@+id/pfpPlaceholder"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/add_event_button"
-        android:layout_width="347dp"
-        android:layout_height="51dp"
-        android:layout_marginTop="10dp"
-        android:backgroundTint="#17AF42"
-        android:fontFamily="@font/poppins_semibold"
-        android:text="@string/add_event"
-        android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+    <ImageView
+        android:id="@+id/qrCodeImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toStartOf="@+id/posterImageView"
+        app:layout_constraintHorizontal_bias="0.575"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/notifPreferenceTextView"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/eventDetailsTextview"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <ImageView
+        android:id="@+id/posterImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="60dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/eventDetailsTextview"
+        tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
-        android:id="@+id/max_attendees_textview"
-        android:layout_width="148dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="35dp"
-        android:layout_marginTop="36dp"
-        android:fontFamily="@font/poppins_semibold"
-        android:text="Max Attendees:"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        android:background="#0A0C16"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.208"
-        app:layout_constraintStart_toEndOf="@+id/pfpPlaceholder"
-        app:layout_constraintTop_toBottomOf="@+id/edit_poster_button" />
-
-    <EditText
-        android:id="@+id/max_attendees_number"
-        android:layout_width="148dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="35dp"
-        android:background="#0A0C16"
-        android:fontFamily="@font/poppins_semibold"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        android:inputType="number"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.208"
-        app:layout_constraintStart_toEndOf="@+id/pfpPlaceholder"
-        app:layout_constraintTop_toBottomOf="@+id/max_attendees_textview" />
-
-    <EditText
         android:id="@+id/eventNameEditText"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="32dp"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="@string/event_name"
@@ -137,9 +118,9 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pfpPlaceholder" />
+        app:layout_constraintTop_toBottomOf="@+id/qrCodeImageView" />
 
-    <EditText
+    <TextView
         android:id="@+id/facilityEditText"
         android:layout_width="349dp"
         android:layout_height="45dp"
@@ -155,7 +136,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/eventNameEditText" />
 
-    <EditText
+    <TextView
         android:id="@+id/locationEditText"
         android:layout_width="349dp"
         android:layout_height="45dp"
@@ -171,7 +152,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/facilityEditText" />
 
-    <EditText
+    <TextView
         android:id="@+id/dateTimeEditText"
         android:layout_width="349dp"
         android:layout_height="45dp"
@@ -187,7 +168,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/locationEditText" />
 
-    <EditText
+    <TextView
         android:id="@+id/descriptionEditText"
         android:layout_width="349dp"
         android:layout_height="45dp"
@@ -203,40 +184,50 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dateTimeEditText" />
 
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/geolocationRequirementTextView"
+    <TextView
+        android:id="@+id/max_attendees_textview"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="12dp"
-        android:background="@drawable/rounded_corner_rectangle_light_gray"
+        android:layout_marginTop="7dp"
+        android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
+        android:hint="Max Attendees"
         android:paddingStart="10dp"
-        android:paddingEnd="15dp"
-        android:text="@string/geo_location_requirement"
-        android:textAlignment="viewStart"
-        android:textColor="#848A94"
+        android:textColor="@color/white"
+        android:textColorHint="#848A94"
         android:textSize="15sp"
-        app:flow_horizontalAlign="start"
-        app:flow_verticalAlign="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/descriptionEditText" />
 
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/notifPreferenceTextView"
+    <TextView
+        android:id="@+id/geolocationRequirementTextView"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:background="@drawable/rounded_corner_rectangle_light_gray"
+        android:layout_marginTop="7dp"
+        android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
+        android:hint="Geolocation Requirement"
         android:paddingStart="10dp"
-        android:paddingEnd="15dp"
-        android:textAlignment="textStart"
-        android:textColor="#848A94"
+        android:textColor="@color/white"
+        android:textColorHint="#848A94"
         android:textSize="15sp"
-        app:flow_horizontalAlign="start"
-        app:flow_verticalAlign="center"
-        android:layout_marginTop="10dp"
-        android:text="@string/notification_preferences"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/max_attendees_textview" />
+
+    <TextView
+        android:id="@+id/notificationPreferenceTextView"
+        android:layout_width="349dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="7dp"
+        android:background="@drawable/rounded_corner_rectangle_light_black"
+        android:fontFamily="@font/poppins_semibold"
+        android:hint="Notification Preference"
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="#848A94"
+        android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/geolocationRequirementTextView" />
