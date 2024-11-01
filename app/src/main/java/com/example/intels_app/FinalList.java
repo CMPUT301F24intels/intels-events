@@ -33,8 +33,8 @@ public class FinalList extends AppCompatActivity {
         backbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Intent intent = new Intent (FinalList.this, )
-                //startActivity(intent);
+                Intent intent = new Intent (FinalList.this, EntrantInWaitlist.class);
+                startActivity(intent);
             }
         });
     }
