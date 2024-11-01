@@ -1,6 +1,7 @@
 package com.example.intels_app;
 
 import android.graphics.Bitmap;
+import com.google.firebase.Firebase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.CollectionReference;
 import java.io.ByteArrayOutputStream;
@@ -12,24 +13,23 @@ public class FirestoreData {
         return FirebaseFirestore.getInstance();
     }
 
-    public static CollectionReference getEventReference() {
-        return FirebaseFirestore.getInstance().collection("events");
+    public static CollectionReference getEventReference(FirebaseFirestore db) {
+        return db.collection("events");
     }
 
-    public static CollectionReference getProfileReference()  {
-        return FirebaseFirestore.getInstance().collection("profiles");
-    }
+    public static CollectionReference getProfileReference(FirebaseFirestore db)  {
+        return db.collection("profiles");
 
     public static CollectionReference getEntrantEventsReference(String profile) {
         return FirebaseFirestore.getInstance().collection("profiles").document(profile).collection("events");
     }
 
-    public static void deleteEventReference(String documentId, CollectionReference collectionReference) {
-        FirestoreData.getEventReference().document(documentId).delete();
+    public static void deleteEventReference(FirebaseFirestore db, String documentId, CollectionReference collectionReference) {
+        FirestoreData.getEventReference(db).document(documentId).delete();
     }
 
-    public static void addEvent(Event event) {
-        FirestoreData.getEventReference().add(event);
+    public static void addEvent(FirebaseFirestore db, CollectionReference collectionReference, Event event) {
+        FirebaseFirestore.getInstance().collection("events").add(event);
     }
 
 

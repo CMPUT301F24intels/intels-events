@@ -158,30 +158,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!-- Draw Button -->
-        <ImageButton
-            android:id="@+id/drawButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/circular_button"
-            android:backgroundTint="#FF8C00"
-            android:contentDescription="Draw"
-            app:srcCompat="@drawable/draw_text" />
-
-        <!-- Navigation Button -->
-        <ImageButton
-            android:id="@+id/navigationButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/circular_button"
-            android:backgroundTint="#FFD700"
-            android:contentDescription="Navigation"
-            app:srcCompat="@drawable/map_pin" />
-
         <!-- Add Button -->
         <ImageButton
             android:id="@+id/addButton"
@@ -193,30 +169,6 @@
             android:backgroundTint="#0000FF"
         android:contentDescription="Add"
         app:srcCompat="@drawable/add_button" />
-
-        <!-- Edit Button -->
-        <ImageButton
-            android:id="@+id/editButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/circular_button"
-            android:backgroundTint="#32CD32"
-        android:contentDescription="Edit"
-        app:srcCompat="@drawable/edit_icon" />
-
-        <!-- Delete Button -->
-        <ImageButton
-            android:id="@+id/deleteButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/circular_button"
-            android:backgroundTint="#FF0000"
-        android:contentDescription="Delete"
-        app:srcCompat="@drawable/delete_button" />
 
     </LinearLayout>
 
