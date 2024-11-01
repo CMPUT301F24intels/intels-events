@@ -135,7 +135,7 @@ public class AddEvent extends AppCompatActivity {
                     });
 
             // Add the poster image to Firebase Storage
-            uploadImage(image);
+            //uploadImage(image);
 
             // Return to Manage Events activity
             Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
