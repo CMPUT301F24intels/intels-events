@@ -43,6 +43,7 @@ public class AddEvent extends AppCompatActivity {
     StorageReference storageReference;
     Uri image;
     ImageView imageView;
+    Button addPosterButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
