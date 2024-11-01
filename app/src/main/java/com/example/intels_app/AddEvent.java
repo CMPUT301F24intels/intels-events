@@ -41,7 +41,6 @@ import java.util.UUID;
 
 public class AddEvent extends AppCompatActivity {
     StorageReference storageReference;
-    Button addPosterButton;
     Uri image;
     ImageView imageView;
 
@@ -54,7 +53,6 @@ public class AddEvent extends AppCompatActivity {
         storageReference = FirebaseStorage.getInstance().getReference();
 
         imageView = findViewById(R.id.camera_image);
-        addPosterButton = findViewById(R.id.edit_poster_button);
 
         // Go back to Manage Events if back button clicked
         ImageButton backButton = findViewById(R.id.back_button);
@@ -78,7 +76,6 @@ public class AddEvent extends AppCompatActivity {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] data = baos.toByteArray();
-
         });
 
         // Create a new event with entered details if Add Event button clicked
@@ -126,7 +123,7 @@ public class AddEvent extends AppCompatActivity {
             //uploadImage(image);
 
             // Return to Manage Events activity
-            Intent intent = new Intent(AddEvent.this, CreateQR.class);
+            Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
             startActivity(intent);
         });
     }

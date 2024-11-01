@@ -1,7 +1,6 @@
 package com.example.intels_app;
 
 import android.graphics.Bitmap;
-
 import com.google.firebase.Firebase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.CollectionReference;
@@ -20,7 +19,6 @@ public class FirestoreData {
 
     public static CollectionReference getProfileReference(FirebaseFirestore db)  {
         return db.collection("profiles");
-    }
 
     public static CollectionReference getEntrantEventsReference(String profile) {
         return FirebaseFirestore.getInstance().collection("profiles").document(profile).collection("events");
