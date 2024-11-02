@@ -9,28 +9,29 @@ import android.widget.ListView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class FinalList extends AppCompatActivity {
+    private ListView entrantList;
+    private List<Profile> entrantDataList;
+    private ImageButton back_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.final_list);
 
-        ListView entrantlist = findViewById(R.id.entrant_list);
-        ArrayList<String> entrantDataList = new ArrayList<>();
-        entrantDataList.add("Dhanshri");
-        entrantDataList.add("Aayushi");
-        entrantDataList.add("Janan");
-        entrantDataList.add("Het");
-        entrantDataList.add("Kanishka");
-        entrantDataList.add("Katrina");
+        entrantList = findViewById(R.id.entrant_list);
 
-        CustomAdapterFinalList adapter = new CustomAdapterFinalList(this, entrantDataList);
-        entrantlist.setAdapter(adapter);
+        entrantDataList = new ArrayList<>();
+        entrantDataList.add(new Profile("Dhanshri", R.drawable.cat));
+        entrantDataList.add(new Profile("Aayushii", R.drawable.bean));
 
-        ImageButton backbutton = findViewById(R.id.back_button);
-        backbutton.setOnClickListener(new View.OnClickListener() {
+        ProfileAdapter adapter = new ProfileAdapter(this, entrantDataList);
+        entrantList.setAdapter(adapter);
+
+        back_button = findViewById(R.id.back_button);
+        back_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent (FinalList.this, EntrantInWaitlist.class);

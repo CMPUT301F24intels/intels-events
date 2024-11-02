@@ -50,7 +50,6 @@ public class AdminLogin extends AppCompatActivity {
                 else {
                     Toast.makeText(AdminLogin.this, "Incorrect login. Please try again.", Toast.LENGTH_SHORT).show();
                     adminName.setText("");
-                    adminPassword.setText("");
                 }
             }
         });

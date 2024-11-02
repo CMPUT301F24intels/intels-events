@@ -46,19 +46,10 @@ public class ProfileAdapter extends BaseAdapter {
 
         TextView nameTextView = convertView.findViewById(R.id.profile_name);
         ImageView profileImageView = convertView.findViewById(R.id.profile_image);
-        ImageButton deleteButton = convertView.findViewById(R.id.delete_button);
 
         nameTextView.setText(profile.getName());
         profileImageView.setImageResource(profile.getImageResId());
 
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                profiles.remove(position);
-                notifyDataSetChanged();
-                Toast.makeText(context, "Profile deleted", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         return convertView;
     }

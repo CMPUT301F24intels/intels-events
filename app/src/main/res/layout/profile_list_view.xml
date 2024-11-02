@@ -24,12 +24,4 @@
         android:textColor="@android:color/white"
         android:textSize="16sp" />
 
-    <ImageButton
-        android:id="@+id/delete_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/delete_button"
-        android:background="@null"
-        android:contentDescription="Delete Profile" />
-
 </LinearLayout>
