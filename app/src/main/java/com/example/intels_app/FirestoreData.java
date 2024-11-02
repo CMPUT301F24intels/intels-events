@@ -17,8 +17,10 @@ public class FirestoreData {
         return db.collection("events");
     }
 
-    public static CollectionReference getProfileReference(FirebaseFirestore db)  {
+    public static CollectionReference getProfileReference(FirebaseFirestore db) {
         return db.collection("profiles");
+
+    }
 
     public static CollectionReference getEntrantEventsReference(String profile) {
         return FirebaseFirestore.getInstance().collection("profiles").document(profile).collection("events");
