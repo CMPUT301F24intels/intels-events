@@ -39,6 +39,7 @@
         <activity android:name=".AdminLogin"/>
         <activity android:name=".EntrantInWaitlist" />
         <activity android:name=".EntrantInCancelledWaitlist" />
+        <activity android:name=".FinalList"/>
 
         <activity
             android:name=".NotificationActivity"
