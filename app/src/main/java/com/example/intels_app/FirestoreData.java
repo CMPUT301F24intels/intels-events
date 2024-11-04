@@ -20,31 +20,19 @@ public class FirestoreData {
     public static CollectionReference getProfileReference(FirebaseFirestore db) {
         return db.collection("profiles");
 
-        public static CollectionReference getEntrantEventsReference (String profile){
-            return FirebaseFirestore.getInstance().collection("profiles").document(profile).collection("events");
-        }
+    }
 
-        public static void deleteEventReference (FirebaseFirestore db, String
-        documentId, CollectionReference collectionReference){
-            FirestoreData.getEventReference(db).document(documentId).delete();
-        }
+    public static CollectionReference getEntrantEventsReference(String profile) {
+        return FirebaseFirestore.getInstance().collection("profiles").document(profile).collection("events");
+    }
 
-        public static void addEvent (FirebaseFirestore db, CollectionReference
-        collectionReference, Event event){
-            FirebaseFirestore.getInstance().collection("events").add(event);
-        }
+    public static void deleteEventReference(FirebaseFirestore db, String documentId, CollectionReference collectionReference) {
+        FirestoreData.getEventReference(db).document(documentId).delete();
+    }
 
-
-
-
-
-
-
-
-
-
-
-
+    public static void addEvent(FirebaseFirestore db, CollectionReference collectionReference, Event event) {
+        FirebaseFirestore.getInstance().collection("events").add(event);
+    }
 
     /*
     private FirebaseFirestore firestore = FirebaseFirestore.getInstance();

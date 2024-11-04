@@ -4,8 +4,13 @@ import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
+import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -13,6 +18,7 @@ import androidx.core.app.NotificationManagerCompat;
 public class NotificationActivity extends AppCompatActivity {
     private static final String CHANNEL_ID = "lottery_channel";
     private static final int NOTIFICATION_ID = 1;
+    ImageButton back_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +26,15 @@ public class NotificationActivity extends AppCompatActivity {
         setContentView(R.layout.notification);
         createNotificationChannel();
         showNotification();
+
+        back_button = findViewById(R.id.back_button);
+        back_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(NotificationActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void createNotificationChannel() {

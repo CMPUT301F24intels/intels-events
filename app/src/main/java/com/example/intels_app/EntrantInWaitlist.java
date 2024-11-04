@@ -72,7 +72,6 @@ public class EntrantInWaitlist extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
         final_list_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

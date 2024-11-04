@@ -61,14 +61,5 @@ public class ManageEventsActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        ImageButton deleteButton = findViewById(R.id.deleteButton);
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Remove event from Firestore
-                // Notify the user that the event has been deleted
-            }
-        });
     }
 }
