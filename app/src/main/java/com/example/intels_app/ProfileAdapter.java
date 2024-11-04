@@ -50,6 +50,17 @@ public class ProfileAdapter extends BaseAdapter {
         nameTextView.setText(profile.getName());
         profileImageView.setImageResource(profile.getImageResId());
 
+        /* JANAN USE THIS FOR ADMIN PROFILE LIST WITH DELETE FUNCTIONALITY
+        ImageButton deleteButton = convertView.findViewById(R.id.delete_button);
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                profiles.remove(position);
+                notifyDataSetChanged();
+                Toast.makeText(context, "Profile deleted", Toast.LENGTH_SHORT).show();
+            }
+        });*/
 
         return convertView;
     }
