@@ -34,17 +34,6 @@ public class FirestoreData {
         FirebaseFirestore.getInstance().collection("events").add(event);
     }
 
-
-
-
-
-
-
-
-
-
-
-
     /*
     private FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     private FirebaseStorage storage = FirebaseStorage.getInstance();
