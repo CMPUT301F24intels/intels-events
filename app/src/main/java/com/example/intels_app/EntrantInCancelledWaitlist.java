@@ -2,8 +2,11 @@ package com.example.intels_app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
@@ -22,6 +25,7 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.waitlist_with_cancelled_entrants);
 
+        EditText searchBar = findViewById(R.id.search_bar);
         listView = findViewById(R.id.profile_list);
 
         profileList = new ArrayList<>();
@@ -38,6 +42,19 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
             public void onClick(View view) {
                 finish(); // This will close the current activity and return to the previous one
             }
+        });
+
+        searchBar.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.getFilter().filter(s); // Filter the adapter based on search input
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) { }
         });
 
         waitlist_button = findViewById(R.id.btn_waitlist);

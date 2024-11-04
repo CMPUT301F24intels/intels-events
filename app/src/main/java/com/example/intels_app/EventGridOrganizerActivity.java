@@ -49,7 +49,8 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish(); // This will close the current activity and return to the previous one
+                Intent intent = new Intent(EventGridOrganizerActivity.this, MainActivity.class);
+                startActivity(intent);
             }
         });
 

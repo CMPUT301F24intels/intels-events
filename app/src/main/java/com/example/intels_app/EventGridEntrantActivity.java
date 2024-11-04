@@ -37,7 +37,8 @@ public class EventGridEntrantActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish(); // This will close the current activity and return to the previous one
+                Intent intent = new Intent(EventGridEntrantActivity.this, MainActivity.class); // Replace 'CurrentActivity' with your current activity's name and 'TargetActivity' with the name of the specific activity you want to return to.
+                startActivity(intent);
             }
         });
 

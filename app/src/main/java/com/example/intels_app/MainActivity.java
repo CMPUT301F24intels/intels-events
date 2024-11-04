@@ -11,7 +11,10 @@ import android.view.View;
 
 //import com.example.intels_app.databinding.ActivityMainBinding;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import android.view.MenuItem;
 import android.widget.ImageButton;
@@ -24,7 +27,9 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db;
+    private FirebaseAuth fAuth;
     private AppBarConfiguration appBarConfiguration;
+    private StorageReference storageRef;
     //private ActivityMainBinding binding;
     private QRCodeScanner qrCodeScanner;
 
@@ -32,7 +37,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FirebaseApp.initializeApp(this);
-        //db = FirebaseFirestore.getInstance();
+
+        db = FirebaseFirestore.getInstance();
+        fAuth = FirebaseAuth.getInstance();
+        storageRef = FirebaseStorage.getInstance().getReference();
 
         setContentView(R.layout.main_page);
         qrCodeScanner = new QRCodeScanner(this);
