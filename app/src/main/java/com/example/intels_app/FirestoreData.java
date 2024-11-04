@@ -1,6 +1,9 @@
 package com.example.intels_app;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.widget.Toast;
+
 import com.google.firebase.Firebase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.CollectionReference;
@@ -26,12 +29,20 @@ public class FirestoreData {
         return FirebaseFirestore.getInstance().collection("profiles").document(profile).collection("events");
     }
 
-    public static void deleteEventReference(FirebaseFirestore db, String documentId, CollectionReference collectionReference) {
-        FirestoreData.getEventReference(db).document(documentId).delete();
+    public static void deleteEventReference(Context context, FirebaseFirestore db, String documentId, CollectionReference collectionReference) {
+        if (NetworkConnectivity.isNetworkAvailable(context)) {
+            FirestoreData.getEventReference(db).document(documentId).delete();
+        } else {
+        Toast.makeText(context, "No network connection. Unable to delete event.", Toast.LENGTH_SHORT).show();
+        }
     }
 
-    public static void addEvent(FirebaseFirestore db, CollectionReference collectionReference, Event event) {
-        FirebaseFirestore.getInstance().collection("events").add(event);
+    public static void addEvent(Context context, FirebaseFirestore db, CollectionReference collectionReference, Event event) {
+        if (NetworkConnectivity.isNetworkAvailable(context)) {
+            FirebaseFirestore.getInstance().collection("events").add(event);
+        } else {
+            Toast.makeText(context, "No network connection. Unable to delete event.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /*
