@@ -25,12 +25,11 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
         // Initialize the GridView and set the adapter
         GridView gridView = findViewById(R.id.grid_view);
         List<Event> eventData = new ArrayList<>();
-        eventData.add(new Event("1", "Event 1"));
-        eventData.add(new Event("2", "Event 2"));
-        eventData.add(new Event("3", "Event 3"));
-        eventData.add(new Event("4", "Event 4"));
-        eventData.add(new Event("5", "Event 5"));
-
+        eventData.add(new Event("1", "Sample Event 1"));
+        eventData.add(new Event("2", "Sample Event 2"));
+        eventData.add(new Event("3", "Sample Event 3"));
+        eventData.add(new Event("4", "Sample Event 4"));
+        eventData.add(new Event("5", "Sample Event 5"));
 
         CustomAdapterOrganizer adapter = new CustomAdapterOrganizer(this, eventData);
         gridView.setAdapter(adapter);
