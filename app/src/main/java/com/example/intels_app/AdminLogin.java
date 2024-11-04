@@ -43,13 +43,12 @@ public class AdminLogin extends AppCompatActivity {
                 String password = adminPassword.getText().toString();
 
                 if (username.equals(correctusername) && password.equals(correctpassword)){
-                    Toast.makeText(AdminLogin.this, "You are an admin.", Toast.LENGTH_SHORT).show();
-                    //Intent intent = new Intent(AdminLogin.this, );
-                    //startActivity(intent);
+                    Intent intent = new Intent(AdminLogin.this, AdminProfiles.class);
+                    startActivity(intent);
                 }
                 else {
                     Toast.makeText(AdminLogin.this, "Incorrect login. Please try again.", Toast.LENGTH_SHORT).show();
-                    adminName.setText("");
+                    adminPassword.setText("");
                 }
             }
         });
