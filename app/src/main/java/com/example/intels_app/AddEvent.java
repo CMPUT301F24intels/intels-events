@@ -61,7 +61,7 @@ public class AddEvent extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_event);
 
-        imageView = findViewById(R.id.camera_image);
+        imageView = findViewById(R.id.pfpPlaceholder);
 
         // Go back to Manage Events if back button clicked
         ImageButton backButton = findViewById(R.id.back_button);
@@ -147,6 +147,8 @@ public class AddEvent extends AppCompatActivity {
                     if (result.getData() != null) {
                         image = result.getData().getData();
                         Glide.with(getApplicationContext()).load(image).into(imageView); // Put uploaded image into imageView
+                        ImageView cameraImage = findViewById(R.id.camera_image);
+                        cameraImage.setVisibility(View.INVISIBLE);
 
                         try {
                             // Step 1: Get Bitmap from Uri
