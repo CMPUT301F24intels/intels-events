@@ -38,6 +38,7 @@ public class ManageEventsActivity extends AppCompatActivity {
         CustomAdapterManageEvents adapter = new CustomAdapterManageEvents(this, eventData);
         gridview.setAdapter(adapter);
 
+        // Get info from Firestore
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference collectionRef = db.collection("events");
 
@@ -57,17 +58,6 @@ public class ManageEventsActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> Log.w("Firestore", "Error fetching documents", e));
 
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Event selectedEvent = (Event) parent.getItemAtPosition(position);
-
-                Intent intent = new Intent(ManageEventsActivity.this, EventDetailsOrganizer.class);
-                intent.putExtra("eventId", selectedEvent.getId()); // Use appropriate method to get ID
-                startActivity(intent);
-            }
-        });
-
         ImageButton backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,6 +72,18 @@ public class ManageEventsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ManageEventsActivity.this, AddEvent.class);
+                startActivity(intent);
+            }
+        });
+
+        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Event selectedEvent = (Event) parent.getItemAtPosition(position);
+                Log.d("ManageEventsActivity", "Clicked event: " + selectedEvent.getEventName());
+
+                Intent intent = new Intent(ManageEventsActivity.this, EventDetailsOrganizer.class);
+                intent.putExtra("Event Name", selectedEvent.getEventName()); // Send event info
                 startActivity(intent);
             }
         });
