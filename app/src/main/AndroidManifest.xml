@@ -42,7 +42,7 @@
         <activity android:name=".ManageEventsActivity" />
         <activity android:name=".AddEvent" />
         <activity android:name=".CreateQR" />
-        <activity android:name=".EventDetails" />
+        <activity android:name=".EventDetailsOrganizer" />
         <activity android:name=".AdminLogin"/>
         <activity android:name=".EntrantInWaitlist" />
         <activity android:name=".EntrantInCancelledWaitlist" />

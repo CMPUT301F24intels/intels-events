@@ -1,19 +1,15 @@
 package com.example.intels_app;
 
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ManageEventsActivity extends AppCompatActivity {
 
@@ -38,7 +34,7 @@ public class ManageEventsActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Event selectedEvent = (Event) parent.getItemAtPosition(position);
 
-                Intent intent = new Intent(ManageEventsActivity.this, EventDetails.class);
+                Intent intent = new Intent(ManageEventsActivity.this, EventDetailsOrganizer.class);
                 intent.putExtra("eventId", selectedEvent.getId()); // Use appropriate method to get ID
                 startActivity(intent);
             }

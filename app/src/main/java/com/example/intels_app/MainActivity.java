@@ -11,7 +11,7 @@ import android.view.View;
 
 //import com.example.intels_app.databinding.ActivityMainBinding;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.auth.FirebaseAuth;
+//import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -27,7 +27,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db;
-    private FirebaseAuth fAuth;
+    //private FirebaseAuth fAuth;
     private AppBarConfiguration appBarConfiguration;
     private StorageReference storageRef;
     //private ActivityMainBinding binding;
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(this);
 
         db = FirebaseFirestore.getInstance();
-        fAuth = FirebaseAuth.getInstance();
+        //fAuth = FirebaseAuth.getInstance();
         storageRef = FirebaseStorage.getInstance().getReference();
 
         setContentView(R.layout.main_page);
