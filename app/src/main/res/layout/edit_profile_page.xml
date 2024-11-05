@@ -67,7 +67,7 @@
         android:background="@drawable/rounded_button"
         android:fontFamily="sans-serif-condensed"
         android:hint="Phone Number"
-        android:inputType="text"
+        android:inputType="number"
         android:padding="10dp"
         android:textColor="@color/white"
         android:textColorHint="@color/white"

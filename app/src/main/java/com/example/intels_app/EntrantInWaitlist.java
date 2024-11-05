@@ -43,7 +43,8 @@ public class EntrantInWaitlist extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish(); // This will close the current activity and return to the previous one
+                Intent intent = new Intent(EntrantInWaitlist.this, EventGridOrganizerActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -111,7 +112,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
 
         new AlertDialog.Builder(this)
                 .setTitle("Custom Notification")
-                .setMessage("Enter the message to send to all entrants:")
+                .setMessage("Enter the message to send to all waitlisted entrants:")
                 .setView(input)
                 .setPositiveButton("Send", (dialog, which) -> {
                     String message = input.getText().toString().trim();
@@ -128,7 +129,6 @@ public class EntrantInWaitlist extends AppCompatActivity {
                 })
                 .show();
     }
-
     private void sendNotificationToEntrants(String message) {
         // Logic to send the notification to all entrants goes here
         // For demonstration, we're using a Toast message as a placeholder
