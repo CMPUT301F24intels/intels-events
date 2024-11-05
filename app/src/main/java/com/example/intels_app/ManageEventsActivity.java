@@ -35,6 +35,8 @@ public class ManageEventsActivity extends AppCompatActivity {
         // Initialize the GridView and set the adapter
         GridView gridview = findViewById(R.id.gridViewEvents);
         ArrayList<Event> eventData = new ArrayList<>();
+        CustomAdapterManageEvents adapter = new CustomAdapterManageEvents(this, eventData);
+        gridview.setAdapter(adapter);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference collectionRef = db.collection("events");
@@ -46,24 +48,14 @@ public class ManageEventsActivity extends AppCompatActivity {
 
                             // Convert document to Event object and add to eventData list
                             Event event = document.toObject(Event.class);
-
-                            if (event != null) {
-                                Log.d("Firestore", "Event fetched: " + event.getEventName());
-                                eventData.add(event);
-                            } else {
-                                Log.d("Firestore", "Event document couldn't be deserialized: " + document.getId());
-                            }
-
                             eventData.add(event);
+                            adapter.notifyDataSetChanged();
                         }
                     } else {
                         Log.d("Firestore", "No documents found in this collection.");
                     }
                 })
                 .addOnFailureListener(e -> Log.w("Firestore", "Error fetching documents", e));
-
-        CustomAdapterManageEvents adapter = new CustomAdapterManageEvents(this, eventData);
-        gridview.setAdapter(adapter);
 
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
