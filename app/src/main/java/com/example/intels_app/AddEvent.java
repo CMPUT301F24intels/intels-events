@@ -2,9 +2,12 @@ package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -50,8 +53,8 @@ public class AddEvent extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_event);
 
-        FirebaseApp.initializeApp(this);
-        storageReference = FirebaseStorage.getInstance().getReference();
+        //FirebaseApp.initializeApp(this);
+        //storageReference = FirebaseStorage.getInstance().getReference();
 
         imageView = findViewById(R.id.camera_image);
 
@@ -106,6 +109,8 @@ public class AddEvent extends AppCompatActivity {
             );
 
             // Add the new event to the database
+            FirebaseApp.initializeApp(this);
+
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             CollectionReference eventsRef = db.collection("events");
             eventsRef.add(newEvent)
