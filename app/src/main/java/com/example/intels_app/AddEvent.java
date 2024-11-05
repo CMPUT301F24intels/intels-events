@@ -34,6 +34,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -53,97 +54,99 @@ public class AddEvent extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_event);
 
-        //FirebaseApp.initializeApp(this);
-        //storageReference = FirebaseStorage.getInstance().getReference();
-
         imageView = findViewById(R.id.camera_image);
 
         // Go back to Manage Events if back button clicked
         ImageButton backButton = findViewById(R.id.back_button);
-        backButton.setOnClickListener(view -> {
-            Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
-            startActivity(intent);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
+                startActivity(intent);
+            }
         });
 
         // Select image from gallery if Edit Image Button clicked
         Button addPosterButton = findViewById(R.id.edit_poster_button);
-        addPosterButton.setOnClickListener(view -> {
+        addPosterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
-            openGallery(); // Get image from gallery and show it on the UI
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setType("image/*");
+                openGallery.launch(intent);
 
-            ImageView imageView = findViewById(R.id.camera_image);
+                /*
+                //openGallery(); // Get image from gallery and show it on the UI
 
-            // Get the data from an ImageView as bytes
-            imageView.setDrawingCacheEnabled(true);
-            imageView.buildDrawingCache();
-            Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            byte[] data = baos.toByteArray();
+                ImageView imageView = findViewById(R.id.camera_image);
+
+                // Get the data from an ImageView as bytes
+                imageView.setDrawingCacheEnabled(true);
+                imageView.buildDrawingCache();
+                Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] data = baos.toByteArray();*/
+            }
         });
 
         // Create a new event with entered details if Add Event button clicked
         Button addEvent = findViewById(R.id.add_event_button);
-        addEvent.setOnClickListener(view -> {
+        addEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Get user's event details input values
+                EditText maxAttendees = findViewById(R.id.max_attendees_number);
+                EditText eventName = findViewById(R.id.eventNameEditText);
+                EditText facility = findViewById(R.id.facilityEditText);
+                EditText location = findViewById(R.id.locationEditText);
+                EditText dateTime = findViewById(R.id.dateTimeEditText);
+                EditText description = findViewById(R.id.descriptionEditText);
+                SwitchCompat geolocationRequirement = findViewById(R.id.geolocationRequirementTextView);
+                SwitchCompat notifPreference = findViewById(R.id.notifPreferenceTextView);
 
-            // Get user's event details input values
-            EditText maxAttendees = findViewById(R.id.max_attendees_number);
-            EditText eventName = findViewById(R.id.eventNameEditText);
-            EditText facility = findViewById(R.id.facilityEditText);
-            EditText location = findViewById(R.id.locationEditText);
-            EditText dateTime = findViewById(R.id.dateTimeEditText);
-            EditText description = findViewById(R.id.descriptionEditText);
-            SwitchCompat geolocationRequirement = findViewById(R.id.geolocationRequirementTextView);
-            SwitchCompat notifPreference = findViewById(R.id.notifPreferenceTextView);
+                // Create a new event with the entered details
+                Event newEvent = new Event(
+                        eventName.getText().toString(),
+                        facility.getText().toString(),
+                        location.getText().toString(),
+                        dateTime.getText().toString(),
+                        description.getText().toString(),
+                        Integer.parseInt(maxAttendees.getText().toString()),
+                        geolocationRequirement.isChecked(),
+                        notifPreference.isChecked()
+                );
 
-            // Create a new event with the entered details
-            Event newEvent = new Event(
-                    eventName.getText().toString(),
-                    facility.getText().toString(),
-                    location.getText().toString(),
-                    dateTime.getText().toString(),
-                    description.getText().toString(),
-                    Integer.parseInt(maxAttendees.getText().toString()),
-                    geolocationRequirement.isChecked(),
-                    notifPreference.isChecked()
-            );
+                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("posters");
 
-            // Add the new event to the database
-            FirebaseApp.initializeApp(this);
+                // Create a document with ID of eventName under the events collection
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                DocumentReference docRef = db.collection("events").document(eventName.getText().toString());
+                docRef.set(newEvent)
+                        .addOnSuccessListener(documentReference -> {
+                            Intent intent = new Intent(AddEvent.this, CreateQR.class);
+                            startActivity(intent);
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error adding document", e);
+                            }
+                        });
 
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            CollectionReference eventsRef = db.collection("events");
-            eventsRef.add(newEvent)
-                    .addOnSuccessListener(documentReference -> {
-                        Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
-                        startActivity(intent);
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error adding document", e);
-                        }
-                    });
+                // Add the poster image to Firebase Storage
+                //uploadImage(image);
 
-            // Add the poster image to Firebase Storage
-            //uploadImage(image);
-
-            // Return to Manage Events activity
-            Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
-            startActivity(intent);
+                // Return to Manage Events activity
+                Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
+                startActivity(intent);
+            }
         });
     }
 
     /**
-     * Opens the gallery to select an image.
-     */
-    public void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        openGallery.launch(intent);
-    }
-
-    /**
-     * Registers an activity result launcher for the gallery.
+     * Handles the image selected.
      */
     ActivityResultLauncher<Intent> openGallery = registerForActivityResult(
         new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
@@ -151,7 +154,7 @@ public class AddEvent extends AppCompatActivity {
             public void onActivityResult(ActivityResult result) {
                 if (result.getResultCode() == RESULT_OK) {
                     if (result.getData() != null) {
-                        addPosterButton.setEnabled(true);
+                        //addPosterButton.setEnabled(true);
                         image = result.getData().getData();
                         Glide.with(getApplicationContext()).load(image).into(imageView); // Put uploaded image into imageView
                     }
