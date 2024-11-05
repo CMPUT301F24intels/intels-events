@@ -7,7 +7,7 @@
     android:background="#16181F">
 
     <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/geolocationRequirementTextView"
+        android:id="@+id/geolocationRequirementText"
         android:layout_width="349dp"
         android:layout_height="45dp"
         android:layout_marginTop="84dp"
@@ -24,10 +24,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.467"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/descriptionEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/descriptionEdit" />
 
     <Button
-        android:id="@+id/add_event_button"
+        android:id="@+id/join_waitlist_button"
         android:layout_width="347dp"
         android:layout_height="51dp"
         android:layout_marginBottom="16dp"
@@ -41,7 +41,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageButton
-        android:id="@+id/back_button"
+        android:id="@+id/back_button_1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -54,7 +54,7 @@
     <!-- Navigation Button -->
 
     <TextView
-        android:id="@+id/eventDetailsTextview"
+        android:id="@+id/eventDetailssTextview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -66,21 +66,21 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.96"
-        app:layout_constraintStart_toEndOf="@+id/back_button"
+        app:layout_constraintStart_toEndOf="@+id/back_button_1"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/qrCodeImageView"
+        android:id="@+id/qrCodeImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="140dp"
         android:layout_marginTop="24dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/eventDetailsTextview"
+        app:layout_constraintTop_toBottomOf="@+id/eventDetailssTextview"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
-        android:id="@+id/eventNameEditText"
+        android:id="@+id/eventNameEdit"
         android:layout_width="349dp"
         android:layout_height="45dp"
         android:layout_marginTop="32dp"
@@ -93,10 +93,10 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/qrCodeImageView" />
+        app:layout_constraintTop_toBottomOf="@+id/qrCodeImage" />
 
     <TextView
-        android:id="@+id/facilityEditText"
+        android:id="@+id/facilityEdit"
         android:layout_width="349dp"
         android:layout_height="45dp"
         android:layout_marginTop="10dp"
@@ -109,10 +109,10 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/eventNameEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/eventNameEdit" />
 
     <TextView
-        android:id="@+id/locationEditText"
+        android:id="@+id/locationEdit"
         android:layout_width="349dp"
         android:layout_height="45dp"
         android:layout_marginTop="10dp"
@@ -125,10 +125,10 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/facilityEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/facilityEdit" />
 
     <TextView
-        android:id="@+id/dateTimeEditText"
+        android:id="@+id/dateTimeEdit"
         android:layout_width="349dp"
         android:layout_height="45dp"
         android:layout_marginTop="10dp"
@@ -141,10 +141,10 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/locationEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/locationEdit" />
 
     <TextView
-        android:id="@+id/descriptionEditText"
+        android:id="@+id/descriptionEdit"
         android:layout_width="349dp"
         android:layout_height="45dp"
         android:layout_marginTop="12dp"
@@ -157,10 +157,10 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dateTimeEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/dateTimeEdit" />
 
     <TextView
-        android:id="@+id/max_attendees_textview"
+        android:id="@+id/max_attendees"
         android:layout_width="349dp"
         android:layout_height="45dp"
         android:layout_marginTop="16dp"
@@ -173,6 +173,6 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/descriptionEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/descriptionEdit" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

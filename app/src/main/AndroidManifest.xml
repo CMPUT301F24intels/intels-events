@@ -49,6 +49,8 @@
         <activity android:name=".FinalList"/>
         <activity android:name=".AdminProfiles"/>
         <activity android:name=".AdminEvents"/>
+        <activity android:name=".JoinWaitlistActivity" />
+        <activity android:name=".SelectRoleActivity" />
 
         <activity
             android:name=".NotificationActivity"
