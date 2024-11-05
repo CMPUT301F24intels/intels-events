@@ -22,41 +22,58 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
+
 public class CreateQR extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String eventName = getIntent().getStringExtra("Event Name"); // Event name info from Add Event
         setContentView(R.layout.qr_code_display);
 
-        ImageView qrCodeImageView = findViewById(R.id.qrCodeImageView);
+        // Retrieve event details from intent
+        String eventName = getIntent().getStringExtra("Event Name");
+        String facility = getIntent().getStringExtra("Facility");
+        String location = getIntent().getStringExtra("Location");
+        String dateTime = getIntent().getStringExtra("DateTime");
+        String description = getIntent().getStringExtra("Description");
+        int maxAttendees = getIntent().getIntExtra("Max Attendees", 0);
 
-        // Data to encode in the QR code
-        String dataToEncode = "Event Name" + eventName;
+        // Combine all event details into a single JSON string
+        String dataToEncode = String.format(
+                "{\"name\":\"%s\", \"facility\":\"%s\", \"location\":\"%s\", \"dateTime\":\"%s\", \"description\":\"%s\", \"maxAttendees\":%d}",
+                eventName, facility, location, dateTime, description, maxAttendees
+        );
+
+        ImageView qrCodeImageView = findViewById(R.id.qrCodeImageView);
 
         try {
             // Use ZXing to generate QR code
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            BitMatrix bitMatrix = barcodeEncoder.encode(dataToEncode, BarcodeFormat.QR_CODE, 200, 200);
-            Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(dataToEncode, BarcodeFormat.QR_CODE, 200, 200);
             qrCodeImageView.setImageBitmap(bitmap);
 
         } catch (WriterException e) {
             e.printStackTrace();
         }
 
-        //DocumentReference documentRef = FirebaseFirestore.getInstance().collection("events").document(eventName);
-        //documentRef.update("qrCodeUrl", dataToEncode);
-
         Button eventDetailsButton = findViewById(R.id.eventDetailsButton);
-        eventDetailsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(CreateQR.this, EventDetailsOrganizer.class);
-                intent.putExtra("Event Name", eventName); // Pass event info on again
-                startActivity(intent);
-            }
+        eventDetailsButton.setOnClickListener(view -> {
+            Intent intent = new Intent(CreateQR.this, EventDetailsOrganizer.class);
+            intent.putExtra("Event Name", eventName);
+            startActivity(intent);
         });
 
         ImageButton backButton = findViewById(R.id.backButton);
@@ -64,6 +81,5 @@ public class CreateQR extends AppCompatActivity {
             Intent intent = new Intent(CreateQR.this, ManageEventsActivity.class);
             startActivity(intent);
         });
-
     }
 }

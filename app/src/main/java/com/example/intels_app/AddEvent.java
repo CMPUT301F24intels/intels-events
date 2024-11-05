@@ -61,108 +61,94 @@ public class AddEvent extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_event);
 
-        imageView = findViewById(R.id.camera_image);
+        imageView = findViewById(R.id.pfpPlaceholder);
 
         // Go back to Manage Events if back button clicked
         ImageButton backButton = findViewById(R.id.back_button);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
-                startActivity(intent);
-            }
+        backButton.setOnClickListener(view -> {
+            Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
+            startActivity(intent);
         });
 
         // Select image from gallery if Edit Image Button clicked
         Button addPosterButton = findViewById(R.id.edit_poster_button);
-        addPosterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType("image/*");
-                openGallery.launch(intent);
-
-                ImageView imageView = findViewById(R.id.camera_image);
-            }
+        addPosterButton.setOnClickListener(view -> {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            openGallery.launch(intent);
         });
 
         // Create a new event with entered details if Add Event button clicked
         Button addEvent = findViewById(R.id.add_event_button);
-        addEvent.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Get user's event details input values
-                EditText maxAttendees = findViewById(R.id.max_attendees_number);
-                EditText eventName = findViewById(R.id.eventNameEditText);
-                EditText facility = findViewById(R.id.facilityEditText);
-                EditText location = findViewById(R.id.locationEditText);
-                EditText dateTime = findViewById(R.id.dateTimeEditText);
-                EditText description = findViewById(R.id.descriptionEditText);
-                SwitchCompat geolocationRequirement = findViewById(R.id.geolocationRequirementTextView);
-                SwitchCompat notifPreference = findViewById(R.id.notifPreferenceTextView);
+        addEvent.setOnClickListener(view -> {
+            // Get user's event details input values
+            EditText maxAttendees = findViewById(R.id.max_attendees_number);
+            EditText eventName = findViewById(R.id.eventNameEditText);
+            EditText facility = findViewById(R.id.facilityEditText);
+            EditText location = findViewById(R.id.locationEditText);
+            EditText dateTime = findViewById(R.id.dateTimeEditText);
+            EditText description = findViewById(R.id.descriptionEditText);
+            SwitchCompat geolocationRequirement = findViewById(R.id.geolocationRequirementTextView);
+            SwitchCompat notifPreference = findViewById(R.id.notifPreferenceTextView);
 
-                // Put poster image into storage. Put uri into newEvent parameters
-                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("posters").child(imageHash);
-                storageReference.putBytes(imageData)
-                        .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
-                                .addOnSuccessListener(uri -> {
-                                    String posterUrl = uri.toString();
+            // Put poster image into storage. Put uri into newEvent parameters
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("posters").child(imageHash);
+            storageReference.putBytes(imageData)
+                    .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
+                            .addOnSuccessListener(uri -> {
+                                String posterUrl = uri.toString();
 
-                                    // Create a new event with the entered details
-                                    Event newEvent = new Event(
-                                            eventName.getText().toString(),
-                                            facility.getText().toString(),
-                                            location.getText().toString(),
-                                            dateTime.getText().toString(),
-                                            description.getText().toString(),
-                                            Integer.parseInt(maxAttendees.getText().toString()),
-                                            geolocationRequirement.isChecked(),
-                                            notifPreference.isChecked(),
-                                            posterUrl
-                                    );
+                                // Create a new event with the entered details
+                                Event newEvent = new Event(
+                                        eventName.getText().toString(),
+                                        facility.getText().toString(),
+                                        location.getText().toString(),
+                                        dateTime.getText().toString(),
+                                        description.getText().toString(),
+                                        Integer.parseInt(maxAttendees.getText().toString()),
+                                        geolocationRequirement.isChecked(),
+                                        notifPreference.isChecked(),
+                                        posterUrl
+                                );
 
-                                    // Create a document with ID of eventName under the events collection
-                                    FirebaseFirestore db = FirebaseFirestore.getInstance();
-                                    DocumentReference docRef = db.collection("events").document(eventName.getText().toString());
-                                    docRef.set(newEvent)
-                                            .addOnSuccessListener(documentReference -> {
-                                                Intent intent = new Intent(AddEvent.this, CreateQR.class);
-                                                startActivity(intent);
-                                            })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.w(TAG, "Error adding document", e);
-                                                }
-                                            });
+                                // Create a document with ID of eventName under the events collection
+                                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                DocumentReference docRef = db.collection("events").document(eventName.getText().toString());
+                                docRef.set(newEvent)
+                                        .addOnSuccessListener(documentReference -> {
+                                            Intent intent = new Intent(AddEvent.this, CreateQR.class);
+                                            // Pass all necessary details to CreateQR activity
+                                            intent.putExtra("Event Name", eventName.getText().toString());
+                                            intent.putExtra("Facility", facility.getText().toString());
+                                            intent.putExtra("Location", location.getText().toString());
+                                            intent.putExtra("DateTime", dateTime.getText().toString());
+                                            intent.putExtra("Description", description.getText().toString());
+                                            intent.putExtra("Max Attendees", Integer.parseInt(maxAttendees.getText().toString()));
+                                            startActivity(intent);
+                                        })
+                                        .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
+                            })
+                    ).addOnFailureListener(e -> {
+                        Log.w(TAG, "Image upload failed", e);
+                        Toast.makeText(AddEvent.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                    });
 
-                                })
-                        ).addOnFailureListener(e -> {
-                            Log.w(TAG, "Image upload failed", e);
-                            Toast.makeText(AddEvent.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
-                        });
-
-                // Return to Manage Events activity
-                Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
-                intent.putExtra("Event Name", eventName.getText().toString());
-                startActivity(intent);
-            }
+            // Return to Manage Events activity (if needed)
+            Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
+            startActivity(intent);
         });
     }
 
-    /**
-     * Handles the image selected.
-     */
+    /** Handles the image selected. */
     ActivityResultLauncher<Intent> openGallery = registerForActivityResult(
-        new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult result) {
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
                 if (result.getResultCode() == RESULT_OK) {
                     if (result.getData() != null) {
-                        //addPosterButton.setEnabled(true);
                         image = result.getData().getData();
                         Glide.with(getApplicationContext()).load(image).into(imageView); // Put uploaded image into imageView
+                        ImageView cameraImage = findViewById(R.id.camera_image);
+                        cameraImage.setVisibility(View.INVISIBLE);
 
                         try {
                             // Step 1: Get Bitmap from Uri
@@ -183,7 +169,7 @@ public class AddEvent extends AppCompatActivity {
                     Toast.makeText(AddEvent.this, "Please select an image", Toast.LENGTH_LONG).show();
                 }
             }
-        });
+    );
 
     public Bitmap getBitmapFromUri(Uri uri, ContentResolver contentResolver) throws IOException {
         InputStream inputStream = contentResolver.openInputStream(uri);
@@ -195,7 +181,6 @@ public class AddEvent extends AppCompatActivity {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         return baos.toByteArray();
     }
-
 
     public static String hashImage(byte[] imageData) {
         try {
@@ -210,6 +195,7 @@ public class AddEvent extends AppCompatActivity {
                 hexString.append(hex);
             }
             return hexString.toString();
+
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             return null;
