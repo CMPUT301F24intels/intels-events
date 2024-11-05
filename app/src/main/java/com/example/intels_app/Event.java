@@ -1,7 +1,5 @@
 package com.example.intels_app;
 
-import android.widget.ImageView;
-
 import java.io.Serializable;
 
 public class Event implements Serializable {
@@ -17,7 +15,25 @@ public class Event implements Serializable {
     private String posterUrl;
     private String qrCodeUrl;
 
-    // Constructor
+    // No argument constructor for Firebase
+    public Event() {}
+
+    // Constructor with posterUrl
+    public Event(String eventName, String facilityName, String location, String dateTime, String description,
+                 int maxAttendees, boolean geolocationRequirement, boolean notifPreference, String posterUrl) {
+        this.eventName = eventName;
+        this.facilityName = facilityName;
+        this.location = location;
+        this.dateTime = dateTime;
+        this.description = description;
+        this.maxAttendees = maxAttendees;
+        this.geolocationRequirement = geolocationRequirement;
+        this.notifPreference = notifPreference;
+        this.posterUrl = posterUrl;
+        //this.qrCode = qrCode;
+    }
+
+    // Constructor with no images
     public Event(String eventName, String facilityName, String location, String dateTime, String description,
                  int maxAttendees, boolean geolocationRequirement, boolean notifPreference) {
         this.eventName = eventName;
@@ -28,7 +44,7 @@ public class Event implements Serializable {
         this.maxAttendees = maxAttendees;
         this.geolocationRequirement = geolocationRequirement;
         this.notifPreference = notifPreference;
-        //this.poster = poster;
+        //this.posterUrl = posterUrl;
         //this.qrCode = qrCode;
     }
 

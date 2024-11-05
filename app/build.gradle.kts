@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
-    id("com.google.gms.google-services")
     alias(libs.plugins.kotlin.android)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -70,12 +70,8 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
-    implementation("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-storage:21.0.1")
     implementation("com.google.firebase:firebase-firestore:25.1.1")
-    implementation ("com.google.android.gms:play-services-base:18.1.0")// Add this if not already included
-    implementation ("com.google.firebase:firebase-auth:21.1.0")// If using Firebase Auth
-    implementation ("com.google.firebase:firebase-core:21.1.0") // Add if necessary for Firebase initialization
+    implementation("com.google.firebase:firebase-storage:21.0.1")
     implementation("com.github.bumptech.glide:glide:4.15.1")
     implementation("com.google.zxing:core:3.4.1")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
@@ -85,4 +81,3 @@ dependencies {
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
 }
-

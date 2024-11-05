@@ -1,19 +1,29 @@
 package com.example.intels_app;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
-import android.media.Image;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
-import java.util.List;
 
 public class ManageEventsActivity extends AppCompatActivity {
 
@@ -26,9 +36,25 @@ public class ManageEventsActivity extends AppCompatActivity {
         GridView gridview = findViewById(R.id.gridViewEvents);
         ArrayList<Event> eventData = new ArrayList<>();
 
-        Event event = new Event("Event 1", "Facility 1", "Location 1", "DateTime 1", "Description 1", 10, true, true);
+        //Event event = new Event("Event 1", "Facility 1", "Location 1", "DateTime 1", "Description 1", 10, true, true);
 
-        eventData.add(event);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference collectionRef = db.collection("events"); // Replace "events" with your collection name
+
+        collectionRef.get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (DocumentSnapshot document : queryDocumentSnapshots) {
+
+                            // Convert document to Event object and add to eventData list
+                            Event event = document.toObject(Event.class);
+                            eventData.add(event);
+                        }
+                    } else {
+                        Log.d("Firestore", "No documents found in this collection.");
+                    }
+                })
+                .addOnFailureListener(e -> Log.w("Firestore", "Error fetching documents", e));
 
         CustomAdapterManageEvents adapter = new CustomAdapterManageEvents(this, eventData);
         gridview.setAdapter(adapter);
@@ -38,7 +64,7 @@ public class ManageEventsActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Event selectedEvent = (Event) parent.getItemAtPosition(position);
 
-                Intent intent = new Intent(ManageEventsActivity.this, EventDetails.class);
+                Intent intent = new Intent(ManageEventsActivity.this, EventDetailsOrganizer.class);
                 intent.putExtra("eventId", selectedEvent.getId()); // Use appropriate method to get ID
                 startActivity(intent);
             }

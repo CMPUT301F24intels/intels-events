@@ -10,6 +10,13 @@ import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
@@ -20,6 +27,7 @@ public class CreateQR extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String eventName = getIntent().getStringExtra("Event Name"); // Event name info from Add Event
         setContentView(R.layout.qr_code_display);
 
         ImageView qrCodeImageView = findViewById(R.id.qrCodeImageView);
@@ -33,19 +41,20 @@ public class CreateQR extends AppCompatActivity {
             BitMatrix bitMatrix = barcodeEncoder.encode(dataToEncode, BarcodeFormat.QR_CODE, 200, 200);
             Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
             qrCodeImageView.setImageBitmap(bitmap);
+
         } catch (WriterException e) {
             e.printStackTrace();
         }
+
+        //DocumentReference documentRef = FirebaseFirestore.getInstance().collection("events").document(eventName);
+        //documentRef.update("qrCodeUrl", dataToEncode);
 
         Button eventDetailsButton = findViewById(R.id.eventDetailsButton);
         eventDetailsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Bundle bundle = new Bundle();
-                bundle.putString("event_id", "event_id_value");
-
-                Intent intent = new Intent(CreateQR.this, EventDetails.class);
-                intent.putExtras(bundle);
+                Intent intent = new Intent(CreateQR.this, EventDetailsOrganizer.class);
+                intent.putExtra("Event Name", eventName); // Pass event info on again
                 startActivity(intent);
             }
         });
