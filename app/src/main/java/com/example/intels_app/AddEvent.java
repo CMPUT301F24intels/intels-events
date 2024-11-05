@@ -102,25 +102,25 @@ public class AddEvent extends AppCompatActivity {
                 SwitchCompat geolocationRequirement = findViewById(R.id.geolocationRequirementTextView);
                 SwitchCompat notifPreference = findViewById(R.id.notifPreferenceTextView);
 
-                // Create a new event with the entered details
-                Event newEvent = new Event(
-                        eventName.getText().toString(),
-                        facility.getText().toString(),
-                        location.getText().toString(),
-                        dateTime.getText().toString(),
-                        description.getText().toString(),
-                        Integer.parseInt(maxAttendees.getText().toString()),
-                        geolocationRequirement.isChecked(),
-                        notifPreference.isChecked()
-                );
-
                 // Put poster image into storage. Put uri into newEvent parameters
                 StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("posters").child(imageHash);
                 storageReference.putBytes(imageData)
                         .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
                                 .addOnSuccessListener(uri -> {
                                     String posterUrl = uri.toString();
-                                    newEvent.setPosterUrl(posterUrl);
+
+                                    // Create a new event with the entered details
+                                    Event newEvent = new Event(
+                                            eventName.getText().toString(),
+                                            facility.getText().toString(),
+                                            location.getText().toString(),
+                                            dateTime.getText().toString(),
+                                            description.getText().toString(),
+                                            Integer.parseInt(maxAttendees.getText().toString()),
+                                            geolocationRequirement.isChecked(),
+                                            notifPreference.isChecked(),
+                                            posterUrl
+                                    );
 
                                     // Create a document with ID of eventName under the events collection
                                     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -190,14 +190,14 @@ public class AddEvent extends AppCompatActivity {
         return BitmapFactory.decodeStream(inputStream);
     }
 
-    public byte[] bitmapToByteArray(Bitmap bitmap) {
+    public static byte[] bitmapToByteArray(Bitmap bitmap) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         return baos.toByteArray();
     }
 
 
-    public String hashImage(byte[] imageData) {
+    public static String hashImage(byte[] imageData) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hashBytes = digest.digest(imageData);
