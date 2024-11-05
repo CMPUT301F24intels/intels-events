@@ -2,6 +2,7 @@ package com.example.intels_app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -10,12 +11,18 @@ import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class EventGridOrganizerActivity extends AppCompatActivity {
 
     private Button entrant_button, organizer_button;
+    private CustomAdapterOrganizer adapter;
+    private List<Event> eventData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,15 +31,18 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
 
         // Initialize the GridView and set the adapter
         GridView gridView = findViewById(R.id.grid_view);
-        List<Event> eventData = new ArrayList<>();
+        eventData = new ArrayList<>();
+        adapter = new CustomAdapterOrganizer(this, eventData);
+        gridView.setAdapter(adapter);
+
+        fetchEventsFromFirestore();
+
+        /*List<Event> eventData = new ArrayList<>();
         eventData.add(new Event("1", "Sample Event 1"));
         eventData.add(new Event("2", "Sample Event 2"));
         eventData.add(new Event("3", "Sample Event 3"));
         eventData.add(new Event("4", "Sample Event 4"));
-        eventData.add(new Event("5", "Sample Event 5"));
-
-        CustomAdapterOrganizer adapter = new CustomAdapterOrganizer(this, eventData);
-        gridView.setAdapter(adapter);
+        eventData.add(new Event("5", "Sample Event 5"));*/
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -78,6 +88,28 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
             public void onClick(View v) {
                 organizer_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
                 entrant_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
+            }
+        });
+    }
+
+    private void fetchEventsFromFirestore() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference eventsRef = db.collection("events");
+
+        eventsRef.addSnapshotListener((queryDocumentSnapshots, e) -> {
+            if (e != null) {
+                Log.w("Firestore", "Listen failed.", e);
+                return;
+            }
+            if (queryDocumentSnapshots != null) {
+                eventData.clear(); // Clear the list to avoid duplicates
+                for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                    Event event = documentSnapshot.toObject(Event.class);
+                    eventData.add(event); // Add event to the list
+                }
+                adapter.notifyDataSetChanged(); // Notify adapter to refresh the grid
+            } else {
+                Log.d("Firestore", "Current data: null");
             }
         });
     }
