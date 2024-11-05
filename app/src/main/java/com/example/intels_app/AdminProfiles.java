@@ -22,7 +22,7 @@ public class AdminProfiles extends AppCompatActivity {
     ImageButton back_button;
     Button profile_button, events_button;
     ListView profile_list;
-    private ArrayList<Profile> profileList;
+    private List<Profile> profileList;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -30,20 +30,11 @@ public class AdminProfiles extends AppCompatActivity {
         setContentView(R.layout.profile_view);
 
         profile_list = findViewById(R.id.profile_list);
-
         profileList = new ArrayList<>();
-        ProfileAdapter adapter = new ProfileAdapter(this, profileList);
-        profile_list.setAdapter(adapter);
 
-        back_button = findViewById(R.id.back_button);
-        back_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(AdminProfiles.this, MainActivity.class);
-                startActivity(intent);
-            }
-        });
-
+        //profileList.add(new Profile("Spongebob", R.drawable.spongebob));
+        //profileList.add(new Profile("Patrick", R.drawable.patrick));
+        //profileList.add(new Profile("Squidward", R.drawable.squidward));
 
         // Retrieve profile data from Firestore and assign it to profile arraylist
         CollectionReference collectionRef = FirebaseFirestore.getInstance().collection("profiles");
@@ -55,18 +46,22 @@ public class AdminProfiles extends AppCompatActivity {
 
                             // Convert document to Profile object and add to profileList
                             Profile profile = document.toObject(Profile.class);
-                            profile.setImageResId(R.drawable.spongebob);
+                            //Log.d("Firestore", "Name: " + profile.getName() + "ID: " + profile.getImageResId());
+                            //Log.d("Firestore", "Name: " + profile.getName() + "ID: " + profile.getImageResId());
                             profileList.add(profile);
                         }
-                        adapter.notifyDataSetChanged();
+
+                        Log.d("Firestore", profileList.get(0).getName() + " " + profileList.get(0).getImageResId());
+                        Log.d("Firestore", profileList.get(1).getName() + " " + profileList.get(1).getImageResId());
+                        Log.d("Firestore", profileList.get(2).getName() + " " + profileList.get(2).getImageResId());
+
                     } else {
                         Log.d("Firestore", "No documents found in this collection.");
                     }
                 }).addOnFailureListener(e -> Log.w("Firestore", "Error fetching documents", e));
 
-        //profileList.add(new Profile("Spongebob", R.drawable.spongebob));
-        //profileList.add(new Profile("Patrick", R.drawable.patrick));
-        //profileList.add(new Profile("Squidward", R.drawable.squidward));
+        ProfileAdapter adapter = new ProfileAdapter(this, profileList);
+        profile_list.setAdapter(adapter);
 
         profile_button = findViewById(R.id.profile_button);
         events_button = findViewById(R.id.events_button);
@@ -92,6 +87,15 @@ public class AdminProfiles extends AppCompatActivity {
                 profile_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
 
                 Intent intent = new Intent(AdminProfiles.this, AdminEvents.class);
+                startActivity(intent);
+            }
+        });
+
+        back_button = findViewById(R.id.back_button);
+        back_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(AdminProfiles.this, MainActivity.class);
                 startActivity(intent);
             }
         });
