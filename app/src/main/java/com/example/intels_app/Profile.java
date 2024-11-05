@@ -9,6 +9,9 @@ public class Profile {
         this.imageResId = imageResId;
     }
 
+    // Default constructor required for Firestore
+    public Profile() {}
+
     public void setName(String name) {
         this.name = name;
     }

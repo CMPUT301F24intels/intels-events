@@ -56,23 +56,26 @@
         android:layout_width="411dp"
         android:layout_height="437dp"
         android:layout_marginTop="35dp"
+        app:layout_constraintBottom_toTopOf="@+id/search_bar"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/events_button" />
+        app:layout_constraintTop_toBottomOf="@+id/events_button"
+        app:layout_constraintVertical_bias="0.0" />
 
     <EditText
         android:id="@+id/search_bar"
         android:layout_width="255dp"
         android:layout_height="50dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginBottom="24dp"
         android:background="@android:drawable/edit_text"
         android:backgroundTint="#363E3D"
         android:drawableStart="@android:drawable/ic_menu_search"
         android:hint="      Image Browser"
         android:textColor="@android:color/black"
         android:textColorHint="#848A94"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_list" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -29,6 +29,12 @@ public class AdminProfiles extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_view);
 
+        profile_list = findViewById(R.id.profile_list);
+
+        profileList = new ArrayList<>();
+        ProfileAdapter adapter = new ProfileAdapter(this, profileList);
+        profile_list.setAdapter(adapter);
+
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -38,28 +44,29 @@ public class AdminProfiles extends AppCompatActivity {
             }
         });
 
+
         // Retrieve profile data from Firestore and assign it to profile arraylist
         CollectionReference collectionRef = FirebaseFirestore.getInstance().collection("profiles");
         collectionRef.get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
+                        Log.d("Firestore", "Profiles found: " + queryDocumentSnapshots.size());
                         for (DocumentSnapshot document : queryDocumentSnapshots) {
+
+                            // Convert document to Profile object and add to profileList
                             Profile profile = document.toObject(Profile.class);
+                            profile.setImageResId(R.drawable.spongebob);
                             profileList.add(profile);
                         }
+                        adapter.notifyDataSetChanged();
                     } else {
                         Log.d("Firestore", "No documents found in this collection.");
                     }
                 }).addOnFailureListener(e -> Log.w("Firestore", "Error fetching documents", e));
 
-        profile_list = findViewById(R.id.profile_list);
-        profileList = new ArrayList<>();
-        profileList.add(new Profile("Spongebob", R.drawable.spongebob));
-        profileList.add(new Profile("Patrick", R.drawable.patrick));
-        profileList.add(new Profile("Squidward", R.drawable.squidward));
-
-        ProfileAdapter adapter = new ProfileAdapter(this, profileList);
-        profile_list.setAdapter(adapter);
+        //profileList.add(new Profile("Spongebob", R.drawable.spongebob));
+        //profileList.add(new Profile("Patrick", R.drawable.patrick));
+        //profileList.add(new Profile("Squidward", R.drawable.squidward));
 
         profile_button = findViewById(R.id.profile_button);
         events_button = findViewById(R.id.events_button);
