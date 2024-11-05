@@ -2,6 +2,7 @@ package com.example.intels_app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -10,6 +11,10 @@ import android.widget.ListView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +22,7 @@ public class AdminProfiles extends AppCompatActivity {
     ImageButton back_button;
     Button profile_button, events_button;
     ListView profile_list;
-    private List<Profile> profileList;
+    private ArrayList<Profile> profileList;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,10 +33,24 @@ public class AdminProfiles extends AppCompatActivity {
         back_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(AdminProfiles.this, AdminLogin.class);
+                Intent intent = new Intent(AdminProfiles.this, MainActivity.class);
                 startActivity(intent);
             }
         });
+
+        // Retrieve profile data from Firestore and assign it to profile arraylist
+        CollectionReference collectionRef = FirebaseFirestore.getInstance().collection("profiles");
+        collectionRef.get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (DocumentSnapshot document : queryDocumentSnapshots) {
+                            Profile profile = document.toObject(Profile.class);
+                            profileList.add(profile);
+                        }
+                    } else {
+                        Log.d("Firestore", "No documents found in this collection.");
+                    }
+                }).addOnFailureListener(e -> Log.w("Firestore", "Error fetching documents", e));
 
         profile_list = findViewById(R.id.profile_list);
         profileList = new ArrayList<>();
