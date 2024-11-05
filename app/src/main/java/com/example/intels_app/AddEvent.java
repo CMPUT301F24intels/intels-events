@@ -84,15 +84,6 @@ public class AddEvent extends AppCompatActivity {
                 openGallery.launch(intent);
 
                 ImageView imageView = findViewById(R.id.camera_image);
-
-                /*
-                // Get the data from an ImageView as bytes
-                imageView.setDrawingCacheEnabled(true);
-                imageView.buildDrawingCache();
-                Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                byte[] data = baos.toByteArray();*/
             }
         });
 
@@ -154,6 +145,7 @@ public class AddEvent extends AppCompatActivity {
 
                 // Return to Manage Events activity
                 Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
+                intent.putExtra("Event Name", eventName.getText().toString());
                 startActivity(intent);
             }
         });
@@ -222,20 +214,5 @@ public class AddEvent extends AppCompatActivity {
             e.printStackTrace();
             return null;
         }
-    }
-
-    private void uploadImage(Uri image) {
-        StorageReference reference = storageReference.child("/images" + UUID.randomUUID().toString());
-        reference.putFile(image).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Toast.makeText(AddEvent.this, "Poster added successfully!", Toast.LENGTH_LONG).show();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(AddEvent.this, "There was an error in uploading the poster", Toast.LENGTH_LONG).show();
-            }
-        });
     }
 }
