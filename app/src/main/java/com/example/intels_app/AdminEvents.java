@@ -40,11 +40,7 @@ public class AdminEvents extends AppCompatActivity {
 
         events_gridview = findViewById(R.id.events_gridview);
         list_event = new ArrayList<>();
-        //list_event.add(new Event("1", "Event 1"));
-        //list_event.add(new Event("2", "Event 2"));
-        //list_event.add(new Event("3", "Event 3"));
-        //list_event.add(new Event("4", "Event 4"));
-        //list_event.add(new Event("5", "Event 5"));
+
         CustomAdapterOrganizer adapter = new CustomAdapterOrganizer(this, list_event);
         events_gridview.setAdapter(adapter);
 
