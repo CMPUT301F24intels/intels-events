@@ -33,7 +33,7 @@ public class CreateQR extends AppCompatActivity {
         ImageView qrCodeImageView = findViewById(R.id.qrCodeImageView);
 
         // Data to encode in the QR code
-        String dataToEncode = "launch_add_event_activity";
+        String dataToEncode = "Event Name" + eventName;
 
         try {
             // Use ZXing to generate QR code
