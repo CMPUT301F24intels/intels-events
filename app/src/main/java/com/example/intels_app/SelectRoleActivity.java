@@ -1,5 +1,6 @@
 package com.example.intels_app;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -17,7 +18,8 @@ public class SelectRoleActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish(); // Closes the current activity and returns to the previous one
+                Intent intent = new Intent(SelectRoleActivity.this, JoinWaitlistActivity.class);
+                startActivity(intent);
             }
         });
     }

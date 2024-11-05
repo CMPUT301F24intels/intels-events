@@ -20,7 +20,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         joinWaitlistButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
+                Intent intent = new Intent(JoinWaitlistActivity.this, ScanQRActivity.class);
                 startActivity(intent);
             }
         });
