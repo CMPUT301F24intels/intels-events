@@ -2,9 +2,11 @@ package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -41,13 +43,18 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
 public class AddEvent extends AppCompatActivity {
     StorageReference storageReference;
     Uri image;
     ImageView imageView;
-    Button addPosterButton;
+    String imageHash;
+    byte[] imageData;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,11 +83,9 @@ public class AddEvent extends AppCompatActivity {
                 intent.setType("image/*");
                 openGallery.launch(intent);
 
-                /*
-                //openGallery(); // Get image from gallery and show it on the UI
-
                 ImageView imageView = findViewById(R.id.camera_image);
 
+                /*
                 // Get the data from an ImageView as bytes
                 imageView.setDrawingCacheEnabled(true);
                 imageView.buildDrawingCache();
@@ -118,25 +123,34 @@ public class AddEvent extends AppCompatActivity {
                         notifPreference.isChecked()
                 );
 
-                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("posters");
+                // Put poster image into storage. Put uri into newEvent parameters
+                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("posters").child(imageHash);
+                storageReference.putBytes(imageData)
+                        .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
+                                .addOnSuccessListener(uri -> {
+                                    String posterUrl = uri.toString();
+                                    newEvent.setPosterUrl(posterUrl);
 
-                // Create a document with ID of eventName under the events collection
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                DocumentReference docRef = db.collection("events").document(eventName.getText().toString());
-                docRef.set(newEvent)
-                        .addOnSuccessListener(documentReference -> {
-                            Intent intent = new Intent(AddEvent.this, CreateQR.class);
-                            startActivity(intent);
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Error adding document", e);
-                            }
+                                    // Create a document with ID of eventName under the events collection
+                                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                    DocumentReference docRef = db.collection("events").document(eventName.getText().toString());
+                                    docRef.set(newEvent)
+                                            .addOnSuccessListener(documentReference -> {
+                                                Intent intent = new Intent(AddEvent.this, CreateQR.class);
+                                                startActivity(intent);
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.w(TAG, "Error adding document", e);
+                                                }
+                                            });
+
+                                })
+                        ).addOnFailureListener(e -> {
+                            Log.w(TAG, "Image upload failed", e);
+                            Toast.makeText(AddEvent.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
                         });
-
-                // Add the poster image to Firebase Storage
-                //uploadImage(image);
 
                 // Return to Manage Events activity
                 Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
@@ -157,12 +171,58 @@ public class AddEvent extends AppCompatActivity {
                         //addPosterButton.setEnabled(true);
                         image = result.getData().getData();
                         Glide.with(getApplicationContext()).load(image).into(imageView); // Put uploaded image into imageView
+
+                        try {
+                            // Step 1: Get Bitmap from Uri
+                            Bitmap bitmap = getBitmapFromUri(image, getContentResolver());
+
+                            // Step 2: Convert Bitmap to byte array
+                            imageData = bitmapToByteArray(bitmap);
+
+                            // Step 3: Hash the byte array
+                            imageHash = hashImage(imageData);
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            Toast.makeText(AddEvent.this, "Error processing image", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } else {
                     Toast.makeText(AddEvent.this, "Please select an image", Toast.LENGTH_LONG).show();
                 }
             }
         });
+
+    public Bitmap getBitmapFromUri(Uri uri, ContentResolver contentResolver) throws IOException {
+        InputStream inputStream = contentResolver.openInputStream(uri);
+        return BitmapFactory.decodeStream(inputStream);
+    }
+
+    public byte[] bitmapToByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        return baos.toByteArray();
+    }
+
+
+    public String hashImage(byte[] imageData) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(imageData);
+
+            // Convert bytes to hex string
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashBytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     private void uploadImage(Uri image) {
         StorageReference reference = storageReference.child("/images" + UUID.randomUUID().toString());
