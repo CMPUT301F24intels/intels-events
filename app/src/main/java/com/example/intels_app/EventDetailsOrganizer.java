@@ -41,7 +41,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         TextView geolocationRequirementTextView = findViewById(R.id.geolocationRequirementTextView);
         TextView notificationPreferenceTextView = findViewById(R.id.notificationPreferenceTextView);
         ImageView posterImageView = findViewById(R.id.posterImageView);
-        ImageView qrCodeImageView = findViewById(R.id.qrCodeImageView);
+        //ImageView qrCodeImageView = findViewById(R.id.qrCodeImageView);
 
         // Get event info from Firestore
         DocumentReference documentRef = FirebaseFirestore.getInstance().collection("events").document(eventName);
@@ -58,7 +58,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                 boolean geolocationRequirement = event.isGeolocationRequirement();
                 boolean notificationPreference = event.isNotifPreference();
                 String posterUrl = event.getPosterUrl();
-                String qrCodeUrl = event.getQrCodeUrl();
+                //String qrCodeUrl = event.getQrCodeUrl();
 
                 eventNameTextView.setText("Event Name: " + eventName);
                 facilityTextView.setText("Facility: " + facility);
@@ -78,9 +78,6 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
             }
         }).addOnFailureListener(e -> Log.w(TAG, "Error getting document", e));
-
-
-
 
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
