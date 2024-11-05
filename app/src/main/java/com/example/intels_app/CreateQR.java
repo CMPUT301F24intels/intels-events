@@ -11,8 +11,12 @@ import android.widget.ImageView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
@@ -38,17 +42,12 @@ public class CreateQR extends AppCompatActivity {
             Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
             qrCodeImageView.setImageBitmap(bitmap);
 
-            // Step 2: Convert Bitmap to byte array
-            //byte[] imageData = bitmapToByteArray(bitmap);
-
-            // Step 3: Hash the byte array
-            //String imageHash = hashImage(imageData);
         } catch (WriterException e) {
             e.printStackTrace();
         }
 
-        DocumentReference documentRef = FirebaseFirestore.getInstance().collection("events").document(eventName);
-        documentRef.update("qrCodeUrl", dataToEncode);
+        //DocumentReference documentRef = FirebaseFirestore.getInstance().collection("events").document(eventName);
+        //documentRef.update("qrCodeUrl", dataToEncode);
 
         Button eventDetailsButton = findViewById(R.id.eventDetailsButton);
         eventDetailsButton.setOnClickListener(new View.OnClickListener() {
