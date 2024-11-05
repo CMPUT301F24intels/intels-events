@@ -36,10 +36,8 @@ public class ManageEventsActivity extends AppCompatActivity {
         GridView gridview = findViewById(R.id.gridViewEvents);
         ArrayList<Event> eventData = new ArrayList<>();
 
-        //Event event = new Event("Event 1", "Facility 1", "Location 1", "DateTime 1", "Description 1", 10, true, true);
-
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference collectionRef = db.collection("events"); // Replace "events" with your collection name
+        CollectionReference collectionRef = db.collection("events");
 
         collectionRef.get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -48,6 +46,14 @@ public class ManageEventsActivity extends AppCompatActivity {
 
                             // Convert document to Event object and add to eventData list
                             Event event = document.toObject(Event.class);
+
+                            if (event != null) {
+                                Log.d("Firestore", "Event fetched: " + event.getEventName());
+                                eventData.add(event);
+                            } else {
+                                Log.d("Firestore", "Event document couldn't be deserialized: " + document.getId());
+                            }
+
                             eventData.add(event);
                         }
                     } else {
