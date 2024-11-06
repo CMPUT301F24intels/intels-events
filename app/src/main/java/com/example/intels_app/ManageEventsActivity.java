@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 
@@ -85,6 +86,15 @@ public class ManageEventsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ManageEventsActivity.this, AddEvent.class);
+                startActivity(intent);
+            }
+        });
+
+        Button manageFacilityButton = findViewById(R.id.manageFacilityButton);
+        manageFacilityButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ManageEventsActivity.this, ManageFacility.class);
                 startActivity(intent);
             }
         });

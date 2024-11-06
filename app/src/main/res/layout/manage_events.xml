@@ -56,8 +56,8 @@
 
     <LinearLayout
         android:id="@+id/buttonLayout"
-        android:layout_width="150dp"
-        android:layout_height="47dp"
+        android:layout_width="228dp"
+        android:layout_height="51dp"
         android:layout_marginBottom="16dp"
         android:gravity="center"
         android:orientation="horizontal"
@@ -73,19 +73,19 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:background="@drawable/circular_button"
-            android:backgroundTint="#0000FF"
+            android:backgroundTint="#BE35FF7A"
             android:contentDescription="Add"
             app:srcCompat="@drawable/add_button" />
 
-        <ImageButton
+        <Button
             android:id="@+id/manageFacilityButton"
-            android:layout_width="48dp"
+            android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:background=""
-            android:backgroundTint="#0000FF"
+            android:backgroundTint="#FF7235"
             android:contentDescription="Add"
+            android:text="Manage Facility"
             app:srcCompat="@drawable/add_button" />
 
     </LinearLayout>
