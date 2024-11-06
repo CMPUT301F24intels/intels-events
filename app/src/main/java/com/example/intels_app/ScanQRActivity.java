@@ -23,7 +23,9 @@ public class ScanQRActivity extends AppCompatActivity {
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                qrCodeScanner.startScan();
+                //qrCodeScanner.startScan();
+                Intent intent = new Intent(ScanQRActivity.this, JoinWaitlistActivity.class);
+                startActivity(intent);
             }
 
             /* Uncomment when implementing
