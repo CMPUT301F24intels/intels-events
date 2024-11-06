@@ -20,7 +20,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.join_waitlist);
 
-        // Retrieve event details from the intent
+        /*// Retrieve event details from the intent
         String eventName = getIntent().getStringExtra("eventName");
         String facilityName = getIntent().getStringExtra("facilityName");
         String location = getIntent().getStringExtra("location");
@@ -28,7 +28,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         String description = getIntent().getStringExtra("description");
         int maxAttendees = getIntent().getIntExtra("maxAttendees", 0);
         boolean geolocationRequirement = getIntent().getBooleanExtra("geolocationRequirement", false);
-        String posterUrl = getIntent().getStringExtra("posterUrl");
+        String posterUrl = getIntent().getStringExtra("posterUrl");*/
 
         // Set the retrieved data to the UI elements
         TextView eventNameTextView = findViewById(R.id.eventNameEdit);
@@ -38,6 +38,16 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         TextView descriptionTextView = findViewById(R.id.descriptionEdit);
         TextView maxAttendeesTextView = findViewById(R.id.max_attendees);
         SwitchCompat geolocationSwitch = findViewById(R.id.geolocationRequirementText);
+
+        // Hardcoding Data simply to test, change back after
+        String eventName = "Aayushi_Testing123";
+        String facilityName = "Main Hall";
+        String location = "123 Event St, City";
+        String dateTime = "2024-11-10 10:00 AM";
+        String description = "This is a sample event description.";
+        int maxAttendees = 100;
+        boolean geolocationRequirement = false;
+        String posterUrl = "wwwwwwww";
 
         eventNameTextView.setText(String.format("Name: %s", eventName));
         facilityTextView.setText(String.format("Facility: %s", facilityName));
@@ -67,35 +77,12 @@ public class JoinWaitlistActivity extends AppCompatActivity {
             }
         });
 
-    // Hardcoding Data simply to test, change back after
-        String eventName = "Aayushi_Testing123";
-        String facility = "Main Hall";
-        String location = "123 Event St, City";
-        String dateTime = "2024-11-10 10:00 AM";
-        String description = "This is a sample event description.";
-        int maxAttendees = 100;
-
-        /*// Retrieve event details from the intent
-        String eventName = getIntent().getStringExtra("Event Name");
-        String facility = getIntent().getStringExtra("Facility");
-        String location = getIntent().getStringExtra("Location");
-        String dateTime = getIntent().getStringExtra("DateTime");
-        String description = getIntent().getStringExtra("Description");
-        int maxAttendees = getIntent().getIntExtra("Max Attendees", 0);
-*/
-        // Find and set text for each TextView
-        TextView eventNameTextView = findViewById(R.id.eventNameEdit);
-        TextView facilityTextView = findViewById(R.id.facilityEdit);
-        TextView locationTextView = findViewById(R.id.locationEdit);
-        TextView dateTimeTextView = findViewById(R.id.dateTimeEdit);
-        TextView descriptionTextView = findViewById(R.id.descriptionEdit);
-        TextView maxAttendeesTextView = findViewById(R.id.max_attendees);
 
         if (eventNameTextView != null) {
             eventNameTextView.setText(eventName);
         }
         if (facilityTextView != null) {
-            facilityTextView.setText(facility);
+            facilityTextView.setText(facilityName);
         }
         if (locationTextView != null) {
             locationTextView.setText(location);
@@ -115,7 +102,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
                 intent.putExtra("Event Name", eventName);
-                intent.putExtra("Facility", facility);
+                intent.putExtra("Facility", facilityName);
                 intent.putExtra("Location", location);
                 intent.putExtra("DateTime", dateTime);
                 intent.putExtra("Description", description);
