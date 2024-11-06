@@ -46,4 +46,3 @@ public class CustomAdapterOrganizer extends BaseAdapter {
         return convertView;
     }
 }
-
