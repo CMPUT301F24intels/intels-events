@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -15,14 +16,22 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EntrantInWaitlist extends AppCompatActivity {
     private Button waitlist_button, cancelled_button, final_list_button, back_button;
     private ListView listView;
     private List<Profile> profileList;
     private CheckBox sendNotificationCheckbox;
+    private String eventId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +40,14 @@ public class EntrantInWaitlist extends AppCompatActivity {
 
         EditText searchBar = findViewById(R.id.search_bar);
         listView = findViewById(R.id.profile_list);
+
+        eventId = getIntent().getStringExtra("eventId");
+        Log.d("EntrantInWaitlist", "Retrieved eventId: " + eventId);
+
+        if (eventId == null || eventId.isEmpty()) {
+            Toast.makeText(this, "Event ID is missing. Cannot proceed.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         profileList = new ArrayList<>();
         profileList.add(new Profile("Gopi Modi", R.drawable.gopimodi));
@@ -50,7 +67,8 @@ public class EntrantInWaitlist extends AppCompatActivity {
 
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -58,7 +76,8 @@ public class EntrantInWaitlist extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         waitlist_button = findViewById(R.id.btn_waitlist);
@@ -118,7 +137,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
                     String message = input.getText().toString().trim();
                     if (!message.isEmpty()) {
                         sendNotificationToEntrants(message);
-                        sendNotificationCheckbox.setChecked(false);
+                        sendNotificationCheckbox.setChecked(false); // Uncheck the checkbox after sending
                     } else {
                         Toast.makeText(this, "Message cannot be empty", Toast.LENGTH_SHORT).show();
                     }
@@ -129,12 +148,34 @@ public class EntrantInWaitlist extends AppCompatActivity {
                 })
                 .show();
     }
-    private void sendNotificationToEntrants(String message) {
-        // Logic to send the notification to all entrants goes here
-        // For demonstration, we're using a Toast message as a placeholder
-        Toast.makeText(this, "Notification sent: " + message, Toast.LENGTH_LONG).show();
 
-        // Add your actual notification sending code here
-        // For example, integrating with Firebase Cloud Messaging if applicable
+    private void sendNotificationToEntrants(String message) {
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Validate eventId
+        if (eventId == null || eventId.isEmpty()) {
+            Log.e("Firestore", "eventId is null or empty");
+            Toast.makeText(this, "Event ID is missing. Cannot send notification.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create notification data to save in Firestore
+        Map<String, Object> notificationData = new HashMap<>();
+        notificationData.put("message", message); // Custom message
+        notificationData.put("timestamp", FieldValue.serverTimestamp()); // Server timestamp
+        notificationData.put("eventId", eventId); // Tag to associate with the event
+
+        // Add the notification to the top-level `notifications` collection
+        db.collection("notifications")
+                .add(notificationData)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(this, "Notification saved successfully!", Toast.LENGTH_LONG).show();
+                    Log.d("Firestore", "Notification saved with ID: " + documentReference.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error saving notification", e);
+                    Toast.makeText(this, "Failed to save notification", Toast.LENGTH_SHORT).show();
+                });
     }
 }

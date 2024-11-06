@@ -26,8 +26,9 @@
         android:background="@drawable/circular_button"
         android:backgroundTint="@color/zxing_transparent"
         android:contentDescription="Delete"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/delete_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
