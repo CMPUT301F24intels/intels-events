@@ -32,9 +32,9 @@ public class AdminProfiles extends AppCompatActivity {
         profile_list = findViewById(R.id.profile_list);
         profileList = new ArrayList<>();
 
-        profileList.add(new Profile("Spongebob", R.drawable.spongebob));
-        profileList.add(new Profile("Patrick", R.drawable.patrick));
-        profileList.add(new Profile("Squidward", R.drawable.squidward));
+        //profileList.add(new Profile("Spongebob", R.drawable.spongebob));
+        //profileList.add(new Profile("Patrick", R.drawable.patrick));
+        //profileList.add(new Profile("Squidward", R.drawable.squidward));
 
         // Retrieve profile data from Firestore and assign it to profile arraylist
         CollectionReference collectionRef = FirebaseFirestore.getInstance().collection("profiles");
