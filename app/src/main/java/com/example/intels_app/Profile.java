@@ -6,6 +6,7 @@ public class Profile {
     private int phone_number;
     private int imageResId;
     private String imageUrl;
+    private String deviceId;
 
     public Profile(String name, int imageResId) {
         this.name = name;
@@ -23,6 +24,21 @@ public class Profile {
         this.name = name;
         this.email = email;
         this.phone_number = phone_number;
+    }
+
+    public Profile(String deviceId, String name, String email, int phone_number) {
+        this.deviceId = deviceId;
+        this.name = name;
+        this.email = email;
+        this.phone_number = phone_number;
+    }
+
+    public Profile(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
     }
 
     // Default constructor required for Firestore

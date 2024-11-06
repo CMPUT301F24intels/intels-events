@@ -54,6 +54,8 @@
         <activity android:name=".ManageFacility" />
         <activity android:name=".CreateFacility" />
         <activity android:name=".MainPageActivity" />
+        <activity android:name=".SignUp" />
+        <activity android:name=".SuccessWaitlistJoin" />
 
         <activity
             android:name=".NotificationActivity"
