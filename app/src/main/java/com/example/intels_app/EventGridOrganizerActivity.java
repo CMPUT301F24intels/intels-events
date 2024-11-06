@@ -2,6 +2,7 @@ package com.example.intels_app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -10,37 +11,59 @@ import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.installations.FirebaseInstallations;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class EventGridOrganizerActivity extends AppCompatActivity {
 
     private Button entrant_button, organizer_button;
+    private CustomAdapterOrganizer adapter;
+    private List<Event> eventData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.listview_with_grid);
 
+        FirebaseInstallations.getInstance().getId()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        String currentDeviceId = task.getResult();
+                        fetchEventsForDevice(currentDeviceId);
+                    } else {
+                        Log.e("FirebaseInstallations", "Unable to get device ID", task.getException());
+                    }
+                });
+
         // Initialize the GridView and set the adapter
         GridView gridView = findViewById(R.id.grid_view);
-        List<Event> eventData = new ArrayList<>();
+        eventData = new ArrayList<>();
+        adapter = new CustomAdapterOrganizer(this, eventData);
+        gridView.setAdapter(adapter);
+
+        /*List<Event> eventData = new ArrayList<>();
         eventData.add(new Event("1", "Sample Event 1"));
         eventData.add(new Event("2", "Sample Event 2"));
         eventData.add(new Event("3", "Sample Event 3"));
         eventData.add(new Event("4", "Sample Event 4"));
-        eventData.add(new Event("5", "Sample Event 5"));
-
-        CustomAdapterOrganizer adapter = new CustomAdapterOrganizer(this, eventData);
-        gridView.setAdapter(adapter);
+        eventData.add(new Event("5", "Sample Event 5"));*/
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Event selectedEvent = (Event) parent.getItemAtPosition(position);
+                String selectedEventId = selectedEvent.getId(); // Get event ID
+
+                Log.d("EventGridOrganizerActivity", "Selected Event ID: " + selectedEventId);
 
                 Intent intent = new Intent(EventGridOrganizerActivity.this, EntrantInWaitlist.class);
-                intent.putExtra("eventId", selectedEvent.getId()); // Use appropriate method to get ID
+                intent.putExtra("eventId", selectedEventId); // Pass the event ID
                 startActivity(intent);
             }
         });
@@ -49,7 +72,7 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(EventGridOrganizerActivity.this, MainActivity.class);
+                Intent intent = new Intent(EventGridOrganizerActivity.this, MainPageActivity.class);
                 startActivity(intent);
             }
         });
@@ -80,5 +103,34 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
                 entrant_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
             }
         });
+    }
+
+    private void fetchEventsForDevice(String deviceId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference eventsRef = db.collection("events");
+
+        eventsRef.whereEqualTo("deviceId", deviceId)
+            .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                if (e != null) {
+                    Log.w("Firestore", "Listen failed.", e);
+                    return;
+                }
+
+                if (queryDocumentSnapshots != null) {
+                    Log.d("Firestore", "Data received: " + queryDocumentSnapshots.size() + " documents");
+                    eventData.clear(); // Clear list to avoid duplicates
+                    for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                        Event event = documentSnapshot.toObject(Event.class);
+                        if (event != null) {
+                            event.setId(documentSnapshot.getId()); // Set ID from Firestore document ID
+                            Log.d("Firestore", "Event added: " + event.getId());
+                            eventData.add(event); // Add event to the list
+                        }
+                    }
+                    adapter.notifyDataSetChanged();
+                } else {
+                    Log.d("Firestore", "No documents found.");
+                }
+            });
     }
 }

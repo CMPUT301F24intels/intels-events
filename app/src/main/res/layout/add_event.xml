@@ -63,15 +63,13 @@
         android:id="@+id/edit_poster_button"
         android:layout_width="148dp"
         android:layout_height="45dp"
-        android:layout_marginStart="30dp"
         android:layout_marginTop="116dp"
+        android:layout_marginEnd="28dp"
         android:backgroundTint="#3580FF"
         android:fontFamily="@font/poppins_semibold"
-        android:text="@string/edit_image"
+        android:text="@string/add_poster"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.283"
-        app:layout_constraintStart_toEndOf="@+id/pfpPlaceholder"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
@@ -94,33 +92,29 @@
         android:id="@+id/max_attendees_textview"
         android:layout_width="148dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="35dp"
         android:layout_marginTop="36dp"
+        android:layout_marginEnd="28dp"
+        android:background="#0A0C16"
         android:fontFamily="@font/poppins_semibold"
         android:text="Max Attendees:"
         android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="15sp"
-        android:background="#0A0C16"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.208"
-        app:layout_constraintStart_toEndOf="@+id/pfpPlaceholder"
         app:layout_constraintTop_toBottomOf="@+id/edit_poster_button" />
 
     <EditText
         android:id="@+id/max_attendees_number"
         android:layout_width="148dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="35dp"
+        android:layout_marginEnd="28dp"
         android:background="#0A0C16"
         android:fontFamily="@font/poppins_semibold"
+        android:inputType="number"
         android:textAlignment="center"
         android:textColor="@color/white"
         android:textSize="15sp"
-        android:inputType="number"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.208"
-        app:layout_constraintStart_toEndOf="@+id/pfpPlaceholder"
         app:layout_constraintTop_toBottomOf="@+id/max_attendees_textview" />
 
     <EditText

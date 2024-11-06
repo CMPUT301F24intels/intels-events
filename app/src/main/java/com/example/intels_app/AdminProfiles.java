@@ -32,9 +32,9 @@ public class AdminProfiles extends AppCompatActivity {
         profile_list = findViewById(R.id.profile_list);
         profileList = new ArrayList<>();
 
-        profileList.add(new Profile("Spongebob", R.drawable.spongebob));
-        profileList.add(new Profile("Patrick", R.drawable.patrick));
-        profileList.add(new Profile("Squidward", R.drawable.squidward));
+        //profileList.add(new Profile("Spongebob", R.drawable.spongebob));
+        //profileList.add(new Profile("Patrick", R.drawable.patrick));
+        //profileList.add(new Profile("Squidward", R.drawable.squidward));
 
         // Retrieve profile data from Firestore and assign it to profile arraylist
         CollectionReference collectionRef = FirebaseFirestore.getInstance().collection("profiles");
@@ -95,7 +95,7 @@ public class AdminProfiles extends AppCompatActivity {
         back_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(AdminProfiles.this, MainActivity.class);
+                Intent intent = new Intent(AdminProfiles.this, MainPageActivity.class);
                 startActivity(intent);
             }
         });

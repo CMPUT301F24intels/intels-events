@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainPageActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     //private FirebaseAuth fAuth;
     private AppBarConfiguration appBarConfiguration;
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         ViewWaitListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, EventGridEntrantActivity.class);
+                Intent intent = new Intent(MainPageActivity.this, EventGridEntrantActivity.class);
                 startActivity(intent);
             }
         });
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         joinEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, ScanQRActivity.class);
+                Intent intent = new Intent(MainPageActivity.this, ScanQRActivity.class);
                 startActivity(intent);
             }
         });
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         manageApp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, AdminLogin.class);
+                Intent intent = new Intent(MainPageActivity.this, AdminLogin.class);
                 startActivity(intent);
             }
         });
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         manageEventsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, ManageEventsActivity.class);
+                Intent intent = new Intent(MainPageActivity.this, ManageEventsActivity.class);
                 startActivity(intent);
             }
         });
@@ -105,11 +105,11 @@ public class MainActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 if (item.getItemId() == R.id.action_show_notifications) {
                     // Navigate to NotificationActivity
-                    Intent intent = new Intent(MainActivity.this, NotificationActivity.class);
+                    Intent intent = new Intent(MainPageActivity.this, NotificationActivity.class);
                     startActivity(intent);
                     return true;
                 } else if (item.getItemId() == R.id.action_settings) {
-                    Intent intent = new Intent(MainActivity.this, EditProfileActivity.class);
+                    Intent intent = new Intent(MainPageActivity.this, EditProfileActivity.class);
                     startActivity(intent);
                     return true;
                 }

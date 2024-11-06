@@ -13,6 +13,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -37,7 +38,9 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.installations.FirebaseInstallations;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -47,6 +50,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
+import com.google.firebase.messaging.FirebaseMessaging;
 import java.util.UUID;
 
 public class AddEvent extends AppCompatActivity {
@@ -61,7 +67,19 @@ public class AddEvent extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_event);
 
-        imageView = findViewById(R.id.camera_image);
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        String deviceId = task.getResult();
+                        Log.d("DeviceID", "Device ID (Firebase Token): " + deviceId);
+
+                        // Use of deviceId to track the organizer's device in Firestore
+                    } else {
+                        Log.e("DeviceID", "Failed to get Firebase Instance ID", task.getException());
+                    }
+                });
+
+        imageView = findViewById(R.id.pfpPlaceholder);
 
         // Go back to Manage Events if back button clicked
         ImageButton backButton = findViewById(R.id.back_button);
@@ -91,7 +109,61 @@ public class AddEvent extends AppCompatActivity {
             SwitchCompat geolocationRequirement = findViewById(R.id.geolocationRequirementTextView);
             SwitchCompat notifPreference = findViewById(R.id.notifPreferenceTextView);
 
-            // Put poster image into storage. Put uri into newEvent parameters
+            // Get Firebase device ID
+            FirebaseInstallations.getInstance().getId()
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    String deviceId = task.getResult();
+
+                    // Upload the poster image to storage
+                    StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("posters").child(imageHash);
+                    storageReference.putBytes(imageData)
+                            .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
+                                    .addOnSuccessListener(uri -> {
+                                        String posterUrl = uri.toString();
+
+                                        // Create a new event with the entered details and device ID
+                                        Event newEvent = new Event(
+                                                eventName.getText().toString(),
+                                                facility.getText().toString(),
+                                                location.getText().toString(),
+                                                dateTime.getText().toString(),
+                                                description.getText().toString(),
+                                                Integer.parseInt(maxAttendees.getText().toString()),
+                                                geolocationRequirement.isChecked(),
+                                                notifPreference.isChecked(),
+                                                posterUrl,
+                                                deviceId // Add the device ID here
+                                        );
+
+                                        // Save event to Firestore under the events collection
+                                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                        DocumentReference docRef = db.collection("events").document(eventName.getText().toString());
+                                        docRef.set(newEvent)
+                                                .addOnSuccessListener(documentReference -> {
+                                                    Intent intent = new Intent(AddEvent.this, CreateQR.class);
+                                                    // Pass all necessary details to CreateQR activity
+                                                    intent.putExtra("Event Name", eventName.getText().toString());
+                                                    intent.putExtra("Facility", facility.getText().toString());
+                                                    intent.putExtra("Location", location.getText().toString());
+                                                    intent.putExtra("DateTime", dateTime.getText().toString());
+                                                    intent.putExtra("Description", description.getText().toString());
+                                                    intent.putExtra("Max Attendees", Integer.parseInt(maxAttendees.getText().toString()));
+                                                    startActivity(intent);
+                                                })
+                                                .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
+                                    })
+                            ).addOnFailureListener(e -> {
+                                Log.w(TAG, "Image upload failed", e);
+                                Toast.makeText(AddEvent.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                            });
+                } else {
+                    Log.e("FirebaseInstallations", "Unable to get device ID", task.getException());
+                }
+            });
+
+
+            /*// Put poster image into storage. Put uri into newEvent parameters
             StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("posters").child(imageHash);
             storageReference.putBytes(imageData)
                     .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
@@ -136,6 +208,7 @@ public class AddEvent extends AppCompatActivity {
             // Return to Manage Events activity (if needed)
             Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
             startActivity(intent);
+        });*/
         });
     }
 
@@ -147,6 +220,8 @@ public class AddEvent extends AppCompatActivity {
                     if (result.getData() != null) {
                         image = result.getData().getData();
                         Glide.with(getApplicationContext()).load(image).into(imageView); // Put uploaded image into imageView
+                        ImageView cameraImage = findViewById(R.id.camera_image);
+                        cameraImage.setVisibility(View.INVISIBLE);
 
                         try {
                             // Step 1: Get Bitmap from Uri

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#16181F">
+
+    <TextView
+        android:id="@+id/welcomeTextview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Welcome"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="28sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/facilityDetailsTextview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Create your Facility Profile"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="22sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.506"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/welcomeTextview" />
+
+    <ImageView
+        android:id="@+id/pfpPlaceholder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/facilityDetailsTextview"
+        app:srcCompat="@drawable/pfp_placeholder_image" />
+
+    <ImageView
+        android:id="@+id/camera_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/pfpPlaceholder"
+        app:layout_constraintEnd_toEndOf="@+id/pfpPlaceholder"
+        app:layout_constraintHorizontal_bias="0.516"
+        app:layout_constraintStart_toStartOf="@+id/pfpPlaceholder"
+        app:layout_constraintTop_toTopOf="@+id/pfpPlaceholder"
+        app:layout_constraintVertical_bias="0.487"
+        app:srcCompat="@drawable/camera_image" />
+
+    <Button
+        android:id="@+id/edit_poster_button"
+        android:layout_width="143dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="72dp"
+        android:layout_marginEnd="32dp"
+        android:backgroundTint="#3580FF"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Add Facility Image"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/facilityDetailsTextview"
+        app:layout_constraintVertical_bias="0.025" />
+
+    <Button
+        android:id="@+id/edit_facility_details_button"
+        android:layout_width="347dp"
+        android:layout_height="51dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#17AF42"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Create Facility Profile"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/facilityNameEditText"
+        android:layout_width="349dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/rounded_corner_rectangle_light_black"
+        android:fontFamily="@font/poppins_semibold"
+        android:hint="Facility Name"
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="#848A94"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.516"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pfpPlaceholder" />
+
+    <EditText
+        android:id="@+id/locationEditText"
+        android:layout_width="349dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/rounded_corner_rectangle_light_black"
+        android:fontFamily="@font/poppins_semibold"
+        android:hint="@string/location"
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="#848A94"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.516"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/facilityNameEditText" />
+
+    <EditText
+        android:id="@+id/emailEditText"
+        android:layout_width="349dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/rounded_corner_rectangle_light_black"
+        android:fontFamily="@font/poppins_semibold"
+        android:hint="Email"
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="#848A94"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.516"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/locationEditText" />
+
+    <EditText
+        android:id="@+id/telephoneEditText"
+        android:layout_width="349dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/rounded_corner_rectangle_light_black"
+        android:fontFamily="@font/poppins_semibold"
+        android:hint="Phone Number"
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="#848A94"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.516"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/emailEditText" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
