@@ -2,7 +2,7 @@ package com.example.intels_app;
 
 public class Profile {
     private String name;
-    private String username;
+    private String email;
     private int phone_number;
     private int imageResId;
     private String imageUrl;
@@ -12,11 +12,17 @@ public class Profile {
         this.imageResId = imageResId;
     }
 
-    public Profile(String name, String username, int phone_number, String imageUrl) {
+    public Profile(String name, String email, int phone_number, String imageUrl) {
         this.name = name;
-        this.username = username;
+        this.email = email;
         this.phone_number = phone_number;
         this.imageUrl = imageUrl;
+    }
+    //Constructor without profile pic
+    public Profile(String name, String email, int phone_number) {
+        this.name = name;
+        this.email = email;
+        this.phone_number = phone_number;
     }
 
     // Default constructor required for Firestore
@@ -38,11 +44,12 @@ public class Profile {
         return imageResId;
     }
 
-    public String getUsername() {
-        return username;
+    public String getEmail() {
+        return email;
     }
-    public void setUsername(String username) {
-        this.username = username;
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public int getPhone_number() {

@@ -1,5 +1,7 @@
 package com.example.intels_app;
 
+import static android.content.ContentValues.TAG;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,6 +13,7 @@ import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,6 +28,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -38,14 +43,14 @@ public class SignUp extends AppCompatActivity {
     private static final int REQUEST_IMAGE_PICK = 2;
     private static final int PERMISSION_REQUEST_CODE = 100;
     private boolean isCameraOption = false;
+    private FirebaseFirestore db;
+    private CollectionReference profilesRef;
 
     ImageButton back_button;
-    EditText name, username, phone_number;
+    EditText name, email, phone_number;
     Button add_picture, register_button;
     ImageView profile_pic;
 
-    private StorageReference storage;
-    private FirebaseFirestore db;
     private String Imagehash;
     private Uri imageUri;
     private byte[] imageData;
@@ -56,15 +61,11 @@ public class SignUp extends AppCompatActivity {
         setContentView(R.layout.sign_up);
 
         db = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance().getReference();
+        profilesRef = db.collection("profiles");
 
         add_picture = findViewById(R.id.add_picture);
         add_picture.setOnClickListener(view -> showImagePickerDialog());
         profile_pic = findViewById(R.id.camera_image);
-        name = findViewById(R.id.enter_name);
-        username = findViewById(R.id.enter_username);
-        phone_number = findViewById(R.id.enter_phone_number);
-        register_button = findViewById(R.id.register_button);
 
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(new View.OnClickListener() {
@@ -74,7 +75,28 @@ public class SignUp extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
         register_button = findViewById(R.id.register_button);
+        register_button.setOnClickListener(view -> {
+            name = findViewById(R.id.enter_name);
+            email = findViewById(R.id.enter_email);
+            phone_number = findViewById(R.id.enter_phone_number);
+
+            Profile newProfile = new Profile(name.getText().toString(),
+                    email.getText().toString(),
+                    Integer.parseInt(phone_number.getText().toString()));
+
+            profilesRef
+                    .document(name.getText().toString())
+                    .set(newProfile)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            Log.d("Firestore", "Profile successfully added to Firestore!");
+                        }})
+                    .addOnFailureListener(e -> Log.w(TAG, "Error adding profile", e));
+        });
+
     }
 
     private void showImagePickerDialog() {
@@ -130,33 +152,6 @@ public class SignUp extends AppCompatActivity {
     private void openGallery() {
         Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK);
-    }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_IMAGE_CAPTURE && data != null) {
-                // Handle the camera image
-                Bitmap photo = (Bitmap) data.getExtras().get("data");
-                profile_pic.setImageBitmap(photo);  // Set the photo to the ImageView
-                imageData = bitmapToBytes(photo);   // Convert the image to bytes for upload
-            } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
-                // Handle the gallery image
-                imageUri = data.getData();
-                profile_pic.setImageURI(imageUri);  // Set the selected image to the ImageView
-                try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-                    imageData = bitmapToBytes(bitmap);  // Convert the image to bytes for upload
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-    private byte[] bitmapToBytes(Bitmap bitmap) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        return baos.toByteArray();
     }
 
     private Bitmap generateProfilePicture(String name) {

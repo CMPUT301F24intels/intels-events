@@ -63,7 +63,7 @@
         app:layout_constraintTop_toBottomOf="@+id/profile_picture" />
 
     <EditText
-        android:id="@+id/enter_username"
+        android:id="@+id/enter_email"
         android:layout_width="376dp"
         android:layout_height="45dp"
         android:layout_marginTop="32dp"
@@ -96,7 +96,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/enter_username" />
+        app:layout_constraintTop_toBottomOf="@+id/enter_email" />
 
     <Button
         android:id="@+id/register_button"
