@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Method to redirect to create profile if user is new
     private void redirectToCreateOrganizerProfile(String deviceId) {
-        Intent intent = new Intent(MainActivity.this, CreateFacility.class);
+        Intent intent = new Intent(MainActivity.this, CreateFacility.class); //Changed this line make it back to CreateFacility
         intent.putExtra("deviceId", deviceId); // Pass device ID if needed in CreateProfileActivity
         startActivity(intent);
         finish(); // Close MainActivity
