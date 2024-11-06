@@ -1,91 +1,190 @@
 package com.example.intels_app;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Intent;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
-import org.w3c.dom.Text;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class EventDetailsOrganizer extends AppCompatActivity {
+
+    private static final String TAG = "EventDetailsOrganizer";
+
+    private ImageButton backButton, drawButton;
+    private ImageView posterImageView;
+    private TextView eventNameEditText, facilityEditText, locationEditText, dateTimeEditText,
+            descriptionEditText, maxAttendeesTextView, geolocationRequirementTextView, notificationPreferenceTextView;
+
+    private FirebaseFirestore db;
+    private String eventId;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_details);
 
-        String eventName = getIntent().getStringExtra("Event Name");
+        // Get the event ID from the intent
+        eventId = getIntent().getStringExtra("eventId");
+
+        if (eventId == null) {
+            Log.e(TAG, "Event ID is missing");
+            finish();
+            return;
+        }
 
         // Get views from layout
-        TextView eventNameTextView = findViewById(R.id.eventNameEditText);
-        TextView facilityTextView = findViewById(R.id.facilityEditText);
-        TextView locationTextView = findViewById(R.id.locationEditText);
-        TextView dateTimeTextView = findViewById(R.id.dateTimeEditText);
-        TextView descriptionTextView = findViewById(R.id.descriptionEditText);
-        TextView maxAttendeesTextView = findViewById(R.id.max_attendees_textview);
-        TextView geolocationRequirementTextView = findViewById(R.id.geolocationRequirementTextView);
-        TextView notificationPreferenceTextView = findViewById(R.id.notificationPreferenceTextView);
-        ImageView posterImageView = findViewById(R.id.posterImageView);
-        //ImageView qrCodeImageView = findViewById(R.id.qrCodeImageView);
+        eventNameEditText = findViewById(R.id.eventNameEditText);
+        facilityEditText = findViewById(R.id.facilityEditText);
+        locationEditText = findViewById(R.id.locationEditText);
+        dateTimeEditText = findViewById(R.id.dateTimeEditText);
+        descriptionEditText = findViewById(R.id.descriptionEditText);
+        maxAttendeesTextView = findViewById(R.id.max_attendees_textview);
+        geolocationRequirementTextView = findViewById(R.id.geolocationRequirementTextView);
+        notificationPreferenceTextView = findViewById(R.id.notificationPreferenceTextView);
+        posterImageView = findViewById(R.id.posterImageView);
+        drawButton = findViewById(R.id.drawButton);
 
-        // Get event info from Firestore
-        DocumentReference documentRef = FirebaseFirestore.getInstance().collection("events").document(eventName);
-        documentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                Event event = documentSnapshot.toObject(Event.class);
-                String eventName = event.getEventName();
-                String facility = event.getFacilityName();
-                String location = event.getLocation();
-                String dateTime = event.getDateTime();
-                String description = event.getDescription();
-                int maxAttendees = event.getMaxAttendees();
-                boolean geolocationRequirement = event.isGeolocationRequirement();
-                boolean notificationPreference = event.isNotifPreference();
-                String posterUrl = event.getPosterUrl();
-                //String qrCodeUrl = event.getQrCodeUrl();
+        // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
 
-                eventNameTextView.setText("Event Name: " + eventName);
-                facilityTextView.setText("Facility: " + facility);
-                locationTextView.setText("Location: " + location);
-                dateTimeTextView.setText("Date and Time: " + dateTime);
-                descriptionTextView.setText("Description: " + description);
-                maxAttendeesTextView.setText("Max Attendees: " + maxAttendees);
-                geolocationRequirementTextView.setText("Geolocation Requirement: " + geolocationRequirement);
-                notificationPreferenceTextView.setText("Notification Preference: " + notificationPreference);
+        // Load event details from Firestore
+        loadEventDetails();
 
-                if (posterUrl != null) {
-                    Glide.with(getApplicationContext()).load(posterUrl).into(posterImageView); // Put image into imageView
-                } else {
-                    Log.w(TAG, "No poster URL found in the document");
-                }
+        // Set up Draw Button functionality
+        drawButton.setOnClickListener(view -> performLotteryDraw());
 
-
-            }
-        }).addOnFailureListener(e -> Log.w(TAG, "Error getting document", e));
-
-        ImageButton backButton = findViewById(R.id.back_button);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(EventDetailsOrganizer.this, ManageEventsActivity.class);
-                startActivity(intent);
-            }
+        // Back button to navigate back to the manage events screen
+        backButton = findViewById(R.id.back_button);
+        backButton.setOnClickListener(view -> {
+            Intent intent = new Intent(EventDetailsOrganizer.this, ManageEventsActivity.class);
+            startActivity(intent);
         });
     }
+
+    private void loadEventDetails() {
+        DocumentReference documentRef = db.collection("events").document(eventId);
+        documentRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Event event = documentSnapshot.toObject(Event.class);
+                if (event != null) {
+                    // Populate the UI with event details
+                    eventNameEditText.setText("Event Name: " + event.getEventName());
+                    facilityEditText.setText("Facility: " + event.getFacilityName());
+                    locationEditText.setText("Location: " + event.getLocation());
+                    dateTimeEditText.setText("Date and Time: " + event.getDateTime());
+                    descriptionEditText.setText("Description: " + event.getDescription());
+                    maxAttendeesTextView.setText("Max Attendees: " + event.getMaxAttendees());
+                    geolocationRequirementTextView.setText("Geolocation Requirement: " + event.isGeolocationRequirement());
+                    notificationPreferenceTextView.setText("Notification Preference: " + event.isNotifPreference());
+
+                    if (event.getPosterUrl() != null) {
+                        Glide.with(getApplicationContext()).load(event.getPosterUrl()).into(posterImageView);
+                    } else {
+                        Log.w(TAG, "No poster URL found in the document");
+                    }
+                }
+            } else {
+                Log.e(TAG, "No such document exists");
+            }
+        }).addOnFailureListener(e -> Log.w(TAG, "Error getting document", e));
+    }
+
+    private void performLotteryDraw() {
+        CollectionReference profilesRef = db.collection("profiles");
+
+        profilesRef.get().addOnSuccessListener(queryDocumentSnapshots -> {
+            List<DocumentSnapshot> profileList = queryDocumentSnapshots.getDocuments();
+
+            if (profileList.isEmpty()) {
+                Toast.makeText(this, "No profiles in the database.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Get the number of spots from the max attendees field
+            int numberOfSpots = Integer.parseInt(maxAttendeesTextView.getText().toString().split(": ")[1]);
+
+            // Randomly shuffle the list and select the required number of participants
+            Collections.shuffle(profileList);
+            List<DocumentSnapshot> selectedProfiles = profileList.subList(0, Math.min(numberOfSpots, profileList.size()));
+
+            for (DocumentSnapshot profile : selectedProfiles) {
+                // selected profiles in the database
+                profile.getReference().update("status", "selected")
+                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Profile selected: " + profile.getId()))
+                        .addOnFailureListener(e -> Log.w(TAG, "Failed to update profile status", e));
+            }
+
+            // Send notifications to selected and unselected profiles
+            sendNotificationsToProfiles(profileList, selectedProfiles);
+
+            // After the draw, redirect to the waiting list with selected entrants
+            Intent intent = new Intent(EventDetailsOrganizer.this, EntrantInWaitlist.class);
+            intent.putExtra("eventId", eventId);
+            startActivity(intent);
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error fetching profiles", e);
+            Toast.makeText(this, "Failed to fetch profiles.", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void sendNotificationsToProfiles(List<DocumentSnapshot> allProfiles, List<DocumentSnapshot> selectedProfiles) {
+        List<DocumentSnapshot> unselectedProfiles = new ArrayList<>(allProfiles);
+        unselectedProfiles.removeAll(selectedProfiles);
+
+        // Notify selected profiles
+        for (DocumentSnapshot selectedProfile : selectedProfiles) {
+            String profileId = selectedProfile.getId();
+            String message = "Congratulations! You have been selected for the event!";
+            sendNotificationToProfile(profileId, eventId, message, "selected");
+        }
+
+        // Notify unselected profiles
+        for (DocumentSnapshot unselectedProfile : unselectedProfiles) {
+            String profileId = unselectedProfile.getId();
+            String message = "Sorry, you were not selected this time. Please stay tuned for more events.";
+            sendNotificationToProfile(profileId, eventId, message, "not_selected");
+        }
+
+        Toast.makeText(this, "Lottery draw complete. Notifications sent.", Toast.LENGTH_SHORT).show();
+    }
+
+    private void sendNotificationToProfile(String profileId, String eventId, String message, String type) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Create notification data
+        Map<String, Object> notificationData = new HashMap<>();
+        notificationData.put("profileId", profileId);
+        notificationData.put("eventId", eventId);
+        notificationData.put("message", message);
+        notificationData.put("timestamp", FieldValue.serverTimestamp());
+        notificationData.put("type", type);
+
+        // Add notification to Firestore under "notifications" collection
+        db.collection("notifications")
+                .add(notificationData)
+                .addOnSuccessListener(documentReference -> Log.d(TAG, "Notification sent with ID: " + documentReference.getId()))
+                .addOnFailureListener(e -> Log.w(TAG, "Error sending notification", e));
+    }
 }
+

@@ -4,18 +4,18 @@ import android.app.Activity;
 import android.content.Intent;
 import android.widget.Toast;
 
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class QRCodeScanner {
 
     private final Activity activity;
+    private FirebaseFirestore db;
 
     public QRCodeScanner(Activity activity) {
         this.activity = activity;
+        this.db = FirebaseFirestore.getInstance();
     }
 
     public void startScan() {
@@ -34,35 +34,39 @@ public class QRCodeScanner {
             if (result.getContents() == null) {
                 Toast.makeText(activity, "Cancelled", Toast.LENGTH_LONG).show();
             } else {
-                try {
-                    // Parse JSON data from QR code
-                    JSONObject eventDetails = new JSONObject(result.getContents());
-
-                    // Extract event details
-                    String eventName = eventDetails.getString("name");
-                    String facility = eventDetails.getString("facility");
-                    String location = eventDetails.getString("location");
-                    String dateTime = eventDetails.getString("dateTime");
-                    String description = eventDetails.getString("description");
-                    int maxAttendees = eventDetails.getInt("maxAttendees");
-
-                    // Create an intent to start JoinWaitlistActivity
-                    Intent intent = new Intent(activity, JoinWaitlistActivity.class);
-                    intent.putExtra("Event Name", eventName);
-                    intent.putExtra("Facility", facility);
-                    intent.putExtra("Location", location);
-                    intent.putExtra("DateTime", dateTime);
-                    intent.putExtra("Description", description);
-                    intent.putExtra("Max Attendees", maxAttendees);
-
-                    // Start JoinWaitlistActivity with the intent
-                    activity.startActivity(intent);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    Toast.makeText(activity, "Failed to parse QR code", Toast.LENGTH_SHORT).show();
-                }
+                // The scanned content is now just the event name
+                String eventName = result.getContents();
+                fetchEventDetailsFromFirestore(eventName);
             }
         }
+    }
+
+    private void fetchEventDetailsFromFirestore(String eventName) {
+        db.collection("events").document(eventName).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Create an intent to start JoinWaitlistActivity
+                        Intent intent = new Intent(activity, JoinWaitlistActivity.class);
+
+                        // Add all event details to the intent
+                        intent.putExtra("eventName", eventName);
+                        intent.putExtra("facilityName", documentSnapshot.getString("facilityName"));
+                        intent.putExtra("location", documentSnapshot.getString("location"));
+                        intent.putExtra("dateTime", documentSnapshot.getString("dateTime"));
+                        intent.putExtra("description", documentSnapshot.getString("description"));
+                        intent.putExtra("maxAttendees", documentSnapshot.getLong("maxAttendees").intValue());
+                        intent.putExtra("geolocationRequirement", documentSnapshot.getBoolean("geolocationRequirement"));
+                        intent.putExtra("posterUrl", documentSnapshot.getString("posterUrl"));
+
+                        // Start JoinWaitlistActivity with the intent
+                        activity.startActivity(intent);
+                    } else {
+                        Toast.makeText(activity, "Event not found", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(activity, "Error fetching event details", Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                });
     }
 }

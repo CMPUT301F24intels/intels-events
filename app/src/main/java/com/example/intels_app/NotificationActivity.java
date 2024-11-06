@@ -6,22 +6,33 @@ import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.List;
 
 public class NotificationActivity extends AppCompatActivity {
 
     private ImageView backButton;
     private TextView clearAllButton;
+    private LinearLayout notificationListLayout;
 
     private static final String CHANNEL_ID = "notification_channel";
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +43,8 @@ public class NotificationActivity extends AppCompatActivity {
 
         backButton = findViewById(R.id.back_button);
         clearAllButton = findViewById(R.id.tvClearAll);
+        notificationListLayout = findViewById(R.id.notificationListLayout);
+        db = FirebaseFirestore.getInstance();
 
         // Set up back button to navigate back to main activity
         backButton.setOnClickListener(view -> {
@@ -42,16 +55,82 @@ public class NotificationActivity extends AppCompatActivity {
         // Clear all notifications when 'Clear All' is clicked
         clearAllButton.setOnClickListener(view -> clearAllNotifications());
 
-        // Setting up Accept and Decline buttons for notifications
-        setupNotificationActions();
+        // Load notifications from Firestore
+        loadNotificationsFromFirestore();
     }
 
-    private void setupNotificationActions() {
-        Button acceptButton1 = findViewById(R.id.accept_button_1);
-        Button declineButton1 = findViewById(R.id.decline_button_1);
+    private void loadNotificationsFromFirestore() {
+        CollectionReference notificationsRef = db.collection("notifications");
+        notificationsRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot querySnapshot = task.getResult();
+                if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                    List<DocumentSnapshot> notifications = querySnapshot.getDocuments();
+                    for (DocumentSnapshot notificationDoc : notifications) {
+                        String title = notificationDoc.getString("eventId");
+                        String message = notificationDoc.getString("message");
+                        String type = notificationDoc.getString("type");
 
-        acceptButton1.setOnClickListener(view -> handleAcceptNotification("Chair Sale"));
-        declineButton1.setOnClickListener(view -> handleDeclineNotification("Chair Sale"));
+                        addNotification(title, message, type);
+                    }
+                } else {
+                    Toast.makeText(NotificationActivity.this, "No notifications found.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(NotificationActivity.this, "Failed to load notifications.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void addNotification(String title, String message, String type) {
+        // Inflate the notification item layout
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View notificationView = inflater.inflate(R.layout.notification_item, null);
+
+        // Set up notification view details
+        TextView notificationTitle = notificationView.findViewById(R.id.notification_title);
+        TextView notificationMessage = notificationView.findViewById(R.id.notification_message);
+        Button acceptButton = notificationView.findViewById(R.id.accept_button);
+        Button declineButton = notificationView.findViewById(R.id.decline_button);
+
+        notificationTitle.setText(title);
+        notificationMessage.setText(message);
+
+        // Show accept and decline buttons only if the type is "selected"
+        if ("selected".equals(type)) {
+            acceptButton.setVisibility(View.VISIBLE);
+            declineButton.setVisibility(View.VISIBLE);
+        } else {
+            acceptButton.setVisibility(View.GONE);
+            declineButton.setVisibility(View.GONE);
+        }
+
+        // Handle accept button click
+        acceptButton.setOnClickListener(view -> {
+            handleAcceptNotification(title);
+            acceptButton.setVisibility(View.GONE);
+            declineButton.setVisibility(View.GONE);
+            notificationMessage.setText("You have accepted the invitation.");
+        });
+
+        // Handle decline button click
+        declineButton.setOnClickListener(view -> {
+            handleDeclineNotification(title);
+            acceptButton.setVisibility(View.GONE);
+            declineButton.setVisibility(View.GONE);
+            notificationMessage.setText("You have declined the invitation.");
+        });
+
+        // Set margins programmatically for added view
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins(0, 16, 0, 24); // Set top, left, right, bottom margins for extra spacing
+        notificationView.setLayoutParams(params);
+
+        // Add the notification view to the notification list layout
+        notificationListLayout.addView(notificationView);
     }
 
     private void handleAcceptNotification(String eventName) {
@@ -63,6 +142,7 @@ public class NotificationActivity extends AppCompatActivity {
     }
 
     private void clearAllNotifications() {
+        notificationListLayout.removeAllViews();
         NotificationManagerCompat.from(this).cancelAll();
         Toast.makeText(this, "All notifications cleared", Toast.LENGTH_SHORT).show();
     }
@@ -78,18 +158,5 @@ public class NotificationActivity extends AppCompatActivity {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
-    }
-
-    @SuppressLint("MissingPermission")
-    private void showNotification(String title, String message) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.cat) // testing
-                .setContentTitle(title)
-                .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setAutoCancel(true);
-
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.notify(1, builder.build());
     }
 }
