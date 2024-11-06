@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Step 2: Check if user profile exists based on device ID
     private void checkUserExists(String deviceId) {
-        FirebaseFirestore.getInstance().collection("profiles")
+        FirebaseFirestore.getInstance().collection("facilities")
                 .whereEqualTo("deviceId", deviceId)
                 .get()
                 .addOnCompleteListener(task -> {
