@@ -21,7 +21,11 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.installations.FirebaseInstallations;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
@@ -35,11 +39,15 @@ import java.security.NoSuchAlgorithmException;
 
 public class ManageFacility extends AppCompatActivity {
     Uri image;
-    ImageView imageView;
     String imageHash;
     byte[] imageData;
     boolean imageUploaded = false;
     String deviceId;
+    EditText facilityName;
+    EditText location;
+    EditText email;
+    EditText telephone;
+    ImageView imageView;
     Facility facility;
 
     @Override
@@ -59,7 +67,35 @@ public class ManageFacility extends AppCompatActivity {
                     }
                 });
 
+        facilityName = findViewById(R.id.facilityNameEditText);
+        location = findViewById(R.id.locationEditText);
+        email = findViewById(R.id.emailEditText);
+        telephone = findViewById(R.id.telephoneEditText);
         imageView = findViewById(R.id.pfpPlaceholder);
+
+        FirebaseFirestore.getInstance().collection("facilities").whereEqualTo("deviceId", deviceId).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+
+                            // Populate UI with data from Firestore
+                            facilityName.setHint(documentSnapshot.getString("facilityName"));
+                            location.setHint(documentSnapshot.getString("location"));
+                            email.setHint(documentSnapshot.getString("email"));
+
+                            Long telephoneLong = documentSnapshot.getLong("telephone");
+                            telephone.setHint(String.valueOf(telephoneLong.intValue()));
+
+                            String imageUrl = documentSnapshot.getString("imageUrl");
+                            if (imageUrl != null) {
+                                Glide.with(getApplicationContext()).load(imageUrl).into(imageView);
+                            }
+
+                            Log.d("Firestore", "Document found and data loaded.");
+                    }
+                }});
 
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -81,10 +117,10 @@ public class ManageFacility extends AppCompatActivity {
         Button makeChanges = findViewById(R.id.edit_facility_details_button);
         makeChanges.setOnClickListener(view -> {
 
-            EditText facilityName = findViewById(R.id.facilityNameEditText);
-            EditText location = findViewById(R.id.locationEditText);
-            EditText email = findViewById(R.id.emailEditText);
-            EditText telephone = findViewById(R.id.telephoneEditText);
+            facilityName = findViewById(R.id.facilityNameEditText);
+            location = findViewById(R.id.locationEditText);
+            email = findViewById(R.id.emailEditText);
+            telephone = findViewById(R.id.telephoneEditText);
 
             // Get Firebase device ID
             FirebaseInstallations.getInstance().getId()
