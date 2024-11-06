@@ -52,6 +52,7 @@ public class SignUp extends AppCompatActivity {
     ImageView profile_pic;
 
     private String deviceId;
+    private String eventId;
     private String Imagehash;
     private Uri imageUri;
     private byte[] imageData;
@@ -65,6 +66,9 @@ public class SignUp extends AppCompatActivity {
         profilesRef = db.collection("profiles");
 
         deviceId = getIntent().getStringExtra("Device ID");
+        eventId = getIntent().getStringExtra("Event Name");
+        Log.d("SignUpActivity", "Received Device ID: " + deviceId); // Log for verification
+        Log.d("SignUpActivity", "Received Event ID: " + eventId);
 
         add_picture = findViewById(R.id.add_picture);
         add_picture.setOnClickListener(view -> showImagePickerDialog());
@@ -85,26 +89,40 @@ public class SignUp extends AppCompatActivity {
             email = findViewById(R.id.enter_email);
             phone_number = findViewById(R.id.enter_phone_number);
 
-            Profile newProfile = new Profile(deviceId, name.getText().toString(),
-                    email.getText().toString(),
-                    Integer.parseInt(phone_number.getText().toString()));
+            int phoneNumber;
+            try {
+                phoneNumber = Integer.parseInt(phone_number.getText().toString());
+            } catch (NumberFormatException e) {
+                Toast.makeText(SignUp.this, "Invalid phone number", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            profilesRef
-                    .document(name.getText().toString())
+            // Create Profile with deviceId
+            Profile newProfile = new Profile(deviceId, name.getText().toString(), email.getText().toString(), phoneNumber);
+
+            profilesRef.document(name.getText().toString())
                     .set(newProfile)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void unused) {
-                            Toast.makeText(SignUp.this, "Successfully joined event as Entrant!", Toast.LENGTH_SHORT).show();
-                            Log.d("Firestore", "Profile successfully added to Firestore!");
-                        }})
+                    .addOnSuccessListener(aVoid -> Log.d("Firestore", "Profile successfully added to Firestore!"))
+                    .addOnFailureListener(e -> Log.w("FirestoreError", "Error adding profile", e));
+
+            // Save profile under the event's waitlist subdirectory
+            db.collection("events")
+                    .document(eventId)
+                    .collection("waitlist")
+                    .document(deviceId) // Use device ID for uniqueness
+                    .set(newProfile)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(SignUp.this, "Successfully joined event as Entrant!", Toast.LENGTH_SHORT).show();
+                        Log.d("Firestore", "Entrant successfully added to event waitlist!");
+
+                        // Navigate after both operations succeed
+                        Intent intent = new Intent(SignUp.this, SuccessWaitlistJoin.class);
+                        startActivity(intent);
+                    })
                     .addOnFailureListener(e -> {
                         Toast.makeText(SignUp.this, "Failed to join event as Entrant.", Toast.LENGTH_SHORT).show();
-                        Log.w("FirestoreError", "Error adding profile", e);
+                        Log.w("FirestoreError", "Error adding entrant to waitlist", e);
                     });
-
-            Intent intent = new Intent(SignUp.this, SuccessWaitlistJoin.class);
-            startActivity(intent);
         });
 
     }
