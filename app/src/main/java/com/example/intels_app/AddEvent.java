@@ -37,6 +37,7 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -47,6 +48,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class AddEvent extends AppCompatActivity {
@@ -116,6 +119,7 @@ public class AddEvent extends AppCompatActivity {
                                 DocumentReference docRef = db.collection("events").document(eventName.getText().toString());
                                 docRef.set(newEvent)
                                         .addOnSuccessListener(documentReference -> {
+                                            createEmptyNotificationsSubcollection(docRef); // creates a subdirectory of notifications specific to each event
                                             Intent intent = new Intent(AddEvent.this, CreateQR.class);
                                             // Pass all necessary details to CreateQR activity
                                             intent.putExtra("Event Name", eventName.getText().toString());
@@ -137,6 +141,21 @@ public class AddEvent extends AppCompatActivity {
             Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
             startActivity(intent);
         });
+    }
+
+    private void createEmptyNotificationsSubcollection(DocumentReference eventRef) {
+        CollectionReference notificationsRef = eventRef.collection("notifications");
+        Map<String, Object> initialNotification = new HashMap<>();
+        initialNotification.put("message", ""); // Empty placeholder message
+        initialNotification.put("timestamp", FieldValue.serverTimestamp());
+
+        notificationsRef.add(initialNotification)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d("Firestore", "Empty notifications subcollection created.");
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error creating notifications subcollection", e);
+                });
     }
 
     /** Handles the image selected. */

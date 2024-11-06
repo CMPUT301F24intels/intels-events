@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -15,14 +16,21 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EntrantInWaitlist extends AppCompatActivity {
     private Button waitlist_button, cancelled_button, final_list_button, back_button;
     private ListView listView;
     private List<Profile> profileList;
     private CheckBox sendNotificationCheckbox;
+    private String eventId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +39,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
 
         EditText searchBar = findViewById(R.id.search_bar);
         listView = findViewById(R.id.profile_list);
+        eventId = getIntent().getStringExtra("eventId");
 
         profileList = new ArrayList<>();
         profileList.add(new Profile("Gopi Modi", R.drawable.gopimodi));
@@ -130,11 +139,33 @@ public class EntrantInWaitlist extends AppCompatActivity {
                 .show();
     }
     private void sendNotificationToEntrants(String message) {
-        // Logic to send the notification to all entrants goes here
-        // For demonstration, we're using a Toast message as a placeholder
-        Toast.makeText(this, "Notification sent: " + message, Toast.LENGTH_LONG).show();
 
-        // Add your actual notification sending code here
-        // For example, integrating with Firebase Cloud Messaging if applicable
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference eventRef = db.collection("events").document(eventId);
+
+        if (eventId == null || eventId.isEmpty()) {
+            Log.e("Firestore", "eventId is null or empty");
+            Toast.makeText(this, "Event ID is missing. Cannot send notification.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create a new notification data object
+        Map<String, Object> notificationData = new HashMap<>();
+        notificationData.put("message", message);
+        notificationData.put("timestamp", FieldValue.serverTimestamp());
+
+        Log.d("Firestore", "Attempting to add notification to event: " + eventId);
+
+        // Add the notification to the notifications subcollection
+        eventRef.collection("notifications")
+                .add(notificationData)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(this, "Notification sent successfully!", Toast.LENGTH_LONG).show();
+                    Log.d("Firestore", "Notification added with ID: " + documentReference.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error sending notification", e);
+                    Toast.makeText(this, "Failed to send notification", Toast.LENGTH_SHORT).show();
+                });
     }
 }

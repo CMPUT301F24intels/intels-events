@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,14 +103,18 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
                 return;
             }
             if (queryDocumentSnapshots != null) {
-                eventData.clear(); // Clear the list to avoid duplicates
+                Log.d("Firestore", "Data received: " + queryDocumentSnapshots.size() + " documents");
+                eventData.clear(); // Clear list to avoid duplicates
                 for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                     Event event = documentSnapshot.toObject(Event.class);
-                    eventData.add(event); // Add event to the list
+                    if (event != null) {
+                        Log.d("Firestore", "Event added: " + event.getId()); // Custom log for each event
+                        eventData.add(event); // Add event to the list
+                    }
                 }
-                adapter.notifyDataSetChanged(); // Notify adapter to refresh the grid
+                adapter.notifyDataSetChanged();
             } else {
-                Log.d("Firestore", "Current data: null");
+                Log.d("Firestore", "No documents found.");
             }
         });
     }
