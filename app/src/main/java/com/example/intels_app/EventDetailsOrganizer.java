@@ -13,13 +13,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -98,10 +96,16 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                     geolocationRequirementTextView.setText("Geolocation Requirement: " + event.isGeolocationRequirement());
                     notificationPreferenceTextView.setText("Notification Preference: " + event.isNotifPreference());
 
-                    if (event.getPosterUrl() != null) {
-                        Glide.with(getApplicationContext()).load(event.getPosterUrl()).into(posterImageView);
+                    // Load event poster image using Glide
+                    if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
+                        Glide.with(getApplicationContext())
+                                .load(event.getPosterUrl())
+                                .placeholder(R.drawable.pfp_placeholder_image) // Add a placeholder image
+                                .error(R.drawable.person_image) // Add an error image if poster fails to load
+                                .into(posterImageView);
                     } else {
                         Log.w(TAG, "No poster URL found in the document");
+                        posterImageView.setImageResource(R.drawable.person_image); // Use a default placeholder image
                     }
                 }
             } else {
@@ -127,13 +131,6 @@ public class EventDetailsOrganizer extends AppCompatActivity {
             // Randomly shuffle the list and select the required number of participants
             Collections.shuffle(profileList);
             List<DocumentSnapshot> selectedProfiles = profileList.subList(0, Math.min(numberOfSpots, profileList.size()));
-
-            for (DocumentSnapshot profile : selectedProfiles) {
-                // selected profiles in the database
-                profile.getReference().update("status", "selected")
-                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Profile selected: " + profile.getId()))
-                        .addOnFailureListener(e -> Log.w(TAG, "Failed to update profile status", e));
-            }
 
             // Send notifications to selected and unselected profiles
             sendNotificationsToProfiles(profileList, selectedProfiles);
@@ -187,4 +184,3 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.w(TAG, "Error sending notification", e));
     }
 }
-

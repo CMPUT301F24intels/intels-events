@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#16181F">
 
+    <!-- Back Button -->
     <ImageButton
         android:id="@+id/back_button"
         android:layout_width="wrap_content"
@@ -17,50 +18,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/back_button" />
 
-    <!-- Navigation Button -->
-
-    <ImageButton
-        android:id="@+id/drawButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginEnd="114dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/circular_button"
-        android:backgroundTint="#FF8C00"
-        android:contentDescription="Draw"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/draw_text" />
-
-    <ImageButton
-        android:id="@+id/navigationButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="114dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/circular_button"
-        android:backgroundTint="#FFD700"
-        android:contentDescription="Navigation"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/map_pin" />
-
-    <ImageButton
-        android:id="@+id/editButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/circular_button"
-        android:backgroundTint="#32CD32"
-        android:contentDescription="Edit"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/drawButton"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/navigationButton"
-        app:srcCompat="@drawable/edit_icon" />
-
+    <!-- Event Details Title -->
     <TextView
         android:id="@+id/eventDetailsTextview"
         android:layout_width="wrap_content"
@@ -77,32 +35,24 @@
         app:layout_constraintStart_toEndOf="@+id/back_button"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/qrCodeImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        app:layout_constraintEnd_toStartOf="@+id/posterImageView"
-        app:layout_constraintHorizontal_bias="0.575"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/eventDetailsTextview"
-        tools:srcCompat="@tools:sample/avatars" />
-
+    <!-- Poster ImageView -->
     <ImageView
         android:id="@+id/posterImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="60dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:scaleType="centerCrop"
         app:layout_constraintTop_toBottomOf="@+id/eventDetailsTextview"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         tools:srcCompat="@tools:sample/avatars" />
 
+    <!-- Event Name TextView -->
     <TextView
         android:id="@+id/eventNameEditText"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="@string/event_name"
@@ -110,10 +60,11 @@
         android:textColor="@color/white"
         android:textColorHint="#848A94"
         android:textSize="15sp"
+        app:layout_constraintTop_toBottomOf="@+id/posterImageView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/qrCodeImageView" />
+        app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Facility TextView -->
     <TextView
         android:id="@+id/facilityEditText"
         android:layout_width="349dp"
@@ -126,10 +77,11 @@
         android:textColor="@color/white"
         android:textColorHint="#848A94"
         android:textSize="15sp"
+        app:layout_constraintTop_toBottomOf="@+id/eventNameEditText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/eventNameEditText" />
+        app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Location TextView -->
     <TextView
         android:id="@+id/locationEditText"
         android:layout_width="349dp"
@@ -142,10 +94,11 @@
         android:textColor="@color/white"
         android:textColorHint="#848A94"
         android:textSize="15sp"
+        app:layout_constraintTop_toBottomOf="@+id/facilityEditText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/facilityEditText" />
+        app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Date and Time TextView -->
     <TextView
         android:id="@+id/dateTimeEditText"
         android:layout_width="349dp"
@@ -158,10 +111,11 @@
         android:textColor="@color/white"
         android:textColorHint="#848A94"
         android:textSize="15sp"
+        app:layout_constraintTop_toBottomOf="@+id/locationEditText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/locationEditText" />
+        app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Description TextView -->
     <TextView
         android:id="@+id/descriptionEditText"
         android:layout_width="349dp"
@@ -174,15 +128,16 @@
         android:textColor="@color/white"
         android:textColorHint="#848A94"
         android:textSize="15sp"
+        app:layout_constraintTop_toBottomOf="@+id/dateTimeEditText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dateTimeEditText" />
+        app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Max Attendees TextView -->
     <TextView
         android:id="@+id/max_attendees_textview"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="7dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="Max Attendees"
@@ -190,15 +145,16 @@
         android:textColor="@color/white"
         android:textColorHint="#848A94"
         android:textSize="15sp"
+        app:layout_constraintTop_toBottomOf="@+id/descriptionEditText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/descriptionEditText" />
+        app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Geolocation Requirement TextView -->
     <TextView
         android:id="@+id/geolocationRequirementTextView"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="7dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="Geolocation Requirement"
@@ -206,15 +162,16 @@
         android:textColor="@color/white"
         android:textColorHint="#848A94"
         android:textSize="15sp"
+        app:layout_constraintTop_toBottomOf="@+id/max_attendees_textview"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/max_attendees_textview" />
+        app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Notification Preference TextView -->
     <TextView
         android:id="@+id/notificationPreferenceTextView"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="7dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="Notification Preference"
@@ -222,8 +179,52 @@
         android:textColor="@color/white"
         android:textColorHint="#848A94"
         android:textSize="15sp"
+        app:layout_constraintTop_toBottomOf="@+id/geolocationRequirementTextView"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Navigation Button -->
+    <ImageButton
+        android:id="@+id/navigationButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="114dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/circular_button"
+        android:backgroundTint="#FFD700"
+        android:contentDescription="Navigation"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/geolocationRequirementTextView" />
+        app:srcCompat="@drawable/map_pin" />
+
+    <!-- Edit Button -->
+    <ImageButton
+        android:id="@+id/editButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/circular_button"
+        android:backgroundTint="#32CD32"
+        android:contentDescription="Edit"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/drawButton"
+        app:layout_constraintStart_toEndOf="@+id/navigationButton"
+        app:srcCompat="@drawable/edit_icon" />
+
+    <!-- Draw Button -->
+    <ImageButton
+        android:id="@+id/drawButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="114dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/circular_button"
+        android:backgroundTint="#FF8C00"
+        android:contentDescription="Draw"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/draw_text" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

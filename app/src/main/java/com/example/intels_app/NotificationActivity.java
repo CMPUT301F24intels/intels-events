@@ -70,8 +70,9 @@ public class NotificationActivity extends AppCompatActivity {
                         String title = notificationDoc.getString("eventId");
                         String message = notificationDoc.getString("message");
                         String type = notificationDoc.getString("type");
+                        String profileId = notificationDoc.getString("profileId");
 
-                        addNotification(title, message, type);
+                        addNotification(title, message, type, profileId);
                     }
                 } else {
                     Toast.makeText(NotificationActivity.this, "No notifications found.", Toast.LENGTH_SHORT).show();
@@ -82,7 +83,7 @@ public class NotificationActivity extends AppCompatActivity {
         });
     }
 
-    private void addNotification(String title, String message, String type) {
+    private void addNotification(String title, String message, String type, String profileId) {
         // Inflate the notification item layout
         LayoutInflater inflater = LayoutInflater.from(this);
         View notificationView = inflater.inflate(R.layout.notification_item, null);
@@ -115,7 +116,7 @@ public class NotificationActivity extends AppCompatActivity {
 
         // Handle decline button click
         declineButton.setOnClickListener(view -> {
-            handleDeclineNotification(title);
+            handleDeclineNotification(profileId);  // Pass the profileId to handleDeclineNotification()
             acceptButton.setVisibility(View.GONE);
             declineButton.setVisibility(View.GONE);
             notificationMessage.setText("You have declined the invitation.");
@@ -137,8 +138,16 @@ public class NotificationActivity extends AppCompatActivity {
         Toast.makeText(this, "Accepted for " + eventName, Toast.LENGTH_SHORT).show();
     }
 
-    private void handleDeclineNotification(String eventName) {
-        Toast.makeText(this, "Declined for " + eventName, Toast.LENGTH_SHORT).show();
+    private void handleDeclineNotification(String profileId) {
+        // Update the profile status to "cancelled" in Firestore
+        db.collection("profiles").document(profileId)
+                .update("status", "cancelled")
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(NotificationActivity.this, "Profile status updated to 'cancelled'", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(NotificationActivity.this, "Failed to update profile status", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void clearAllNotifications() {
