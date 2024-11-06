@@ -51,6 +51,9 @@
         <activity android:name=".AdminEvents"/>
         <activity android:name=".JoinWaitlistActivity" />
         <activity android:name=".SelectRoleActivity" />
+        <activity android:name=".ManageFacility" />
+        <activity android:name=".CreateFacility" />
+        <activity android:name=".MainPageActivity" />
 
         <activity
             android:name=".NotificationActivity"

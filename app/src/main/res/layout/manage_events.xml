@@ -54,103 +54,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Event Boxes with Margins for Spacing
-    <GridLayout
-        android:id="@+id/gridLayout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:columnCount="2"
-        android:rowCount="3"
-        app:layout_constraintBottom_toTopOf="@+id/buttonLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title"
-
-        Event Box 1 with spacing
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
-            android:layout_margin="8dp"
-            android:background="#20232D"
-            android:gravity="center"
-            android:text="Sample event #1"
-            android:textColor="#FFFFFF" />
-
-         Event Box 2 with spacing
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
-            android:layout_margin="8dp"
-            android:background="#20232D"
-            android:gravity="center"
-            android:text="Sample event #2"
-            android:textColor="#FFFFFF" />
-
-        Event Box 3 with spacing
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
-            android:layout_margin="8dp"
-            android:background="#20232D"
-            android:gravity="center"
-            android:text="Sample event #3"
-            android:textColor="#FFFFFF" />
-
-        Event Box 4 with spacing
-        <TextView
-            android:id="@+id/textView5"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
-            android:layout_margin="8dp"
-            android:background="#20232D"
-            android:gravity="center"
-            android:text="Sample event #4"
-            android:textColor="#FFFFFF" />
-
-        Event Box 5 with spacing
-        <TextView
-            android:id="@+id/textView6"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
-            android:layout_margin="8dp"
-            android:background="#20232D"
-            android:gravity="center"
-            android:text="Sample event #5"
-            android:textColor="#FFFFFF" />
-
-        Event Box 6 with spacing
-        <TextView
-            android:id="@+id/textView7"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_rowWeight="1"
-            android:layout_columnWeight="1"
-            android:layout_margin="8dp"
-            android:background="#20232D"
-            android:gravity="center"
-            android:text="Sample event #6"
-            android:textColor="#FFFFFF" />
-    </GridLayout> -->
     <LinearLayout
         android:id="@+id/buttonLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="228dp"
+        android:layout_height="51dp"
         android:layout_marginBottom="16dp"
         android:gravity="center"
         android:orientation="horizontal"
@@ -166,9 +73,20 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:background="@drawable/circular_button"
-            android:backgroundTint="#0000FF"
-        android:contentDescription="Add"
-        app:srcCompat="@drawable/add_button" />
+            android:backgroundTint="#BE35FF7A"
+            android:contentDescription="Add"
+            app:srcCompat="@drawable/add_button" />
+
+        <Button
+            android:id="@+id/manageFacilityButton"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:backgroundTint="#FF7235"
+            android:contentDescription="Add"
+            android:text="Manage Facility"
+            app:srcCompat="@drawable/add_button" />
 
     </LinearLayout>
 

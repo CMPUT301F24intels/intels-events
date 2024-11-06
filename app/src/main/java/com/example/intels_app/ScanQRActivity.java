@@ -43,7 +43,7 @@ public class ScanQRActivity extends AppCompatActivity {
 
         });
 
-        // Sets up the back button to return to MainActivity
+        // Sets up the back button to return to MainPageActivity
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
