@@ -3,7 +3,6 @@ package com.example.intels_app;
 import static android.content.ContentValues.TAG;
 
 import android.content.Intent;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,77 +14,93 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import org.w3c.dom.Text;
-
 public class EventDetailsOrganizer extends AppCompatActivity {
+
+    private ImageButton backButton, drawButton;
+    private ImageView posterImageView;
+    private TextView eventNameEditText, facilityEditText, locationEditText, dateTimeEditText,
+            descriptionEditText, maxAttendeesTextView, geolocationRequirementTextView, notificationPreferenceTextView;
+
+    private FirebaseFirestore db;
+    private String eventId;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_details);
 
-        String eventName = getIntent().getStringExtra("Event Name");
+        // Get the event ID from the intent
+        eventId = getIntent().getStringExtra("eventId");
 
-        // Get views from layout
-        TextView eventNameTextView = findViewById(R.id.eventNameEditText);
-        TextView facilityTextView = findViewById(R.id.facilityEditText);
-        TextView locationTextView = findViewById(R.id.locationEditText);
-        TextView dateTimeTextView = findViewById(R.id.dateTimeEditText);
-        TextView descriptionTextView = findViewById(R.id.descriptionEditText);
-        TextView maxAttendeesTextView = findViewById(R.id.max_attendees_textview);
-        TextView geolocationRequirementTextView = findViewById(R.id.geolocationRequirementTextView);
-        TextView notificationPreferenceTextView = findViewById(R.id.notificationPreferenceTextView);
-        ImageView posterImageView = findViewById(R.id.posterImageView);
-        //ImageView qrCodeImageView = findViewById(R.id.qrCodeImageView);
+        if (eventId == null) {
+            Log.e(TAG, "Event ID is missing");
+            finish();
+            return;
+        }
 
-        // Get event info from Firestore
-        DocumentReference documentRef = FirebaseFirestore.getInstance().collection("events").document(eventName);
+        // Initialize the views
+        backButton = findViewById(R.id.back_button);
+        drawButton = findViewById(R.id.drawButton);
+        posterImageView = findViewById(R.id.posterImageView);
+        eventNameEditText = findViewById(R.id.eventNameEditText);
+        facilityEditText = findViewById(R.id.facilityEditText);
+        locationEditText = findViewById(R.id.locationEditText);
+        dateTimeEditText = findViewById(R.id.dateTimeEditText);
+        descriptionEditText = findViewById(R.id.descriptionEditText);
+        maxAttendeesTextView = findViewById(R.id.max_attendees_textview);
+        geolocationRequirementTextView = findViewById(R.id.geolocationRequirementTextView);
+        notificationPreferenceTextView = findViewById(R.id.notificationPreferenceTextView);
+
+        // Load event details
+        loadEventDetails();
+
+        // Set up the back button click listener
+        backButton.setOnClickListener(view -> finish());
+
+        // Set up the draw button click listener
+        drawButton.setOnClickListener(view -> {
+            // Navigate to waitlist_with_entrants.xml when Draw button is clicked
+            Intent intent = new Intent(EventDetailsOrganizer.this, EntrantInWaitlist.class);
+            intent.putExtra("eventId", eventId);  // Pass the event ID to the next activity
+            startActivity(intent);
+        });
+    }
+
+    private void loadEventDetails() {
+        db = FirebaseFirestore.getInstance();
+        DocumentReference documentRef = db.collection("events").document(eventId);
         documentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                Event event = documentSnapshot.toObject(Event.class);
-                String eventName = event.getEventName();
-                String facility = event.getFacilityName();
-                String location = event.getLocation();
-                String dateTime = event.getDateTime();
-                String description = event.getDescription();
-                int maxAttendees = event.getMaxAttendees();
-                boolean geolocationRequirement = event.isGeolocationRequirement();
-                boolean notificationPreference = event.isNotifPreference();
-                String posterUrl = event.getPosterUrl();
-                //String qrCodeUrl = event.getQrCodeUrl();
+                if (documentSnapshot.exists()) {
+                    Event event = documentSnapshot.toObject(Event.class);
+                    if (event != null) {
+                        // Populate the UI with event details
+                        eventNameEditText.setText("Event Name: " + event.getEventName());
+                        facilityEditText.setText("Facility: " + event.getFacilityName());
+                        locationEditText.setText("Location: " + event.getLocation());
+                        dateTimeEditText.setText("Date and Time: " + event.getDateTime());
+                        descriptionEditText.setText("Description: " + event.getDescription());
+                        maxAttendeesTextView.setText("Max Attendees: " + event.getMaxAttendees());
+                        geolocationRequirementTextView.setText("Geolocation Requirement: " + event.isGeolocationRequirement());
+                        notificationPreferenceTextView.setText("Notification Preference: " + event.isNotifPreference());
 
-                eventNameTextView.setText("Event Name: " + eventName);
-                facilityTextView.setText("Facility: " + facility);
-                locationTextView.setText("Location: " + location);
-                dateTimeTextView.setText("Date and Time: " + dateTime);
-                descriptionTextView.setText("Description: " + description);
-                maxAttendeesTextView.setText("Max Attendees: " + maxAttendees);
-                geolocationRequirementTextView.setText("Geolocation Requirement: " + geolocationRequirement);
-                notificationPreferenceTextView.setText("Notification Preference: " + notificationPreference);
-
-                if (posterUrl != null) {
-                    Glide.with(getApplicationContext()).load(posterUrl).into(posterImageView); // Put image into imageView
+                        if (event.getPosterUrl() != null) {
+                            Glide.with(getApplicationContext()).load(event.getPosterUrl()).into(posterImageView);
+                        } else {
+                            Log.w(TAG, "No poster URL found in the document");
+                        }
+                    }
                 } else {
-                    Log.w(TAG, "No poster URL found in the document");
+                    Log.e(TAG, "No such document exists");
                 }
-
-
             }
         }).addOnFailureListener(e -> Log.w(TAG, "Error getting document", e));
-
-        ImageButton backButton = findViewById(R.id.back_button);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(EventDetailsOrganizer.this, ManageEventsActivity.class);
-                startActivity(intent);
-            }
-        });
     }
 }
