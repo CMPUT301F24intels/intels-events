@@ -72,7 +72,7 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(EventGridOrganizerActivity.this, MainActivity.class);
+                Intent intent = new Intent(EventGridOrganizerActivity.this, MainPageActivity.class);
                 startActivity(intent);
             }
         });

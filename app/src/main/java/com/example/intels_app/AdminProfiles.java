@@ -95,7 +95,7 @@ public class AdminProfiles extends AppCompatActivity {
         back_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(AdminProfiles.this, MainActivity.class);
+                Intent intent = new Intent(AdminProfiles.this, MainPageActivity.class);
                 startActivity(intent);
             }
         });

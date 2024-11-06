@@ -47,7 +47,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(view -> {
-            Intent intent = new Intent(EditProfileActivity.this, MainActivity.class);
+            Intent intent = new Intent(EditProfileActivity.this, MainPageActivity.class);
             startActivity(intent);
         });
 
