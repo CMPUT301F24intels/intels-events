@@ -78,62 +78,59 @@ public class CreateFacility extends AppCompatActivity {
             EditText email = findViewById(R.id.emailEditText);
             EditText telephone = findViewById(R.id.telephoneEditText);
 
-            // Get Firebase device ID
-            FirebaseInstallations.getInstance().getId()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            String deviceId = task.getResult();
+            String facilityNameStr = facilityName.getText().toString();
+            String locationStr = location.getText().toString();
+            String emailStr = email.getText().toString();
+            Integer telephoneNum = Integer.parseInt(telephone.getText().toString());
 
-                            if (imageUploaded) {
-                                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("facilities").child(imageHash);
-                                storageReference.putBytes(imageData)
-                                        .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
-                                                .addOnSuccessListener(uri -> {
-                                                    Log.d(TAG, "hiiii");
-                                                    String facilityImageUrl = uri.toString();
-
-                                                    facility = new Facility(
-                                                            facilityName.getText().toString(),
-                                                            location.getText().toString(),
-                                                            email.getText().toString(),
-                                                            Integer.parseInt(telephone.getText().toString()),
-                                                            facilityImageUrl,
-                                                            deviceId
-                                                    );
-
-                                                    Log.d("Facility", facility.getFacilityName());
-                                                    Log.d("Facility", facility.getLocation());
-                                                    Log.d("Facility", facility.getEmail());
-                                                    Log.d("Facility", facility.getTelephone() + "");
-                                                    Log.d("Facility", facility.getFacilityImageUrl());
-                                                    Log.d("Facility", facility.getDeviceId());
-                                                })).addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
-                            } else {
-                                facility = new Facility(
-                                        facilityName.getText().toString(),
-                                        location.getText().toString(),
-                                        email.getText().toString(),
-                                        Integer.parseInt(telephone.getText().toString()),
-                                        deviceId
-                                );
-                            }
-
-                            FirebaseFirestore.getInstance().collection("facilities").document(facilityName.getText().toString())
-                                    .set(facility)
-                                    .addOnSuccessListener(documentReference -> {
-                                        Intent intent = new Intent(CreateFacility.this, MainPageActivity.class);
-                                        startActivity(intent);
-
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.w(TAG, "Image upload failed", e);
-                                        Toast.makeText(CreateFacility.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
-                                    });
-                        } else {
-                            Log.e("FirebaseInstallations", "Unable to get device ID", task.getException());
-                        }
-                    });
+            if (imageUploaded && imageData != null) {
+                // Upload the image and then create the facility
+                uploadImageAndSaveFacility(facilityNameStr, locationStr, emailStr, telephoneNum);
+            } else {
+                // No image uploaded, save the facility without image URL
+                saveFacilityToFirestore(facilityNameStr, locationStr, emailStr, telephoneNum, "", deviceId);
+            }
         });
+    }
+
+    private void uploadImageAndSaveFacility(String facilityName, String location, String email, int telephone) {
+        if (imageHash == null) {
+            Toast.makeText(this, "Image hash is null, cannot proceed.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference()
+                .child("facilities").child(imageHash);
+        storageReference.putBytes(imageData)
+                .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
+                        .addOnSuccessListener(uri -> {
+                            String facilityImageUrl = uri.toString();
+                            saveFacilityToFirestore(facilityName, location, email, telephone, facilityImageUrl, deviceId);
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e(TAG, "Failed to get download URL", e);
+                            Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                        }))
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to upload image data", e);
+                    Toast.makeText(this, "Image upload failed", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void saveFacilityToFirestore(String facilityName, String location, String email, int telephone, String imageUrl, String deviceID) {
+        Facility facility = new Facility(facilityName, location, email, telephone, imageUrl, deviceID);
+
+        FirebaseFirestore.getInstance().collection("facilities").document(facilityName)
+                .set(facility)
+                .addOnSuccessListener(documentReference -> {
+                    Intent intent = new Intent(CreateFacility.this, MainPageActivity.class);
+                    startActivity(intent);
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Failed to save facility to Firestore", e);
+                    Toast.makeText(CreateFacility.this, "Failed to save facility", Toast.LENGTH_SHORT).show();
+                });
     }
 
     ActivityResultLauncher<Intent> openGallery = registerForActivityResult(
