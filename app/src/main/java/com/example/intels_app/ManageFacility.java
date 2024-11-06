@@ -1,13 +1,18 @@
 package com.example.intels_app;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -16,6 +21,11 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.installations.FirebaseInstallations;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,12 +38,30 @@ public class ManageFacility extends AppCompatActivity {
     ImageView imageView;
     String imageHash;
     byte[] imageData;
+    boolean imageUploaded = false;
+    String deviceId;
+    Facility facility;
 
-    protected void OnCreate(Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.manage_facility);
 
-        Button backButton = findViewById(R.id.back_button);
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        deviceId = task.getResult();
+                        Log.d("DeviceID", "Device ID (Firebase Token): " + deviceId);
+
+                        // Use of deviceId to track the organizer's device in Firestore
+                    } else {
+                        Log.e("DeviceID", "Failed to get Firebase Instance ID", task.getException());
+                    }
+                });
+
+        imageView = findViewById(R.id.pfpPlaceholder);
+
+        ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -44,9 +72,70 @@ public class ManageFacility extends AppCompatActivity {
 
         Button addFacilityImage = findViewById(R.id.edit_poster_button);
         addFacilityImage.setOnClickListener(view -> {
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType("image/*");
-                openGallery.launch(intent);
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            openGallery.launch(intent);
+            imageUploaded = true;
+        });
+
+        Button makeChanges = findViewById(R.id.edit_facility_details_button);
+        makeChanges.setOnClickListener(view -> {
+
+            EditText facilityName = findViewById(R.id.facilityNameEditText);
+            EditText location = findViewById(R.id.locationEditText);
+            EditText organizerName = findViewById(R.id.organizerNameEditText);
+            EditText email = findViewById(R.id.emailEditText);
+            EditText telephone = findViewById(R.id.telephoneEditText);
+
+            // Get Firebase device ID
+            FirebaseInstallations.getInstance().getId()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            String deviceId = task.getResult();
+
+                            if (imageUploaded) {
+                                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("posters").child(imageHash);
+                                storageReference.putBytes(imageData)
+                                        .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
+                                                .addOnSuccessListener(uri -> {
+                                                    String posterUrl = uri.toString();
+
+                                                    facility = new Facility(
+                                                            facilityName.getText().toString(),
+                                                            location.getText().toString(),
+                                                            organizerName.getText().toString(),
+                                                            email.getText().toString(),
+                                                            Integer.parseInt(telephone.getText().toString()),
+                                                            posterUrl,
+                                                            deviceId
+                                                    );
+                                                })).addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));;
+                            } else {
+                                facility = new Facility(
+                                        facilityName.getText().toString(),
+                                        location.getText().toString(),
+                                        organizerName.getText().toString(),
+                                        email.getText().toString(),
+                                        Integer.parseInt(telephone.getText().toString()),
+                                        deviceId
+                                );
+                            }
+
+                            FirebaseFirestore.getInstance().collection("facilities").document(facilityName.getText().toString())
+                                    .set(facility)
+                                    .addOnSuccessListener(documentReference -> {
+                                        Intent intent = new Intent(ManageFacility.this, ManageEventsActivity.class);
+                                        startActivity(intent);
+
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.w(TAG, "Image upload failed", e);
+                                        Toast.makeText(ManageFacility.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                                    });
+                        } else {
+                            Log.e("FirebaseInstallations", "Unable to get device ID", task.getException());
+                        }
+                    });
         });
     }
 
@@ -111,5 +200,4 @@ public class ManageFacility extends AppCompatActivity {
             return null;
         }
     }
-
 }

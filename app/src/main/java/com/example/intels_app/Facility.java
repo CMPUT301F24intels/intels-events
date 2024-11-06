@@ -6,10 +6,32 @@ public class Facility {
     private String organizerName;
     private String email;
     private int telephone;
-    private String posterUrl;
+    private String imageUrl;
+    private String deviceID;
 
     // No argument constructor for Firebase
     public Facility() {}
+
+    // Constructor with all fields except imageUrl
+    public Facility(String facilityName, String location, String organizerName, String email, int telephone, String deviceID) {
+        this.facilityName = facilityName;
+        this.location = location;
+        this.organizerName = organizerName;
+        this.email = email;
+        this.telephone = telephone;
+        this.deviceID = deviceID;
+    }
+
+
+    public Facility(String facilityName, String location, String organizerName, String email, int telephone, String imageUrl, String deviceID) {
+        this.facilityName = facilityName;
+        this.location = location;
+        this.organizerName = organizerName;
+        this.email = email;
+        this.telephone = telephone;
+        this.imageUrl = imageUrl;
+        this.deviceID = deviceID;
+    }
 
     public String getFacilityName() {
         return facilityName;
@@ -52,10 +74,10 @@ public class Facility {
     }
 
     public String getPosterUrl() {
-        return posterUrl;
+        return imageUrl;
     }
 
     public void setPosterUrl(String posterUrl) {
-        this.posterUrl = posterUrl;
+        this.imageUrl = posterUrl;
     }
 }
