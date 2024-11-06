@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -39,7 +40,14 @@ public class EntrantInWaitlist extends AppCompatActivity {
 
         EditText searchBar = findViewById(R.id.search_bar);
         listView = findViewById(R.id.profile_list);
+
         eventId = getIntent().getStringExtra("eventId");
+        Log.d("EntrantInWaitlist", "Retrieved eventId: " + eventId);
+
+        if (eventId == null || eventId.isEmpty()) {
+            Toast.makeText(this, "Event ID is missing. Cannot proceed.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         profileList = new ArrayList<>();
         profileList.add(new Profile("Gopi Modi", R.drawable.gopimodi));
@@ -59,7 +67,8 @@ public class EntrantInWaitlist extends AppCompatActivity {
 
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -67,7 +76,8 @@ public class EntrantInWaitlist extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         waitlist_button = findViewById(R.id.btn_waitlist);
@@ -127,7 +137,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
                     String message = input.getText().toString().trim();
                     if (!message.isEmpty()) {
                         sendNotificationToEntrants(message);
-                        sendNotificationCheckbox.setChecked(false);
+                        sendNotificationCheckbox.setChecked(false); // Uncheck the checkbox after sending
                     } else {
                         Toast.makeText(this, "Message cannot be empty", Toast.LENGTH_SHORT).show();
                     }
@@ -138,34 +148,34 @@ public class EntrantInWaitlist extends AppCompatActivity {
                 })
                 .show();
     }
+
     private void sendNotificationToEntrants(String message) {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference eventRef = db.collection("events").document(eventId);
 
+        // Validate eventId
         if (eventId == null || eventId.isEmpty()) {
             Log.e("Firestore", "eventId is null or empty");
             Toast.makeText(this, "Event ID is missing. Cannot send notification.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Create a new notification data object
+        // Create notification data to save in Firestore
         Map<String, Object> notificationData = new HashMap<>();
-        notificationData.put("message", message);
-        notificationData.put("timestamp", FieldValue.serverTimestamp());
+        notificationData.put("message", message); // Custom message
+        notificationData.put("timestamp", FieldValue.serverTimestamp()); // Server timestamp
+        notificationData.put("eventId", eventId); // Tag to associate with the event
 
-        Log.d("Firestore", "Attempting to add notification to event: " + eventId);
-
-        // Add the notification to the notifications subcollection
-        eventRef.collection("notifications")
+        // Add the notification to the top-level `notifications` collection
+        db.collection("notifications")
                 .add(notificationData)
                 .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(this, "Notification sent successfully!", Toast.LENGTH_LONG).show();
-                    Log.d("Firestore", "Notification added with ID: " + documentReference.getId());
+                    Toast.makeText(this, "Notification saved successfully!", Toast.LENGTH_LONG).show();
+                    Log.d("Firestore", "Notification saved with ID: " + documentReference.getId());
                 })
                 .addOnFailureListener(e -> {
-                    Log.w("Firestore", "Error sending notification", e);
-                    Toast.makeText(this, "Failed to send notification", Toast.LENGTH_SHORT).show();
+                    Log.w("Firestore", "Error saving notification", e);
+                    Toast.makeText(this, "Failed to save notification", Toast.LENGTH_SHORT).show();
                 });
     }
 }

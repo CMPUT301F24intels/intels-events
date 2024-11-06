@@ -14,13 +14,14 @@ public class Event implements Serializable {
     private boolean notifPreference;
     private String posterUrl;
     private String qrCodeUrl;
+    private String deviceId;
 
     // No argument constructor for Firebase
     public Event() {}
 
     // Constructor with posterUrl
     public Event(String eventName, String facilityName, String location, String dateTime, String description,
-                 int maxAttendees, boolean geolocationRequirement, boolean notifPreference, String posterUrl) {
+                 int maxAttendees, boolean geolocationRequirement, boolean notifPreference, String posterUrl, String deviceId) {
         this.eventName = eventName;
         this.facilityName = facilityName;
         this.location = location;
@@ -30,12 +31,13 @@ public class Event implements Serializable {
         this.geolocationRequirement = geolocationRequirement;
         this.notifPreference = notifPreference;
         this.posterUrl = posterUrl;
+        this.deviceId = deviceId;
         //this.qrCode = qrCode;
     }
 
     // Constructor with no images
     public Event(String eventName, String facilityName, String location, String dateTime, String description,
-                 int maxAttendees, boolean geolocationRequirement, boolean notifPreference) {
+                 int maxAttendees, boolean geolocationRequirement, boolean notifPreference, String deviceId) {
         this.eventName = eventName;
         this.facilityName = facilityName;
         this.location = location;
@@ -44,14 +46,27 @@ public class Event implements Serializable {
         this.maxAttendees = maxAttendees;
         this.geolocationRequirement = geolocationRequirement;
         this.notifPreference = notifPreference;
+        this.deviceId = deviceId;
         //this.posterUrl = posterUrl;
         //this.qrCode = qrCode;
     }
 
     // Getters and setters
 
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getEventName() {
