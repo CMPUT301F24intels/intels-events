@@ -51,10 +51,6 @@ public class SignUp extends AppCompatActivity {
     Button add_picture, register_button;
     ImageView profile_pic;
 
-    private String Imagehash;
-    private Uri imageUri;
-    private byte[] imageData;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,7 +94,6 @@ public class SignUp extends AppCompatActivity {
         });
 
     }
-
     private void showImagePickerDialog() {
         String[] options = {"Take Photo", "Choose from Gallery", "Generate with Initials"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
