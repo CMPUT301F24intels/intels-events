@@ -20,7 +20,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         joinWaitlistButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(JoinWaitlistActivity.this, ScanQRActivity.class);
+                Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
                 startActivity(intent);
             }
         });
@@ -30,7 +30,8 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish(); // Closes the current activity and returns to the previous one
+                Intent intent = new Intent(JoinWaitlistActivity.this, ScanQRActivity.class);
+                startActivity(intent);
             }
         });
 

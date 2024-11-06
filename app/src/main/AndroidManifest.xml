@@ -33,9 +33,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ScanQRActivity">
-
+        <activity android:name=".ScanQRActivity">
         </activity>
         <activity android:name=".EventGridOrganizerActivity" />
         <activity android:name=".EventGridEntrantActivity" />
@@ -51,6 +49,7 @@
         <activity android:name=".AdminEvents"/>
         <activity android:name=".JoinWaitlistActivity" />
         <activity android:name=".SelectRoleActivity" />
+        <activity android:name=".SignUp"/>
 
         <activity
             android:name=".NotificationActivity"
