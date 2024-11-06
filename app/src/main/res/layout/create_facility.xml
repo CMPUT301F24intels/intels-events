@@ -6,41 +6,43 @@
     android:layout_height="match_parent"
     android:background="#16181F">
 
-    <ImageButton
-        android:id="@+id/back_button"
+    <TextView
+        android:id="@+id/welcomeTextview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:background="@android:color/transparent"
+        android:layout_marginTop="36dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Welcome"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="28sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/back_button" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/facilityDetailsTextview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="50dp"
+        android:layout_marginTop="2dp"
         android:fontFamily="@font/poppins_semibold"
-        android:text="Edit Facility Details"
+        android:text="Create your Facility Profile"
         android:textAlignment="center"
         android:textColor="@color/white"
-        android:textSize="20sp"
+        android:textSize="22sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.421"
-        app:layout_constraintStart_toEndOf="@+id/back_button"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintHorizontal_bias="0.506"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/welcomeTextview" />
 
     <ImageView
         android:id="@+id/pfpPlaceholder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="38dp"
+        android:layout_marginTop="32dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/back_button"
+        app:layout_constraintTop_toBottomOf="@+id/facilityDetailsTextview"
         app:srcCompat="@drawable/pfp_placeholder_image" />
 
     <ImageView
@@ -59,14 +61,16 @@
         android:id="@+id/edit_poster_button"
         android:layout_width="143dp"
         android:layout_height="55dp"
-        android:layout_marginTop="84dp"
+        android:layout_marginTop="72dp"
         android:layout_marginEnd="32dp"
         android:backgroundTint="#3580FF"
         android:fontFamily="@font/poppins_semibold"
         android:text="Add Facility Image"
         android:textSize="11sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/facilityDetailsTextview" />
+        app:layout_constraintTop_toBottomOf="@+id/facilityDetailsTextview"
+        app:layout_constraintVertical_bias="0.025" />
 
     <Button
         android:id="@+id/edit_facility_details_button"

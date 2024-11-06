@@ -2,128 +2,75 @@ package com.example.intels_app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.ui.AppBarConfiguration;
 
-import android.view.MenuInflater;
-import android.view.View;
-
-//import com.example.intels_app.databinding.ActivityMainBinding;
-import com.google.firebase.FirebaseApp;
-//import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-
-import android.view.MenuItem;
-import android.widget.ImageButton;
-
-import android.widget.PopupMenu;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class MainActivity extends AppCompatActivity {
-    private FirebaseFirestore db;
-    //private FirebaseAuth fAuth;
-    private AppBarConfiguration appBarConfiguration;
-    private StorageReference storageRef;
-    //private ActivityMainBinding binding;
-    private QRCodeScanner qrCodeScanner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FirebaseApp.initializeApp(this);
 
-        db = FirebaseFirestore.getInstance();
-        //fAuth = FirebaseAuth.getInstance();
-        storageRef = FirebaseStorage.getInstance().getReference();
-
-        setContentView(R.layout.main_page);
-        qrCodeScanner = new QRCodeScanner(this);
-
-        ImageButton optionsButton = findViewById(R.id.imageButton8);
-        optionsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showPopupMenu(v);
-            }
-        });
-
-        // Change it to qr code scanner button ion UI later
-        //qrCodeScanner.startScan();
-        ImageButton ViewWaitListButton = findViewById(R.id.imageButton7);
-        ViewWaitListButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, EventGridEntrantActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        // Set up the Join Events button to navigate to ScanQRActivity
-        ImageButton joinEventButton = findViewById(R.id.joinEventButton);
-        joinEventButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, ScanQRActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        ImageButton manageApp = findViewById(R.id.manageAppButton);
-        manageApp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, AdminLogin.class);
-                startActivity(intent);
-            }
-        });
-
-        ImageButton manageEventsButton = findViewById(R.id.manageEventsButton);
-        manageEventsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, ManageEventsActivity.class);
-                startActivity(intent);
-            }
-        });
-
+        // Step 1: Get Firebase Device ID
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        String deviceId = task.getResult();
+                        checkUserExists(deviceId);
+                    } else {
+                        Log.e("DeviceID", "Failed to get Firebase Instance ID", task.getException());
+                        Toast.makeText(this, "Error retrieving device ID. Please try again.", Toast.LENGTH_LONG).show();
+                    }
+                });
     }
-    // Method to display the popup menu
-    private void showPopupMenu(View view) {
-        PopupMenu popupMenu = new PopupMenu(this, view);
-        MenuInflater inflater = popupMenu.getMenuInflater();
-        inflater.inflate(R.menu.menu_main, popupMenu.getMenu());
 
-        // Handle menu item clicks
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == R.id.action_show_notifications) {
-                    // Navigate to NotificationActivity
-                    Intent intent = new Intent(MainActivity.this, NotificationActivity.class);
-                    startActivity(intent);
-                    return true;
-                } else if (item.getItemId() == R.id.action_settings) {
-                    Intent intent = new Intent(MainActivity.this, EditProfileActivity.class);
-                    startActivity(intent);
-                    return true;
-                }
-                return false;
-            }
-        });
-        // Show the popup menu
-        popupMenu.show();
+    // Step 2: Check if user profile exists based on device ID
+    private void checkUserExists(String deviceId) {
+        FirebaseFirestore.getInstance().collection("profiles")
+                .whereEqualTo("deviceId", deviceId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        // User exists, proceed to the main functionality
+                        proceedToApp();
+                    } else {
+                        // User does not exist, redirect to profile creation
+                        // redirectToCreateEntrantProfile(deviceId); // Uncomment line to implement
+                        redirectToCreateOrganizerProfile(deviceId);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Error checking user existence", e);
+                    Toast.makeText(this, "Error accessing user information. Please try again.", Toast.LENGTH_LONG).show();
+                });
     }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (qrCodeScanner != null) {
-            qrCodeScanner.handleActivityResult(requestCode, resultCode, data);
-        }
+
+    // Method to start the main app if user exists
+    private void proceedToApp() {
+        Intent intent = new Intent(MainActivity.this, MainPageActivity.class);
+        startActivity(intent);
+        finish(); // Close MainActivity
+    }
+
+    // Method to redirect to create profile if user is new
+    private void redirectToCreateOrganizerProfile(String deviceId) {
+        Intent intent = new Intent(MainActivity.this, CreateFacility.class);
+        intent.putExtra("deviceId", deviceId); // Pass device ID if needed in CreateProfileActivity
+        startActivity(intent);
+        finish(); // Close MainActivity
+    }
+
+    private void redirectToCreateEntrantProfile(String deviceId) {
+        // Redirect to sign up page
+        // Intent intent = new Intent(MainActivity.this, CreateEntrantProfile.class);
+        // intent.putExtra("deviceId", deviceId);
+        // startActivity(intent);
+        // finish(); // Close MainActivity
     }
 }

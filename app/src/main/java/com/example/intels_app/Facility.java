@@ -12,21 +12,19 @@ public class Facility {
     // No argument constructor for Firebase
     public Facility() {}
 
-    // Constructor with all fields except imageUrl
-    public Facility(String facilityName, String location, String organizerName, String email, int telephone, String deviceID) {
+    // Constructor with all fields except imageUrl for CreateFacility
+    public Facility(String facilityName, String location, String email, int telephone, String deviceID) {
         this.facilityName = facilityName;
         this.location = location;
-        this.organizerName = organizerName;
         this.email = email;
         this.telephone = telephone;
         this.deviceID = deviceID;
     }
 
-
-    public Facility(String facilityName, String location, String organizerName, String email, int telephone, String imageUrl, String deviceID) {
+    // Constructor with all fields for CreateFacility
+    public Facility(String facilityName, String location, String email, int telephone, String imageUrl, String deviceID) {
         this.facilityName = facilityName;
         this.location = location;
-        this.organizerName = organizerName;
         this.email = email;
         this.telephone = telephone;
         this.imageUrl = imageUrl;
@@ -73,11 +71,19 @@ public class Facility {
         this.telephone = telephone;
     }
 
-    public String getPosterUrl() {
+    public String getFacilityImageUrl() {
         return imageUrl;
     }
 
-    public void setPosterUrl(String posterUrl) {
+    public void setFacilityImageUrl(String posterUrl) {
         this.imageUrl = posterUrl;
+    }
+
+    public String getDeviceId() {
+        return deviceID;
+    }
+
+    public void setDeviceId(String deviceID) {
+        this.deviceID = deviceID;
     }
 }

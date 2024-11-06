@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
@@ -33,7 +34,7 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class ManageFacility extends AppCompatActivity {
+public class CreateFacility extends AppCompatActivity {
     Uri image;
     ImageView imageView;
     String imageHash;
@@ -43,9 +44,9 @@ public class ManageFacility extends AppCompatActivity {
     Facility facility;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.manage_facility);
+        setContentView(R.layout.create_facility);
 
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(task -> {
@@ -60,15 +61,6 @@ public class ManageFacility extends AppCompatActivity {
                 });
 
         imageView = findViewById(R.id.pfpPlaceholder);
-
-        ImageButton backButton = findViewById(R.id.back_button);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(ManageFacility.this, MainPageActivity.class);
-                startActivity(intent);
-            }
-        });
 
         Button addFacilityImage = findViewById(R.id.edit_poster_button);
         addFacilityImage.setOnClickListener(view -> {
@@ -93,21 +85,29 @@ public class ManageFacility extends AppCompatActivity {
                             String deviceId = task.getResult();
 
                             if (imageUploaded) {
-                                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("posters").child(imageHash);
+                                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("facilities").child(imageHash);
                                 storageReference.putBytes(imageData)
                                         .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
                                                 .addOnSuccessListener(uri -> {
-                                                    String posterUrl = uri.toString();
+                                                    Log.d(TAG, "hiiii");
+                                                    String facilityImageUrl = uri.toString();
 
                                                     facility = new Facility(
                                                             facilityName.getText().toString(),
                                                             location.getText().toString(),
                                                             email.getText().toString(),
                                                             Integer.parseInt(telephone.getText().toString()),
-                                                            posterUrl,
+                                                            facilityImageUrl,
                                                             deviceId
                                                     );
-                                                })).addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));;
+
+                                                    Log.d("Facility", facility.getFacilityName());
+                                                    Log.d("Facility", facility.getLocation());
+                                                    Log.d("Facility", facility.getEmail());
+                                                    Log.d("Facility", facility.getTelephone() + "");
+                                                    Log.d("Facility", facility.getFacilityImageUrl());
+                                                    Log.d("Facility", facility.getDeviceId());
+                                                })).addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
                             } else {
                                 facility = new Facility(
                                         facilityName.getText().toString(),
@@ -121,13 +121,13 @@ public class ManageFacility extends AppCompatActivity {
                             FirebaseFirestore.getInstance().collection("facilities").document(facilityName.getText().toString())
                                     .set(facility)
                                     .addOnSuccessListener(documentReference -> {
-                                        Intent intent = new Intent(ManageFacility.this, ManageEventsActivity.class);
+                                        Intent intent = new Intent(CreateFacility.this, MainPageActivity.class);
                                         startActivity(intent);
 
                                     })
                                     .addOnFailureListener(e -> {
                                         Log.w(TAG, "Image upload failed", e);
-                                        Toast.makeText(ManageFacility.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(CreateFacility.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
                                     });
                         } else {
                             Log.e("FirebaseInstallations", "Unable to get device ID", task.getException());
@@ -158,11 +158,11 @@ public class ManageFacility extends AppCompatActivity {
 
                         } catch (IOException e) {
                             e.printStackTrace();
-                            Toast.makeText(ManageFacility.this, "Error processing image", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CreateFacility.this, "Error processing image", Toast.LENGTH_SHORT).show();
                         }
                     }
                 } else {
-                    Toast.makeText(ManageFacility.this, "Please select an image", Toast.LENGTH_LONG).show();
+                    Toast.makeText(CreateFacility.this, "Please select an image", Toast.LENGTH_LONG).show();
                 }
             }
     );

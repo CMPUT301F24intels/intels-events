@@ -35,7 +35,7 @@ public class NotificationActivity extends AppCompatActivity {
 
         // Set up back button to navigate back to main activity
         backButton.setOnClickListener(view -> {
-            Intent intent = new Intent(NotificationActivity.this, MainActivity.class);
+            Intent intent = new Intent(NotificationActivity.this, MainPageActivity.class);
             startActivity(intent);
         });
 
