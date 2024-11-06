@@ -51,6 +51,7 @@ public class SignUp extends AppCompatActivity {
     Button add_picture, register_button;
     ImageView profile_pic;
 
+    private String deviceId;
     private String Imagehash;
     private Uri imageUri;
     private byte[] imageData;
@@ -62,6 +63,8 @@ public class SignUp extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         profilesRef = db.collection("profiles");
+
+        deviceId = getIntent().getStringExtra("Device ID");
 
         add_picture = findViewById(R.id.add_picture);
         add_picture.setOnClickListener(view -> showImagePickerDialog());
@@ -82,7 +85,7 @@ public class SignUp extends AppCompatActivity {
             email = findViewById(R.id.enter_email);
             phone_number = findViewById(R.id.enter_phone_number);
 
-            Profile newProfile = new Profile(name.getText().toString(),
+            Profile newProfile = new Profile(deviceId, name.getText().toString(),
                     email.getText().toString(),
                     Integer.parseInt(phone_number.getText().toString()));
 
@@ -92,9 +95,16 @@ public class SignUp extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
+                            Toast.makeText(SignUp.this, "Successfully joined event as Entrant!", Toast.LENGTH_SHORT).show();
                             Log.d("Firestore", "Profile successfully added to Firestore!");
                         }})
-                    .addOnFailureListener(e -> Log.w(TAG, "Error adding profile", e));
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(SignUp.this, "Failed to join event as Entrant.", Toast.LENGTH_SHORT).show();
+                        Log.w("FirestoreError", "Error adding profile", e);
+                    });
+
+            Intent intent = new Intent(SignUp.this, SuccessWaitlistJoin.class);
+            startActivity(intent);
         });
 
     }

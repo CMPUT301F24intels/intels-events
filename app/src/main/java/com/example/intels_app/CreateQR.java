@@ -11,27 +11,6 @@ import android.widget.ImageView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
-
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.os.Bundle;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
@@ -43,26 +22,15 @@ public class CreateQR extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.qr_code_display);
 
-        // Retrieve event details from intent
+        // Retrieve event name from intent
         String eventName = getIntent().getStringExtra("Event Name");
-        String facility = getIntent().getStringExtra("Facility");
-        String location = getIntent().getStringExtra("Location");
-        String dateTime = getIntent().getStringExtra("DateTime");
-        String description = getIntent().getStringExtra("Description");
-        int maxAttendees = getIntent().getIntExtra("Max Attendees", 0);
-
-        // Combine all event details into a single JSON string
-        String dataToEncode = String.format(
-                "{\"name\":\"%s\", \"facility\":\"%s\", \"location\":\"%s\", \"dateTime\":\"%s\", \"description\":\"%s\", \"maxAttendees\":%d}",
-                eventName, facility, location, dateTime, description, maxAttendees
-        );
 
         ImageView qrCodeImageView = findViewById(R.id.qrCodeImageView);
 
         try {
-            // Use ZXing to generate QR code
+            // Use ZXing to generate QR code with only the event name
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            Bitmap bitmap = barcodeEncoder.encodeBitmap(dataToEncode, BarcodeFormat.QR_CODE, 200, 200);
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(eventName, BarcodeFormat.QR_CODE, 200, 200);
             qrCodeImageView.setImageBitmap(bitmap);
 
         } catch (WriterException e) {
