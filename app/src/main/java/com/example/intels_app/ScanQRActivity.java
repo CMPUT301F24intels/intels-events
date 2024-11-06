@@ -48,7 +48,8 @@ public class ScanQRActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish(); // This will close the current activity and return to the previous one
+                Intent intent = new Intent(ScanQRActivity.this, MainActivity.class);
+                startActivity(intent);
             }
         });
     }

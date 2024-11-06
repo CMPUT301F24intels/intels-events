@@ -84,6 +84,7 @@
     </TextView>
 
     <Button
+        android:id="@+id/join_as_entrant"
         android:layout_width="363dp"
         android:layout_height="62dp"
         android:layout_marginTop="25dp"

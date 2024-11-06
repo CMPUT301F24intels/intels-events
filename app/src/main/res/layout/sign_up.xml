@@ -22,7 +22,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.457"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/edit_button" />
+        app:layout_constraintTop_toTopOf="@+id/add_picture" />
 
     <ImageView
         android:id="@+id/profile_picture"
@@ -47,7 +47,7 @@
         app:srcCompat="@drawable/camera_image" />
 
     <Button
-        android:id="@+id/edit_button"
+        android:id="@+id/add_picture"
         android:layout_width="99dp"
         android:layout_height="22dp"
         android:layout_gravity="center"
@@ -63,7 +63,7 @@
         app:layout_constraintTop_toBottomOf="@+id/profile_picture" />
 
     <EditText
-        android:id="@+id/enter_username"
+        android:id="@+id/enter_email"
         android:layout_width="376dp"
         android:layout_height="45dp"
         android:layout_marginTop="32dp"
@@ -80,23 +80,6 @@
         app:layout_constraintTop_toBottomOf="@+id/enter_name" />
 
     <EditText
-        android:id="@+id/enter_password"
-        android:layout_width="376dp"
-        android:layout_height="45dp"
-        android:layout_marginTop="32dp"
-        android:background="@drawable/rounded_button"
-        android:fontFamily="sans-serif-condensed"
-        android:hint="Enter your password"
-        android:inputType="text"
-        android:padding="10dp"
-        android:textColor="@color/white"
-        android:textColorHint="@color/white"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/enter_username" />
-
-    <EditText
         android:id="@+id/enter_phone_number"
         android:layout_width="376dp"
         android:layout_height="45dp"
@@ -105,7 +88,7 @@
         android:background="@drawable/rounded_button"
         android:fontFamily="sans-serif-condensed"
         android:hint="Enter your Phone Number(Optional)"
-        android:inputType="text"
+        android:inputType="number"
         android:padding="10dp"
         android:textColor="@color/white"
         android:textColorHint="@color/white"
@@ -113,7 +96,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/enter_password" />
+        app:layout_constraintTop_toBottomOf="@+id/enter_email" />
 
     <Button
         android:id="@+id/register_button"
@@ -147,7 +130,7 @@
 
 
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/back_button"
         android:layout_width="45dp"
         android:layout_height="43dp"
         android:layout_marginStart="24dp"
