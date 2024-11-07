@@ -8,9 +8,15 @@ public class Profile {
     private String imageUrl;
     private String deviceId;
 
+
     public Profile(String name, int imageResId) {
         this.name = name;
         this.imageResId = imageResId;
+    }
+
+    public Profile(String name, String email) {
+        this.name = name;
+        this.email = email;
     }
 
     public Profile(String name, String email, int phone_number, String imageUrl) {
@@ -31,6 +37,14 @@ public class Profile {
         this.name = name;
         this.email = email;
         this.phone_number = phone_number;
+    }
+
+    public Profile(String deviceId, String name, String email, int phone_number, String imageUrl) {
+        this.deviceId = deviceId;
+        this.name = name;
+        this.email = email;
+        this.phone_number = phone_number;
+        this.imageUrl = imageUrl;
     }
 
     public Profile(String deviceId) {

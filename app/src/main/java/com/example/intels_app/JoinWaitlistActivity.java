@@ -77,6 +77,15 @@ public class JoinWaitlistActivity extends AppCompatActivity {
             }
         });
 
+        ImageButton backButton = findViewById(R.id.back_button_1);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(JoinWaitlistActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
         if (eventNameTextView != null) {
             eventNameTextView.setText(eventName);

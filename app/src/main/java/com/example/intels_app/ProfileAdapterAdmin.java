@@ -50,13 +50,12 @@ public class ProfileAdapterAdmin extends BaseAdapter {
         }
 
         Profile profile = profiles.get(position);
-        Log.d("Adapter", profile.getName() + " " + profile.getImageResId());
 
         TextView nameTextView = convertView.findViewById(R.id.profile_name);
-        ImageView profileImageView = convertView.findViewById(R.id.profile_image);
+        //ImageView profileImageView = convertView.findViewById(R.id.profile_image);
 
         nameTextView.setText(profile.getName());
-        profileImageView.setImageResource(profile.getImageResId());
+        //profileImageView.setImageResource(profile.getImageResId());
 
         ImageButton deleteButton = convertView.findViewById(R.id.delete_button);
         deleteButton.setOnClickListener(new View.OnClickListener() {
