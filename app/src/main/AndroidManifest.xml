@@ -57,6 +57,7 @@
         <activity android:name=".SignUp" />
         <activity android:name=".SuccessWaitlistJoin" />
         <activity android:name=".DrawCompleteActivity"/>
+        <activity android:name=".SelectedEntrantActivity"/>
 
 
         <activity

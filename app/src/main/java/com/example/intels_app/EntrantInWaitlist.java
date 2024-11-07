@@ -42,25 +42,15 @@ public class EntrantInWaitlist extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.waitlist_with_entrants);
 
-        SharedPreferences sharedPreferences = getSharedPreferences("EventPrefs", MODE_PRIVATE);
-        eventName = getIntent().getStringExtra("eventName");
+        eventName = getIntent().getStringExtra("eventId");
 
-        // Store eventId in SharedPreferences if it's passed in Intent
-        if (eventName != null) {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("eventId", eventName);
-            editor.apply();
-        } else {
-            // Retrieve eventId from SharedPreferences if not in Intent
-            eventName = sharedPreferences.getString("eventId", null);
-            if (eventName == null) {
-                Toast.makeText(this, "Event ID is missing. Cannot proceed.", Toast.LENGTH_SHORT).show();
-                finish();
-                return;
-            }
+        if (eventName == null || eventName.isEmpty()) {
+            Toast.makeText(this, "Event ID is missing. Cannot proceed.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
-        Log.d("EntrantInWaitlist", "Retrieved eventId: " + eventName);
+        Log.d("EntrantInWaitlist", "Retrieved eventName: " + eventName);
 
         EditText searchBar = findViewById(R.id.search_bar);
         listView = findViewById(R.id.profile_list);

@@ -27,8 +27,7 @@ public class DrawCompleteActivity extends AppCompatActivity {
         entrantsSelectedButton = findViewById(R.id.entrants_selected_button);
 
         entrantsSelectedButton.setOnClickListener(v -> {
-            // Redirect to the WaitlistWithEntrantsActivity
-            Intent intent = new Intent(DrawCompleteActivity.this, EntrantInWaitlist.class);
+            Intent intent = new Intent(DrawCompleteActivity.this, SelectedEntrantActivity.class);
             intent.putExtra("eventId", eventId);
             startActivity(intent);
         });
