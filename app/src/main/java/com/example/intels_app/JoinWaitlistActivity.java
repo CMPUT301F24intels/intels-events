@@ -40,7 +40,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         SwitchCompat geolocationSwitch = findViewById(R.id.geolocationRequirementText);
 
         // Hardcoding Data simply to test, change back after
-        String eventName = "FoodTruckParty";
+        String eventName = "dfd";
         String facilityName = "Main Hall";
         String location = "123 Event St, City";
         String dateTime = "2024-11-10 10:00 AM";

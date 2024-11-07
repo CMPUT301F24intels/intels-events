@@ -223,12 +223,14 @@ public class EntrantInWaitlist extends AppCompatActivity {
                     if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
                         Log.d("EntrantInWaitlist", "Received updated documents from waitlisted_entrants.");
 
+                        // Add each document ID or name to the list
                         for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                             String documentId = documentSnapshot.getId();  // Or get a field like "name"
                             Log.d("EntrantInWaitlist", "Document ID: " + documentId);
                             documentNames.add(documentId);  // Store document name (ID) in list
                         }
 
+                        // Notify adapter of data change to refresh the ListView
                         adapter.notifyDataSetChanged();
 
                     } else {
