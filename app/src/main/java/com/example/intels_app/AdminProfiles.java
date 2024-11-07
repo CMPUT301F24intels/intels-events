@@ -37,6 +37,9 @@ public class AdminProfiles extends AppCompatActivity {
         //profileList.add(new Profile("Patrick", R.drawable.patrick));
         //profileList.add(new Profile("Squidward", R.drawable.squidward));
 
+        ProfileAdapterAdmin adapter = new ProfileAdapterAdmin(this, profileList);
+        profile_list.setAdapter(adapter);
+
         // Retrieve profile data from Firestore and assign it to profile arraylist
         FirebaseFirestore.getInstance().collection("profiles").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -45,25 +48,19 @@ public class AdminProfiles extends AppCompatActivity {
                         for (DocumentSnapshot document : queryDocumentSnapshots) {
 
                             // Convert document to Profile object and add to profileList
-                            //Profile profile = document.toObject(Profile.class);
+                            Profile profile = document.toObject(Profile.class);
                             //Log.d("Firestore", "Name: " + profile.getName() + "ID: " + profile.getImageResId());
                             //Log.d("Firestore", "Name: " + profile.getName() + "ID: " + profile.getImageResId());
-
-                            Profile setProfile = new Profile(document.getString("name"), document.getString("email"));
-
+                            
                             Log.d("Firestore", "name: " + document.getString("name"));
 
-                            profileList.add(setProfile);
+                            profileList.add(profile);
+                            adapter.notifyDataSetChanged();
                         }
                     } else {
                         Log.d("Firestore", "No documents found in this collection.");
                     }
                 }).addOnFailureListener(e -> Log.w("Firestore", "Error fetching documents", e));
-
-        ProfileAdapterAdmin adapter = new ProfileAdapterAdmin(this, profileList);
-        profile_list.setAdapter(adapter);
-        Log.d("hi", "hi");
-        adapter.notifyDataSetChanged();
 
         for (int i = 0; i < profileList.size(); i++) {
             Log.d("List", "Name: " + profileList.get(i).getName() + "ID: " + profileList.get(i).getImageResId());
