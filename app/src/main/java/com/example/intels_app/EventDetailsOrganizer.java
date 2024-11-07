@@ -131,6 +131,8 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
             sendNotificationsToProfiles(profileList, selectedProfiles);
 
+            saveSelectedProfiles(selectedProfiles);
+
             // After the draw, redirect to the DrawCompleteActivity
             Intent intent = new Intent(EventDetailsOrganizer.this, DrawCompleteActivity.class);
             intent.putExtra("eventId", eventId);
@@ -174,5 +176,20 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                 .add(notificationData)
                 .addOnSuccessListener(documentReference -> Log.d(TAG, "Notification sent with ID: " + documentReference.getId()))
                 .addOnFailureListener(e -> Log.w(TAG, "Error sending notification", e));
+    }
+
+    private void saveSelectedProfiles(List<DocumentSnapshot> selectedProfiles) {
+        CollectionReference selectedEntrantsRef = db.collection("selected_entrants");
+
+        for (DocumentSnapshot profile : selectedProfiles) {
+            Map<String, Object> entrantData = new HashMap<>();
+            entrantData.put("profileId", profile.getId());
+            entrantData.put("eventId", eventId);
+            entrantData.put("timestamp", FieldValue.serverTimestamp());
+
+            selectedEntrantsRef.add(entrantData)
+                    .addOnSuccessListener(documentReference -> Log.d(TAG, "Selected entrant saved with ID: " + documentReference.getId()))
+                    .addOnFailureListener(e -> Log.w(TAG, "Error saving selected entrant", e));
+        }
     }
 }
