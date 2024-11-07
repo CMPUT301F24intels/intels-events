@@ -7,10 +7,18 @@ package com.example.intels_app;
     private int imageResId;
     private String imageUrl;
     private String deviceId;
+    private String eventName;
+
+
 
     public Profile(String name, int imageResId) {
         this.name = name;
         this.imageResId = imageResId;
+    }
+
+    public Profile(String name, String email) {
+        this.name = name;
+        this.email = email;
     }
 
     public Profile(String name, String email, int phone_number, String imageUrl) {
@@ -33,6 +41,14 @@ package com.example.intels_app;
         this.phone_number = phone_number;
     }
 
+    public Profile(String deviceId, String name, String email, int phone_number, String imageUrl) {
+        this.deviceId = deviceId;
+        this.name = name;
+        this.email = email;
+        this.phone_number = phone_number;
+        this.imageUrl = imageUrl;
+    }
+
     public Profile(String deviceId) {
         this.deviceId = deviceId;
     }
@@ -43,6 +59,18 @@ package com.example.intels_app;
 
     // Default constructor required for Firestore
     public Profile() {}
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public String getEventName() {
+        return eventName;
+    }
+
+    public void setEventId(String eventName) {
+        this.eventName = eventName;
+    }
 
     public void setName(String name) {
         this.name = name;
