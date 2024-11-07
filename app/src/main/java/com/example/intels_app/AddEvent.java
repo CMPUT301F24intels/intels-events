@@ -1,7 +1,6 @@
 /**
  * An organizer can enter details to create a new event including a poster.
  * The event gets created by the system and FireStore is updated with the information.
- *
  * @author Janan Panchal
  * @see com.example.intels_app.ManageEventsActivity
  * @see com.example.intels_app.CreateQR
@@ -65,16 +64,16 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import java.util.UUID;
 
 public class AddEvent extends AppCompatActivity {
-    StorageReference storageReference;
-    ImageView posterImageView;
-    ImageView cameraImage;
-    Uri image;
-    Bitmap bitmap;
-    byte[] imageData;
-    String imageHash;
-    ImageButton backButton;
-    Button addPosterButton;
-    Button addEvent;
+    private StorageReference storageReference;
+    private ImageView posterImageView;
+    private ImageView cameraImage;
+    private Uri image;
+    private Bitmap bitmap;
+    private byte[] imageData;
+    private String imageHash;
+    private ImageButton backButton;
+    private Button addPosterButton;
+    private Button addEvent;
 
     /**
      * Opens the Add Event layout that allows organizers to enter details for their new event

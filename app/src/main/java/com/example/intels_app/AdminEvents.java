@@ -29,10 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AdminEvents extends AppCompatActivity {
-    ImageButton back_button;
-    Button profile_button, events_button;
-    GridView events_gridview;
-    List<Event> list_event;
+    private Button profile_button;
+    private Button events_button;
+    private List<Event> list_event;
 
     /**
      * Displays a list of all events for the admin view.
@@ -47,7 +46,7 @@ public class AdminEvents extends AppCompatActivity {
         setContentView(R.layout.events_view);
 
         // Go back to main page if back button clicked
-        back_button = findViewById(R.id.back_button);
+        ImageButton back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -57,7 +56,7 @@ public class AdminEvents extends AppCompatActivity {
         });
 
         // Find the grid view and initialize a list of events
-        events_gridview = findViewById(R.id.events_gridview);
+        GridView events_gridview = findViewById(R.id.events_gridview);
         list_event = new ArrayList<>();
 
         // Inflate the custom adapter with the list of events
