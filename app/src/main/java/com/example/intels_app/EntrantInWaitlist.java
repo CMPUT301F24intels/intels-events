@@ -42,25 +42,15 @@ public class EntrantInWaitlist extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.waitlist_with_entrants);
 
-        SharedPreferences sharedPreferences = getSharedPreferences("EventPrefs", MODE_PRIVATE);
-        eventName = getIntent().getStringExtra("eventName");
+        eventName = getIntent().getStringExtra("eventId");
 
-        // Store eventId in SharedPreferences if it's passed in Intent
-        if (eventName != null) {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("eventId", eventName);
-            editor.apply();
-        } else {
-            // Retrieve eventId from SharedPreferences if not in Intent
-            eventName = sharedPreferences.getString("eventId", null);
-            if (eventName == null) {
-                Toast.makeText(this, "Event ID is missing. Cannot proceed.", Toast.LENGTH_SHORT).show();
-                finish();
-                return;
-            }
+        if (eventName == null || eventName.isEmpty()) {
+            Toast.makeText(this, "Event ID is missing. Cannot proceed.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
-        Log.d("EntrantInWaitlist", "Retrieved eventId: " + eventName);
+        Log.d("EntrantInWaitlist", "Retrieved eventName: " + eventName);
 
         EditText searchBar = findViewById(R.id.search_bar);
         listView = findViewById(R.id.profile_list);
@@ -222,6 +212,37 @@ public class EntrantInWaitlist extends AppCompatActivity {
         listView.setAdapter(adapter);
 
         waitlistRef.whereEqualTo("eventName", eventName)  // Filter by eventName
+                .get()  // Use `.get()` to fetch data once
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Clear existing data to avoid duplicates
+                        documentNames.clear();
+
+                        // Check if the task returned any documents
+                        if (task.getResult() != null && !task.getResult().isEmpty()) {
+                            Log.d("EntrantInWaitlist", "Documents retrieved for waitlisted entrants.");
+
+                            // Iterate over documents in the result
+                            for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                                String documentId = documentSnapshot.getId();  // Or fetch a specific field like "name"
+                                Log.d("EntrantInWaitlist", "Document ID: " + documentId);
+                                documentNames.add(documentId);  // Add document ID (or name) to list
+                            }
+
+                            // Notify the adapter to refresh the ListView
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            Log.w("EntrantInWaitlist", "No documents found for this event.");
+                            Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Log.w("Firestore", "Error fetching documents", task.getException());
+                        Toast.makeText(this, "Error retrieving data.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        /*
+        waitlistRef.whereEqualTo("eventName", eventName)  // Filter by eventName
                 .addSnapshotListener((queryDocumentSnapshots, e) -> {
                     if (e != null) {
                         Log.w("Firestore", "Listen failed.", e);
@@ -249,5 +270,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
                         Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
                     }
                 });
+
+         */
     }
 }

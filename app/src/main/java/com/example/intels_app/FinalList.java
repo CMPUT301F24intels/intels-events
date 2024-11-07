@@ -38,7 +38,7 @@ public class FinalList extends AppCompatActivity {
 
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(view -> {
-            Intent intent = new Intent(FinalList.this, EntrantInWaitlist.class);
+            Intent intent = new Intent(FinalList.this, EventGridOrganizerActivity.class); //Change back to EventInWaitlist
             startActivity(intent);
         });
 
