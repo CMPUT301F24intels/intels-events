@@ -23,6 +23,7 @@ public class AdminProfiles extends AppCompatActivity {
     Button profile_button, events_button;
     ListView profile_list;
     private List<Profile> profileList;
+    Profile profile;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,24 +38,23 @@ public class AdminProfiles extends AppCompatActivity {
         //profileList.add(new Profile("Squidward", R.drawable.squidward));
 
         // Retrieve profile data from Firestore and assign it to profile arraylist
-        CollectionReference collectionRef = FirebaseFirestore.getInstance().collection("profiles");
-        collectionRef.get()
+        FirebaseFirestore.getInstance().collection("profiles").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
                         Log.d("Firestore", "Profiles found: " + queryDocumentSnapshots.size());
                         for (DocumentSnapshot document : queryDocumentSnapshots) {
 
                             // Convert document to Profile object and add to profileList
-                            Profile profile = document.toObject(Profile.class);
+                            //Profile profile = document.toObject(Profile.class);
                             //Log.d("Firestore", "Name: " + profile.getName() + "ID: " + profile.getImageResId());
                             //Log.d("Firestore", "Name: " + profile.getName() + "ID: " + profile.getImageResId());
-                            profileList.add(profile);
+
+                            Profile setProfile = new Profile(document.getString("name"), document.getString("email"));
+
+                            Log.d("Firestore", "name: " + document.getString("name"));
+
+                            profileList.add(setProfile);
                         }
-
-                        Log.d("Firestore", profileList.get(0).getName() + " " + profileList.get(0).getImageResId());
-                        Log.d("Firestore", profileList.get(1).getName() + " " + profileList.get(1).getImageResId());
-                        Log.d("Firestore", profileList.get(2).getName() + " " + profileList.get(2).getImageResId());
-
                     } else {
                         Log.d("Firestore", "No documents found in this collection.");
                     }
@@ -62,6 +62,12 @@ public class AdminProfiles extends AppCompatActivity {
 
         ProfileAdapterAdmin adapter = new ProfileAdapterAdmin(this, profileList);
         profile_list.setAdapter(adapter);
+        Log.d("hi", "hi");
+        adapter.notifyDataSetChanged();
+
+        for (int i = 0; i < profileList.size(); i++) {
+            Log.d("List", "Name: " + profileList.get(i).getName() + "ID: " + profileList.get(i).getImageResId());
+        }
 
         profile_button = findViewById(R.id.profile_button);
         events_button = findViewById(R.id.events_button);
