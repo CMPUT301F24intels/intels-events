@@ -98,6 +98,32 @@ public class EventGridEntrantActivity extends AppCompatActivity {
 
         // Query to get events where the current device is signed up
         waitlistedEventsRef.whereEqualTo("deviceId", deviceId)
+                .get()  // Fetch data once instead of listening for real-time updates
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (task.getResult() != null && !task.getResult().isEmpty()) {
+                            // Clear the list to avoid duplicates
+                            eventData.clear();
+
+                            // Iterate over documents in the result
+                            for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                                Event event = documentSnapshot.toObject(Event.class);
+                                if (event != null) {
+                                    event.setId(documentSnapshot.getId());
+                                    eventData.add(event);
+                                }
+                            }
+                            // Notify adapter of the data change
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            Log.d("Firestore", "No documents found.");
+                        }
+                    } else {
+                        Log.w("Firestore", "Error fetching documents", task.getException());
+                    }
+                });
+        /*
+        waitlistedEventsRef.whereEqualTo("deviceId", deviceId)
                 .addSnapshotListener((queryDocumentSnapshots, e) -> {
                     if (e != null) {
                         Log.w("Firestore", "Listen failed.", e);
@@ -118,6 +144,7 @@ public class EventGridEntrantActivity extends AppCompatActivity {
                         Log.d("Firestore", "No documents found.");
                     }
                 });
+         */
     }
 
 }
