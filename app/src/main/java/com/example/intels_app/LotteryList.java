@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -21,121 +20,118 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntrantInCancelledWaitlist extends AppCompatActivity {
-    private Button waitlist_button, cancelled_button;
-    private ListView listView;
-    private List<Profile> profileList;
-    private CheckBox sendNotificationCheckbox;
+public class LotteryList extends AppCompatActivity {
+    private ListView entrantList;
+    private List<Profile> entrantDataList;
+    private ImageButton backButton;
+    private CheckBox sendNotifications;
+    private ProfileAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.waitlist_with_cancelled_entrants);
+        setContentView(R.layout.lottery_list);
 
-        EditText searchBar = findViewById(R.id.search_bar);
-        listView = findViewById(R.id.profile_list);
+        // Initialize views
+        entrantList = findViewById(R.id.entrant_list);
+        backButton = findViewById(R.id.back_button);
+        sendNotifications = findViewById(R.id.send_notifications);
 
-        profileList = new ArrayList<>();
-        ProfileAdapter adapter = new ProfileAdapter(this, profileList);
-        listView.setAdapter(adapter);
+        // Set up the list and adapter
+        entrantDataList = new ArrayList<>();
+        adapter = new ProfileAdapter(this, entrantDataList);
+        entrantList.setAdapter(adapter);
 
-        ImageButton backButton = findViewById(R.id.back_button);
+        // Set up back button to go to previous activity
         backButton.setOnClickListener(view -> {
-            Intent intent = new Intent(EntrantInCancelledWaitlist.this, EventGridOrganizerActivity.class);
+            Intent intent = new Intent(LotteryList.this, EntrantInWaitlist.class);
             startActivity(intent);
+            finish();
         });
 
+        // Set up the search bar
+        EditText searchBar = findViewById(R.id.search_bar);
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                adapter.getFilter().filter(s);
+                adapter.getFilter().filter(s); // Filter adapter based on search input
             }
 
             @Override
             public void afterTextChanged(Editable s) { }
         });
 
-        waitlist_button = findViewById(R.id.btn_waitlist);
-        cancelled_button = findViewById(R.id.btn_cancelled);
-
-        cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
-        waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-
-        waitlist_button.setOnClickListener(v -> {
-            cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-            waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
-
-            Intent intent = new Intent(EntrantInCancelledWaitlist.this, EntrantInWaitlist.class);
-            startActivity(intent);
-        });
-
-        cancelled_button.setOnClickListener(v -> {
-            cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
-            waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-
-            Intent intent = new Intent(EntrantInCancelledWaitlist.this, EntrantInCancelledWaitlist.class);
-            startActivity(intent);
-        });
-
-        sendNotificationCheckbox = findViewById(R.id.checkbox_notify);
-        sendNotificationCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        // Set up the checkbox for sending notifications
+        sendNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 showCustomNotificationDialog();
             }
         });
 
-        // Fetch cancelled entrants from Firestore
-        fetchCancelledEntrants(adapter);
+        // Fetch the selected entrants from Firestore
+        fetchSelectedEntrants();
     }
 
-    private void fetchCancelledEntrants(ProfileAdapter adapter) {
+    /**
+     * Fetch entrants from Firestore with status "selected".
+     */
+    private void fetchSelectedEntrants() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("waitlisted_entrants")
-                .whereEqualTo("status", "cancelled")
+                .whereEqualTo("status", "selected")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        profileList.clear();
+                        entrantDataList.clear();  // Clear the existing data
                         for (DocumentSnapshot document : task.getResult()) {
                             String name = (String) document.get("name");
                             String imageUrl = (String) document.get("imageUrl");
+
+                            // Create a Profile object and add it to the list
                             Profile profile = new Profile(name, imageUrl);
-                            profileList.add(profile);
+                            entrantDataList.add(profile);
                         }
-                        adapter.notifyDataSetChanged();
+                        adapter.notifyDataSetChanged(); // Notify adapter to refresh the ListView
                     } else {
-                        Toast.makeText(this, "Failed to fetch cancelled entrants.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Failed to fetch selected entrants.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
+    /**
+     * Show a dialog to enter a custom notification message.
+     */
     private void showCustomNotificationDialog() {
         EditText input = new EditText(this);
         input.setHint("Enter custom notification message");
 
         new AlertDialog.Builder(this)
                 .setTitle("Custom Notification")
-                .setMessage("Enter the message to send to all cancelled entrants:")
+                .setMessage("Enter the message to send to all selected entrants:")
                 .setView(input)
                 .setPositiveButton("Send", (dialog, which) -> {
                     String message = input.getText().toString().trim();
                     if (!message.isEmpty()) {
                         sendNotificationToEntrants(message);
-                        sendNotificationCheckbox.setChecked(false);
+                        sendNotifications.setChecked(false); // Uncheck the checkbox after sending
                     } else {
                         Toast.makeText(this, "Message cannot be empty", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> {
-                    sendNotificationCheckbox.setChecked(false);
+                    sendNotifications.setChecked(false);
                     dialog.cancel();
                 })
                 .show();
     }
 
+    /**
+     * Send notification to all entrants in the lottery list.
+     * @param message Notification message to be sent.
+     */
     private void sendNotificationToEntrants(String message) {
         Toast.makeText(this, "Notification sent: " + message, Toast.LENGTH_LONG).show();
     }

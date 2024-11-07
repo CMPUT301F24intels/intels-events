@@ -1,6 +1,7 @@
 package com.example.intels_app;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +17,9 @@ import java.util.List;
 
 public class CustomAdapterEntrant extends BaseAdapter {
     private Context context;
-    private List<String> data;
+    private List<Event> data;
 
-    public CustomAdapterEntrant(Context context, List<String> data) {
+    public CustomAdapterEntrant(Context context, List<Event> data) {
         this.context = context;
         this.data = data;
     }
@@ -48,7 +49,8 @@ public class CustomAdapterEntrant extends BaseAdapter {
         ImageButton deleteButton = convertView.findViewById(R.id.delete_button);
         SwitchCompat reconsiderSwitch = convertView.findViewById(R.id.reconsider_switch);
 
-        eventText.setText(data.get(position));
+        Event event = data.get(position);
+        eventText.setText(event.getEventName());
 
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override

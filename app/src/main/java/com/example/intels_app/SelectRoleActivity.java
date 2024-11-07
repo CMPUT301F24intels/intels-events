@@ -11,8 +11,13 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.installations.FirebaseInstallations;
 import com.google.firebase.messaging.FirebaseMessaging;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SelectRoleActivity extends AppCompatActivity {
     ImageButton backButton;
@@ -20,21 +25,29 @@ public class SelectRoleActivity extends AppCompatActivity {
     Button join_as_guest_button;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String deviceId;
+    private String eventName;
+    private CollectionReference waitlistRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.select_role);
 
-        // Retrieve device ID for unique identification
-        FirebaseMessaging.getInstance().getToken()
+        db = FirebaseFirestore.getInstance();
+        waitlistRef = db.collection("waitlisted_entrants");
+
+        FirebaseInstallations.getInstance().getId()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         deviceId = task.getResult();
+                        Log.d("Device ID", "Device ID: " + deviceId);
                     } else {
-                        Toast.makeText(this, "Failed to retrieve Device ID", Toast.LENGTH_SHORT).show();
+                        Log.e("Device ID Error", "Unable to get Device ID", task.getException());
+                        Toast.makeText(this, "Error generating Device ID", Toast.LENGTH_SHORT).show();
                     }
                 });
+
+        eventName = getIntent().getStringExtra("Event Name");
 
         // Set up back button
         backButton = findViewById(R.id.back_button_2);
@@ -52,7 +65,7 @@ public class SelectRoleActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(SelectRoleActivity.this, SignUp.class);
                 intent.putExtra("Device ID", deviceId);
-                intent.putExtra("Event Name", getIntent().getStringExtra("Event Name")); // Event details
+                intent.putExtra("Event Name", eventName); // Event details
                 startActivity(intent);
             }
         });
@@ -76,19 +89,25 @@ public class SelectRoleActivity extends AppCompatActivity {
             return;
         }
 
-        Profile guestProfile = new Profile(deviceId);
+        Map<String, Object> waitlistEntry = new HashMap<>();
+        waitlistEntry.put("deviceId", deviceId);
+        waitlistEntry.put("eventId", eventId);
 
-        db.collection("events")
-                .document(eventId) // Use the event ID or name as the document ID
-                .collection("waitlist")
-                .document(deviceId) // Using device ID as document ID for easy reference
-                .set(guestProfile)
+        // Profile guestProfile = new Profile(deviceId);
+
+        waitlistRef.document("Guest" + "_" + eventId)
+                .set(waitlistEntry)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(SelectRoleActivity.this, "Joined as Guest!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SelectRoleActivity.this, "Successfully joined event as Guest!", Toast.LENGTH_SHORT).show();
+                    Log.d("Firestore", "Guest successfully added to waitlisted_events!");
+
+                    // Navigate after the operation succeeds
+                    Intent intent = new Intent(SelectRoleActivity.this, SuccessWaitlistJoin.class);
+                    startActivity(intent);
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(SelectRoleActivity.this, "Failed to join as Guest.", Toast.LENGTH_SHORT).show();
-                    Log.e("FirestoreError", "Error adding guest to waitlist", e);
+                    Toast.makeText(SelectRoleActivity.this, "Failed to join event as Guest.", Toast.LENGTH_SHORT).show();
+                    Log.w("FirestoreError", "Error adding guest to waitlisted_events", e);
                 });
     }
 }
