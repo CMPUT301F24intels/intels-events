@@ -2,6 +2,7 @@ package com.example.intels_app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridView;
@@ -9,12 +10,19 @@ import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.installations.FirebaseInstallations;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class EventGridEntrantActivity extends AppCompatActivity {
 
     private Button entrant_button, organizer_button;
+    private CustomAdapterEntrant adapter;
+    private List<Event> eventData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,15 +31,26 @@ public class EventGridEntrantActivity extends AppCompatActivity {
 
         // Initialize the GridView and set the adapter
         GridView gridView = findViewById(R.id.grid_view);
-        List<String> eventData = new ArrayList<>();
+        eventData = new ArrayList<>();
+        adapter = new CustomAdapterEntrant(this, eventData);
+        gridView.setAdapter(adapter);
+
+        FirebaseInstallations.getInstance().getId()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        String currentDeviceId = task.getResult();
+                        fetchSignedUpEvents(currentDeviceId);
+                    } else {
+                        Log.e("FirebaseInstallations", "Unable to get device ID", task.getException());
+                    }
+                });
+
+       /* List<String> eventData = new ArrayList<>();
         eventData.add("Event 1");
         eventData.add("Event 2");
         eventData.add("Event 3");
         eventData.add("Event 4");
-        eventData.add("Event 5");
-
-        CustomAdapterEntrant adapter = new CustomAdapterEntrant(this, eventData);
-        gridView.setAdapter(adapter);
+        eventData.add("Event 5");*/
 
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -72,6 +91,62 @@ public class EventGridEntrantActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void fetchSignedUpEvents(String deviceId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference waitlistedEventsRef = db.collection("waitlisted_entrants");
+
+        // Query to get events where the current device is signed up
+        waitlistedEventsRef.whereEqualTo("deviceId", deviceId)
+                .get()  // Fetch data once instead of listening for real-time updates
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (task.getResult() != null && !task.getResult().isEmpty()) {
+                            // Clear the list to avoid duplicates
+                            eventData.clear();
+
+                            // Iterate over documents in the result
+                            for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                                Event event = documentSnapshot.toObject(Event.class);
+                                if (event != null) {
+                                    event.setId(documentSnapshot.getId());
+                                    eventData.add(event);
+                                }
+                            }
+                            // Notify adapter of the data change
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            Log.d("Firestore", "No documents found.");
+                        }
+                    } else {
+                        Log.w("Firestore", "Error fetching documents", task.getException());
+                    }
+                });
+        /*
+        waitlistedEventsRef.whereEqualTo("deviceId", deviceId)
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        Log.w("Firestore", "Listen failed.", e);
+                        return;
+                    }
+
+                    if (queryDocumentSnapshots != null) {
+                        eventData.clear(); // Clear list to avoid duplicates
+                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            Event event = documentSnapshot.toObject(Event.class);
+                            if (event != null) {
+                                event.setId(documentSnapshot.getId());
+                                eventData.add(event);
+                            }
+                        }
+                        adapter.notifyDataSetChanged(); // Update the adapter with new data
+                    } else {
+                        Log.d("Firestore", "No documents found.");
+                    }
+                });
+         */
+    }
+
 }
 
 

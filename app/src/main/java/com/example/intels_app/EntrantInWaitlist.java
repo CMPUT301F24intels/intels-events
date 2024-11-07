@@ -189,7 +189,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
         notificationData.put("timestamp", FieldValue.serverTimestamp()); // Server timestamp
         notificationData.put("eventName", eventName); // Tag to associate with the event
 
-        // Add the notification to the top-level `notifications` collection
+        // Add the notification to the top-level notifications collection
         db.collection("notifications")
                 .add(notificationData)
                 .addOnSuccessListener(documentReference -> {
@@ -211,6 +211,37 @@ public class EntrantInWaitlist extends AppCompatActivity {
         listView.setAdapter(adapter);
 
         waitlistRef.whereEqualTo("eventName", eventName)  // Filter by eventName
+                .get()  // Use `.get()` to fetch data once
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Clear existing data to avoid duplicates
+                        documentNames.clear();
+
+                        // Check if the task returned any documents
+                        if (task.getResult() != null && !task.getResult().isEmpty()) {
+                            Log.d("EntrantInWaitlist", "Documents retrieved for waitlisted entrants.");
+
+                            // Iterate over documents in the result
+                            for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                                String documentId = documentSnapshot.getId();  // Or fetch a specific field like "name"
+                                Log.d("EntrantInWaitlist", "Document ID: " + documentId);
+                                documentNames.add(documentId);  // Add document ID (or name) to list
+                            }
+
+                            // Notify the adapter to refresh the ListView
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            Log.w("EntrantInWaitlist", "No documents found for this event.");
+                            Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Log.w("Firestore", "Error fetching documents", task.getException());
+                        Toast.makeText(this, "Error retrieving data.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        /*
+        waitlistRef.whereEqualTo("eventName", eventName)  // Filter by eventName
                 .addSnapshotListener((queryDocumentSnapshots, e) -> {
                     if (e != null) {
                         Log.w("Firestore", "Listen failed.", e);
@@ -223,12 +254,14 @@ public class EntrantInWaitlist extends AppCompatActivity {
                     if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
                         Log.d("EntrantInWaitlist", "Received updated documents from waitlisted_entrants.");
 
+                        // Add each document ID or name to the list
                         for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                             String documentId = documentSnapshot.getId();  // Or get a field like "name"
                             Log.d("EntrantInWaitlist", "Document ID: " + documentId);
                             documentNames.add(documentId);  // Store document name (ID) in list
                         }
 
+                        // Notify adapter of data change to refresh the ListView
                         adapter.notifyDataSetChanged();
 
                     } else {
@@ -236,4 +269,6 @@ public class EntrantInWaitlist extends AppCompatActivity {
                         Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
                     }
                 });
-}}
+                /*
+         */
+    }}

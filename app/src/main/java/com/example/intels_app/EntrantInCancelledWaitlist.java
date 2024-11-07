@@ -15,6 +15,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,20 +36,13 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         listView = findViewById(R.id.profile_list);
 
         profileList = new ArrayList<>();
-        profileList.add(new Profile("Spongebob", R.drawable.spongebob));
-        profileList.add(new Profile("Patrick", R.drawable.patrick));
-        profileList.add(new Profile("Squidward", R.drawable.squidward));
-
         ProfileAdapter adapter = new ProfileAdapter(this, profileList);
         listView.setAdapter(adapter);
 
         ImageButton backButton = findViewById(R.id.back_button);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(EntrantInCancelledWaitlist.this, EventGridOrganizerActivity.class);
-                startActivity(intent);
-            }
+        backButton.setOnClickListener(view -> {
+            Intent intent = new Intent(EntrantInCancelledWaitlist.this, EventGridOrganizerActivity.class);
+            startActivity(intent);
         });
 
         searchBar.addTextChangedListener(new TextWatcher() {
@@ -55,7 +51,7 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                adapter.getFilter().filter(s); // Filter the adapter based on search input
+                adapter.getFilter().filter(s);
             }
 
             @Override
@@ -68,36 +64,54 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
         waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
 
-        waitlist_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-                waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
+        waitlist_button.setOnClickListener(v -> {
+            cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
+            waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
 
-                Intent intent = new Intent(EntrantInCancelledWaitlist.this, EntrantInWaitlist.class);
-                startActivity(intent);
-            }
+            Intent intent = new Intent(EntrantInCancelledWaitlist.this, EntrantInWaitlist.class);
+            startActivity(intent);
         });
 
-        cancelled_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
-                waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
+        cancelled_button.setOnClickListener(v -> {
+            cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
+            waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
 
-                Intent intent = new Intent(EntrantInCancelledWaitlist.this, EntrantInCancelledWaitlist.class);
-                startActivity(intent);
-            }
+            Intent intent = new Intent(EntrantInCancelledWaitlist.this, EntrantInCancelledWaitlist.class);
+            startActivity(intent);
         });
 
         sendNotificationCheckbox = findViewById(R.id.checkbox_notify);
-        // Set up the listener for the checkbox
         sendNotificationCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 showCustomNotificationDialog();
             }
         });
+
+        // Fetch cancelled entrants from Firestore
+        fetchCancelledEntrants(adapter);
     }
+
+    private void fetchCancelledEntrants(ProfileAdapter adapter) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("waitlisted_entrants")
+                .whereEqualTo("status", "cancelled")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        profileList.clear();
+                        for (DocumentSnapshot document : task.getResult()) {
+                            String name = (String) document.get("name");
+                            String imageUrl = (String) document.get("imageUrl");
+                            Profile profile = new Profile(name, imageUrl);
+                            profileList.add(profile);
+                        }
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(this, "Failed to fetch cancelled entrants.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
     private void showCustomNotificationDialog() {
         EditText input = new EditText(this);
         input.setHint("Enter custom notification message");
@@ -121,12 +135,8 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                 })
                 .show();
     }
-    private void sendNotificationToEntrants(String message) {
-        // Logic to send the notification to all entrants goes here
-        // For demonstration, we're using a Toast message as a placeholder
-        Toast.makeText(this, "Notification sent: " + message, Toast.LENGTH_LONG).show();
 
-        // Add your actual notification sending code here
-        // For example, integrating with Firebase Cloud Messaging if applicable
+    private void sendNotificationToEntrants(String message) {
+        Toast.makeText(this, "Notification sent: " + message, Toast.LENGTH_LONG).show();
     }
 }

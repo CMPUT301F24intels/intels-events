@@ -162,15 +162,14 @@ public class NotificationActivity extends AppCompatActivity {
         notificationTitle.setText(title != null ? title : "Unknown Event");
         notificationMessage.setText(message);
 
-        // Load the event poster image if available, else use default "chair" image
         if (posterUrl != null && !posterUrl.isEmpty()) {
             Glide.with(this)
                     .load(posterUrl)
-                    .placeholder(R.drawable.pfp_placeholder_image) // Placeholder image while loading
-                    .error(R.drawable.ic_launcher_foreground) // If poster fails to load, show chair image
+                    .placeholder(R.drawable.pfp_placeholder_image)
+                    .error(R.drawable.ic_launcher_foreground)
                     .into(posterImageView);
         } else {
-            posterImageView.setImageResource(R.drawable.message); // Default chair image if no URL is provided
+            posterImageView.setImageResource(R.drawable.message);
         }
 
         // Show accept and decline buttons only if the type is "selected"
@@ -184,7 +183,7 @@ public class NotificationActivity extends AppCompatActivity {
 
         // Handle accept button click
         acceptButton.setOnClickListener(view -> {
-            handleAcceptNotification(title);
+            handleAcceptNotification(profileId);
             acceptButton.setVisibility(View.GONE);
             declineButton.setVisibility(View.GONE);
             notificationMessage.setText("You have accepted the invitation.");
@@ -192,7 +191,7 @@ public class NotificationActivity extends AppCompatActivity {
 
         // Handle decline button click
         declineButton.setOnClickListener(view -> {
-            handleDeclineNotification(title, profileId);
+            handleDeclineNotification(profileId);
             acceptButton.setVisibility(View.GONE);
             declineButton.setVisibility(View.GONE);
             notificationMessage.setText("You have declined the invitation.");
@@ -210,26 +209,43 @@ public class NotificationActivity extends AppCompatActivity {
         notificationListLayout.addView(notificationView);
     }
 
-    private void handleAcceptNotification(String eventName) {
-        Toast.makeText(this, "Accepted for " + eventName, Toast.LENGTH_SHORT).show();
-    }
-
-    private void handleDeclineNotification(String eventName, String profileId) {
-        // Update the profile status to "cancelled" in Firestore
+    private void handleAcceptNotification(String profileId) {
+        // Update the status in the `waitlisted_entrants` collection to "accepted"
         if (profileId == null || profileId.trim().isEmpty()) {
             Toast.makeText(NotificationActivity.this, "Profile ID is invalid or empty.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        db.collection("profiles").document(profileId)
-                .update("status", "cancelled")
+        DocumentReference entrantDocRef = db.collection("waitlisted_entrants").document(profileId);
+
+        entrantDocRef.update("status", "accepted")
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(NotificationActivity.this, "Profile status updated to 'cancelled'", Toast.LENGTH_SHORT).show();
-                    Log.d("NotificationActivity", "Profile status successfully updated for ID: " + profileId);
+                    Toast.makeText(NotificationActivity.this, "Entrant status updated to 'accepted'", Toast.LENGTH_SHORT).show();
+                    Log.d("NotificationActivity", "Entrant status successfully updated for ID: " + profileId);
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(NotificationActivity.this, "Failed to update profile status", Toast.LENGTH_SHORT).show();
-                    Log.w("NotificationActivity", "Failed to update profile status for ID: " + profileId, e);
+                    Toast.makeText(NotificationActivity.this, "Failed to update entrant status", Toast.LENGTH_SHORT).show();
+                    Log.w("NotificationActivity", "Failed to update entrant status for ID: " + profileId, e);
+                });
+    }
+
+    private void handleDeclineNotification(String profileId) {
+        // Update the status in the `waitlisted_entrants` collection to "cancelled"
+        if (profileId == null || profileId.trim().isEmpty()) {
+            Toast.makeText(NotificationActivity.this, "Profile ID is invalid or empty.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        DocumentReference entrantDocRef = db.collection("waitlisted_entrants").document(profileId);
+
+        entrantDocRef.update("status", "cancelled")
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(NotificationActivity.this, "Entrant status updated to 'cancelled'", Toast.LENGTH_SHORT).show();
+                    Log.d("NotificationActivity", "Entrant status successfully updated for ID: " + profileId);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(NotificationActivity.this, "Failed to update entrant status", Toast.LENGTH_SHORT).show();
+                    Log.w("NotificationActivity", "Failed to update entrant status for ID: " + profileId, e);
                 });
     }
 

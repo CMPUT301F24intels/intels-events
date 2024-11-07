@@ -100,12 +100,12 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                     if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
                         Glide.with(getApplicationContext())
                                 .load(event.getPosterUrl())
-                                .placeholder(R.drawable.pfp_placeholder_image) // Add a placeholder image
-                                .error(R.drawable.person_image) // Add an error image if poster fails to load
+                                .placeholder(R.drawable.pfp_placeholder_image)
+                                .error(R.drawable.person_image)
                                 .into(posterImageView);
                     } else {
                         Log.w(TAG, "No poster URL found in the document");
-                        posterImageView.setImageResource(R.drawable.person_image); // Use a default placeholder image
+                        posterImageView.setImageResource(R.drawable.person_image);
                     }
                 }
             } else {
@@ -125,14 +125,10 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                 return;
             }
 
-            // Get the number of spots from the max attendees field
             int numberOfSpots = Integer.parseInt(maxAttendeesTextView.getText().toString().split(": ")[1]);
-
-            // Randomly shuffle the list and select the required number of participants
             Collections.shuffle(profileList);
             List<DocumentSnapshot> selectedProfiles = profileList.subList(0, Math.min(numberOfSpots, profileList.size()));
 
-            // Send notifications to selected and unselected profiles
             sendNotificationsToProfiles(profileList, selectedProfiles);
 
             // After the draw, redirect to the DrawCompleteActivity
@@ -149,14 +145,12 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         List<DocumentSnapshot> unselectedProfiles = new ArrayList<>(allProfiles);
         unselectedProfiles.removeAll(selectedProfiles);
 
-        // Notify selected profiles
         for (DocumentSnapshot selectedProfile : selectedProfiles) {
             String profileId = selectedProfile.getId();
             String message = "Congratulations! You have been selected for the event!";
             sendNotificationToProfile(profileId, eventId, message, "selected");
         }
 
-        // Notify unselected profiles
         for (DocumentSnapshot unselectedProfile : unselectedProfiles) {
             String profileId = unselectedProfile.getId();
             String message = "Sorry, you were not selected this time. Please stay tuned for more events.";
@@ -169,7 +163,6 @@ public class EventDetailsOrganizer extends AppCompatActivity {
     private void sendNotificationToProfile(String profileId, String eventId, String message, String type) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Create notification data
         Map<String, Object> notificationData = new HashMap<>();
         notificationData.put("profileId", profileId);
         notificationData.put("eventId", eventId);
@@ -177,7 +170,6 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         notificationData.put("timestamp", FieldValue.serverTimestamp());
         notificationData.put("type", type);
 
-        // Add notification to Firestore under "notifications" collection
         db.collection("notifications")
                 .add(notificationData)
                 .addOnSuccessListener(documentReference -> Log.d(TAG, "Notification sent with ID: " + documentReference.getId()))

@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -52,10 +53,10 @@ public class ProfileAdapterAdmin extends BaseAdapter {
         Profile profile = profiles.get(position);
 
         TextView nameTextView = convertView.findViewById(R.id.profile_name);
-        //ImageView profileImageView = convertView.findViewById(R.id.profile_image);
+        ImageView profileImageView = convertView.findViewById(R.id.profile_image);
 
         nameTextView.setText(profile.getName());
-        //profileImageView.setImageResource(profile.getImageResId());
+        Glide.with(context.getApplicationContext()).load(profile.getImageUrl()).into(profileImageView);
 
         ImageButton deleteButton = convertView.findViewById(R.id.delete_button);
         deleteButton.setOnClickListener(new View.OnClickListener() {

@@ -1,6 +1,5 @@
 package com.example.intels_app;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +13,9 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,21 +32,14 @@ public class FinalList extends AppCompatActivity {
         setContentView(R.layout.final_list);
 
         entrantList = findViewById(R.id.entrant_list);
-
         entrantDataList = new ArrayList<>();
-        entrantDataList.add(new Profile("Dhanshri", R.drawable.cat));
-        entrantDataList.add(new Profile("Aayushii", R.drawable.bean));
-
         ProfileAdapter adapter = new ProfileAdapter(this, entrantDataList);
         entrantList.setAdapter(adapter);
 
         back_button = findViewById(R.id.back_button);
-        back_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent (FinalList.this, EntrantInWaitlist.class);
-                startActivity(intent);
-            }
+        back_button.setOnClickListener(view -> {
+            Intent intent = new Intent(FinalList.this, EntrantInWaitlist.class);
+            startActivity(intent);
         });
 
         EditText searchBar = findViewById(R.id.search_bar);
@@ -54,7 +49,7 @@ public class FinalList extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                adapter.getFilter().filter(s); // Filter the adapter based on search input
+                adapter.getFilter().filter(s);
             }
 
             @Override
@@ -67,7 +62,31 @@ public class FinalList extends AppCompatActivity {
                 showCustomNotificationDialog();
             }
         });
+
+        // Fetch accepted entrants from Firestore
+        fetchAcceptedEntrants(adapter);
     }
+
+    private void fetchAcceptedEntrants(ProfileAdapter adapter) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("final_list")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        entrantDataList.clear();
+                        for (DocumentSnapshot document : task.getResult()) {
+                            String name = (String) document.get("name");
+                            String imageUrl = (String) document.get("imageUrl");
+                            Profile profile = new Profile(name, imageUrl);
+                            entrantDataList.add(profile);
+                        }
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(this, "Failed to fetch accepted entrants.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
     private void showCustomNotificationDialog() {
         EditText input = new EditText(this);
         input.setHint("Enter custom notification message");
@@ -91,12 +110,8 @@ public class FinalList extends AppCompatActivity {
                 })
                 .show();
     }
-    private void sendNotificationToEntrants(String message) {
-        // Logic to send the notification to all entrants goes here
-        // For demonstration, we're using a Toast message as a placeholder
-        Toast.makeText(this, "Notification sent: " + message, Toast.LENGTH_LONG).show();
 
-        // Add your actual notification sending code here
-        // For example, integrating with Firebase Cloud Messaging if applicable
+    private void sendNotificationToEntrants(String message) {
+        Toast.makeText(this, "Notification sent: " + message, Toast.LENGTH_LONG).show();
     }
 }
