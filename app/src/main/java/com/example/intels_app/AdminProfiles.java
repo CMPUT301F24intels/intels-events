@@ -33,9 +33,8 @@ public class AdminProfiles extends AppCompatActivity {
         profile_list = findViewById(R.id.profile_list);
         profileList = new ArrayList<>();
 
-        //profileList.add(new Profile("Spongebob", R.drawable.spongebob));
-        //profileList.add(new Profile("Patrick", R.drawable.patrick));
-        //profileList.add(new Profile("Squidward", R.drawable.squidward));
+        ProfileAdapterAdmin adapter = new ProfileAdapterAdmin(this, profileList);
+        profile_list.setAdapter(adapter);
 
         // Retrieve profile data from Firestore and assign it to profile arraylist
         FirebaseFirestore.getInstance().collection("profiles").get()
@@ -54,16 +53,14 @@ public class AdminProfiles extends AppCompatActivity {
                             Log.d("Firestore", "name: " + document.getString("name"));
 
                             profileList.add(setProfile);
+                            adapter.notifyDataSetChanged();
                         }
                     } else {
                         Log.d("Firestore", "No documents found in this collection.");
                     }
                 }).addOnFailureListener(e -> Log.w("Firestore", "Error fetching documents", e));
 
-        ProfileAdapterAdmin adapter = new ProfileAdapterAdmin(this, profileList);
-        profile_list.setAdapter(adapter);
         Log.d("hi", "hi");
-        adapter.notifyDataSetChanged();
 
         for (int i = 0; i < profileList.size(); i++) {
             Log.d("List", "Name: " + profileList.get(i).getName() + "ID: " + profileList.get(i).getImageResId());
