@@ -37,6 +37,8 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class SignUp extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
@@ -45,15 +47,18 @@ public class SignUp extends AppCompatActivity {
     private boolean isCameraOption = false;
     private FirebaseFirestore db;
     private CollectionReference profilesRef;
+    StorageReference storageReference;
 
     ImageButton back_button;
     EditText name, email, phone_number;
     Button add_picture, register_button;
     ImageView profile_pic;
 
-    private String Imagehash;
-    private Uri imageUri;
+    private String deviceId;
+    private String eventId;
+    private String imageHash;
     private byte[] imageData;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +67,11 @@ public class SignUp extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         profilesRef = db.collection("profiles");
+
+        deviceId = getIntent().getStringExtra("Device ID");
+        eventId = getIntent().getStringExtra("Event Name");
+        Log.d("SignUpActivity", "Received Device ID: " + deviceId); // Log for verification
+        Log.d("SignUpActivity", "Received Event ID: " + eventId);
 
         add_picture = findViewById(R.id.add_picture);
         add_picture.setOnClickListener(view -> showImagePickerDialog());
@@ -82,19 +92,54 @@ public class SignUp extends AppCompatActivity {
             email = findViewById(R.id.enter_email);
             phone_number = findViewById(R.id.enter_phone_number);
 
-            Profile newProfile = new Profile(name.getText().toString(),
-                    email.getText().toString(),
-                    Integer.parseInt(phone_number.getText().toString()));
+            int phoneNumber;
+            try {
+                phoneNumber = Integer.parseInt(phone_number.getText().toString());
+            } catch (NumberFormatException e) {
+                Toast.makeText(SignUp.this, "Invalid phone number", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            profilesRef
-                    .document(name.getText().toString())
-                    .set(newProfile)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void unused) {
-                            Log.d("Firestore", "Profile successfully added to Firestore!");
-                        }})
-                    .addOnFailureListener(e -> Log.w(TAG, "Error adding profile", e));
+            if (imageData == null || imageHash == null) {
+                Toast.makeText(SignUp.this, "Please select or generate a profile picture", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("profile_pics")
+                    .child(imageHash);
+            storageRef.putBytes(imageData)
+                    .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl()
+                            .addOnSuccessListener(uri -> {
+                                String profilePicUrl = uri.toString();
+
+                                Log.d("Hello", "Hello");
+
+                                // Create Profile with deviceId
+                                Profile newProfile = new Profile(deviceId, name.getText().toString(), email.getText().toString(), phoneNumber, profilePicUrl);
+                                profilesRef.document(name.getText().toString())
+                                        .set(newProfile)
+                                        .addOnSuccessListener(aVoid -> Log.d("Firestore", "Profile successfully added to Firestore!"))
+                                        .addOnFailureListener(e -> Log.w("FirestoreError", "Error adding profile", e));
+
+                                // Save profile under the event's waitlist subdirectory
+                                db.collection("events")
+                                        .document(eventId)
+                                        .collection("waitlist")
+                                        .document(deviceId) // Use device ID for uniqueness
+                                        .set(newProfile)
+                                        .addOnSuccessListener(aVoid -> {
+                                            Toast.makeText(SignUp.this, "Successfully joined event as Entrant!", Toast.LENGTH_SHORT).show();
+                                            Log.d("Firestore", "Entrant successfully added to event waitlist!");
+
+                                            // Navigate after both operations succeed
+                                            Intent intent = new Intent(SignUp.this, SuccessWaitlistJoin.class);
+                                            startActivity(intent);
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(SignUp.this, "Failed to join event as Entrant.", Toast.LENGTH_SHORT).show();
+                                            Log.w("FirestoreError", "Error adding entrant to waitlist", e);
+                                        });
+                            }));
         });
 
     }
@@ -104,6 +149,28 @@ public class SignUp extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select Profile Picture");
         builder.setItems(options, (dialog, which) -> {
+            switch (which) {
+                case 0: // Take Photo
+                    isCameraOption = true;
+                    if (checkAndRequestPermissions()) {
+                        openCamera();
+                    }
+                    break;
+                case 1: // Choose from Gallery
+                    isCameraOption = false;
+                    if (checkAndRequestPermissions()) {
+                        openGallery();
+                    }
+                    break;
+                case 2: // Generate with Initials
+                    name = findViewById(R.id.enter_name);
+                    Bitmap generatedImage = generateProfilePicture(name.getText().toString());
+                    profile_pic.setImageBitmap(generatedImage);
+                    imageData = bitmapToByteArray(generatedImage); // Convert generated image to byte array if needed
+                    imageHash = hashImage(imageData);
+                    break;
+            }
+            /*
             isCameraOption = (which == 0);
             if (which == 2) {
                 Bitmap generatedImage = generateProfilePicture("Dhanshri");
@@ -114,7 +181,7 @@ public class SignUp extends AppCompatActivity {
                 } else {
                     openGallery();
                 }
-            }
+            }*/
         });
         builder.show();
     }
@@ -143,12 +210,14 @@ public class SignUp extends AppCompatActivity {
             }
         }
     }
+
     private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
         }
     }
+
     private void openGallery() {
         Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK);
@@ -176,5 +245,60 @@ public class SignUp extends AppCompatActivity {
         canvas.drawText(initials, x, y, paint);
 
         return bitmap;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_IMAGE_CAPTURE && data != null && data.getExtras() != null) {
+                Bitmap bitmap = (Bitmap) data.getExtras().get("data");  // Get thumbnail from camera
+                if (bitmap != null) {
+                    profile_pic.setImageBitmap(bitmap); // Display the image in ImageView
+                    imageData = bitmapToByteArray(bitmap); // Convert to byte array if needed
+                    imageHash = hashImage(imageData);
+                    Log.d(TAG, "Camera Image Set - imageHash: " + imageHash);  // Log for verification
+                }
+            } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
+                Uri selectedImageUri = data.getData();  // Get URI of selected image
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
+                    profile_pic.setImageBitmap(bitmap); // Display the image in ImageView
+                    imageData = bitmapToByteArray(bitmap); // Convert to byte array if needed
+                    imageHash = hashImage(imageData);
+                    Log.d(TAG, "Gallery Image Set - imageHash: " + imageHash);  // Log for verification
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+    private byte[] bitmapToByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        return baos.toByteArray();
+    }
+
+    public static String hashImage(byte[] imageData) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(imageData);
+
+            // Convert bytes to hex string
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashBytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

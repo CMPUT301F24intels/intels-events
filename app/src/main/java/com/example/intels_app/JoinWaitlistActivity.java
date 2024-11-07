@@ -20,7 +20,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.join_waitlist);
 
-        // Retrieve event details from the intent
+        /*// Retrieve event details from the intent
         String eventName = getIntent().getStringExtra("eventName");
         String facilityName = getIntent().getStringExtra("facilityName");
         String location = getIntent().getStringExtra("location");
@@ -28,7 +28,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         String description = getIntent().getStringExtra("description");
         int maxAttendees = getIntent().getIntExtra("maxAttendees", 0);
         boolean geolocationRequirement = getIntent().getBooleanExtra("geolocationRequirement", false);
-        String posterUrl = getIntent().getStringExtra("posterUrl");
+        String posterUrl = getIntent().getStringExtra("posterUrl");*/
 
         // Set the retrieved data to the UI elements
         TextView eventNameTextView = findViewById(R.id.eventNameEdit);
@@ -38,6 +38,16 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         TextView descriptionTextView = findViewById(R.id.descriptionEdit);
         TextView maxAttendeesTextView = findViewById(R.id.max_attendees);
         SwitchCompat geolocationSwitch = findViewById(R.id.geolocationRequirementText);
+
+        // Hardcoding Data simply to test, change back after
+        String eventName = "Aayushi_Testing123";
+        String facilityName = "Main Hall";
+        String location = "123 Event St, City";
+        String dateTime = "2024-11-10 10:00 AM";
+        String description = "This is a sample event description.";
+        int maxAttendees = 100;
+        boolean geolocationRequirement = false;
+        String posterUrl = "wwwwwwww";
 
         eventNameTextView.setText(String.format("Name: %s", eventName));
         facilityTextView.setText(String.format("Facility: %s", facilityName));
@@ -57,6 +67,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
                     .into(posterImageView);
         }
 
+
         Button joinWaitlistButton = findViewById(R.id.join_waitlist_button);
         joinWaitlistButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,7 +81,42 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish(); // Go back to the previous activity
+                Intent intent = new Intent(JoinWaitlistActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
+        if (eventNameTextView != null) {
+            eventNameTextView.setText(eventName);
+        }
+        if (facilityTextView != null) {
+            facilityTextView.setText(facilityName);
+        }
+        if (locationTextView != null) {
+            locationTextView.setText(location);
+        }
+        if (dateTimeTextView != null) {
+            dateTimeTextView.setText(dateTime);
+        }
+        if (descriptionTextView != null) {
+            descriptionTextView.setText(description);
+        }
+        if (maxAttendeesTextView != null) {
+            maxAttendeesTextView.setText(String.valueOf(maxAttendees));
+        }
+
+        joinWaitlistButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
+                intent.putExtra("Event Name", eventName);
+                intent.putExtra("Facility", facilityName);
+                intent.putExtra("Location", location);
+                intent.putExtra("DateTime", dateTime);
+                intent.putExtra("Description", description);
+                intent.putExtra("Max Attendees", maxAttendees);
+                startActivity(intent);
             }
         });
     }

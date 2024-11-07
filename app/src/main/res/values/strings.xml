@@ -59,4 +59,6 @@
     <string name="organizer">Organizer</string>
     <string name="title_activity_waitlistactivity">waitlistactivity</string>
     <string name="add_poster">Add Poster</string>
+    <string name="joined_waitlist_successfully">Joined Waitlist Successfully!</string>
+    <string name="view_waitlist">You can view this event under View My Waitlist!</string>
 </resources>

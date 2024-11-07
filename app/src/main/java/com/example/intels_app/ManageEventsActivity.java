@@ -56,7 +56,7 @@ public class ManageEventsActivity extends AppCompatActivity {
         gridview.setAdapter(adapter);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference collectionRef = db.collection("events"); // Replace "events" with your collection name
+        CollectionReference collectionRef = db.collection("events");
 
         collectionRef.get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {

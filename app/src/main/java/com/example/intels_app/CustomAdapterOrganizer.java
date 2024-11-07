@@ -57,7 +57,6 @@ public class CustomAdapterOrganizer extends BaseAdapter {
             @Override
             public void onClick(View v) {
                 // Remove item from Firestore, data list, and notify adapter
-
                 FirebaseFirestore.getInstance().collection("events").document(currentEvent.getEventName())
                                 .delete()
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -81,4 +80,3 @@ public class CustomAdapterOrganizer extends BaseAdapter {
         return convertView;
     }
 }
-
