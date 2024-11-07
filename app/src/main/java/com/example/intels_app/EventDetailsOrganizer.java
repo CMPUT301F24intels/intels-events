@@ -135,8 +135,8 @@ public class EventDetailsOrganizer extends AppCompatActivity {
             // Send notifications to selected and unselected profiles
             sendNotificationsToProfiles(profileList, selectedProfiles);
 
-            // After the draw, redirect to the waiting list with selected entrants
-            Intent intent = new Intent(EventDetailsOrganizer.this, EntrantInWaitlist.class);
+            // After the draw, redirect to the DrawCompleteActivity
+            Intent intent = new Intent(EventDetailsOrganizer.this, DrawCompleteActivity.class);
             intent.putExtra("eventId", eventId);
             startActivity(intent);
         }).addOnFailureListener(e -> {

@@ -1,11 +1,13 @@
 package com.example.intels_app;
 
-import android.annotation.SuppressLint;
+import static android.content.ContentValues.TAG;
+
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -15,15 +17,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class NotificationActivity extends AppCompatActivity {
 
@@ -33,6 +39,10 @@ public class NotificationActivity extends AppCompatActivity {
 
     private static final String CHANNEL_ID = "notification_channel";
     private FirebaseFirestore db;
+
+    // List to temporarily store notifications before adding them to the view
+    private final List<Map<String, Object>> notificationCache = new ArrayList<>();
+    private int loadedEventDetailsCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,13 +76,29 @@ public class NotificationActivity extends AppCompatActivity {
                 QuerySnapshot querySnapshot = task.getResult();
                 if (querySnapshot != null && !querySnapshot.isEmpty()) {
                     List<DocumentSnapshot> notifications = querySnapshot.getDocuments();
+                    loadedEventDetailsCount = 0; // Reset loaded counter
                     for (DocumentSnapshot notificationDoc : notifications) {
-                        String title = notificationDoc.getString("eventId");
+                        String eventId = notificationDoc.getString("eventId");
                         String message = notificationDoc.getString("message");
                         String type = notificationDoc.getString("type");
                         String profileId = notificationDoc.getString("profileId");
 
-                        addNotification(title, message, type, profileId);
+                        // Store notification data in the cache
+                        Map<String, Object> notificationData = new HashMap<>();
+                        notificationData.put("eventId", eventId);
+                        notificationData.put("message", message);
+                        notificationData.put("type", type);
+                        notificationData.put("profileId", profileId);
+                        notificationCache.add(notificationData);
+
+                        // Load event details if eventId is available
+                        if (eventId != null && !eventId.isEmpty()) {
+                            loadEventDetailsForNotification(eventId, notificationData);
+                        } else {
+                            // No eventId, increment loaded counter
+                            loadedEventDetailsCount++;
+                            checkAndDisplayNotifications();
+                        }
                     }
                 } else {
                     Toast.makeText(NotificationActivity.this, "No notifications found.", Toast.LENGTH_SHORT).show();
@@ -83,7 +109,45 @@ public class NotificationActivity extends AppCompatActivity {
         });
     }
 
-    private void addNotification(String title, String message, String type, String profileId) {
+    private void loadEventDetailsForNotification(String eventId, Map<String, Object> notificationData) {
+        DocumentReference eventRef = db.collection("events").document(eventId);
+        eventRef.get().addOnSuccessListener(eventDoc -> {
+            String posterUrl = eventDoc.getString("posterUrl");
+            notificationData.put("posterUrl", posterUrl);
+
+            // Increment loaded counter
+            loadedEventDetailsCount++;
+            checkAndDisplayNotifications();
+
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error loading event details for notification", e);
+
+            // Increment loaded counter even on failure
+            loadedEventDetailsCount++;
+            checkAndDisplayNotifications();
+        });
+    }
+
+    private void checkAndDisplayNotifications() {
+        // Check if all event details are loaded
+        if (loadedEventDetailsCount == notificationCache.size()) {
+            // Once all notifications have been processed, display them in the view
+            for (Map<String, Object> notificationData : notificationCache) {
+                String title = (String) notificationData.get("eventId");
+                String message = (String) notificationData.get("message");
+                String type = (String) notificationData.get("type");
+                String profileId = (String) notificationData.get("profileId");
+                String posterUrl = (String) notificationData.get("posterUrl");
+
+                addNotification(posterUrl, title, message, type, profileId);
+            }
+
+            // Clear the cache after displaying notifications
+            notificationCache.clear();
+        }
+    }
+
+    private void addNotification(String posterUrl, String title, String message, String type, String profileId) {
         // Inflate the notification item layout
         LayoutInflater inflater = LayoutInflater.from(this);
         View notificationView = inflater.inflate(R.layout.notification_item, null);
@@ -91,11 +155,23 @@ public class NotificationActivity extends AppCompatActivity {
         // Set up notification view details
         TextView notificationTitle = notificationView.findViewById(R.id.notification_title);
         TextView notificationMessage = notificationView.findViewById(R.id.notification_message);
+        ImageView posterImageView = notificationView.findViewById(R.id.profile_image);
         Button acceptButton = notificationView.findViewById(R.id.accept_button);
         Button declineButton = notificationView.findViewById(R.id.decline_button);
 
-        notificationTitle.setText(title);
+        notificationTitle.setText(title != null ? title : "Unknown Event");
         notificationMessage.setText(message);
+
+        // Load the event poster image if available, else use default "chair" image
+        if (posterUrl != null && !posterUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(posterUrl)
+                    .placeholder(R.drawable.pfp_placeholder_image) // Placeholder image while loading
+                    .error(R.drawable.ic_launcher_foreground) // If poster fails to load, show chair image
+                    .into(posterImageView);
+        } else {
+            posterImageView.setImageResource(R.drawable.message); // Default chair image if no URL is provided
+        }
 
         // Show accept and decline buttons only if the type is "selected"
         if ("selected".equals(type)) {
@@ -116,7 +192,7 @@ public class NotificationActivity extends AppCompatActivity {
 
         // Handle decline button click
         declineButton.setOnClickListener(view -> {
-            handleDeclineNotification(profileId);  // Pass the profileId to handleDeclineNotification()
+            handleDeclineNotification(title, profileId);
             acceptButton.setVisibility(View.GONE);
             declineButton.setVisibility(View.GONE);
             notificationMessage.setText("You have declined the invitation.");
@@ -138,15 +214,22 @@ public class NotificationActivity extends AppCompatActivity {
         Toast.makeText(this, "Accepted for " + eventName, Toast.LENGTH_SHORT).show();
     }
 
-    private void handleDeclineNotification(String profileId) {
+    private void handleDeclineNotification(String eventName, String profileId) {
         // Update the profile status to "cancelled" in Firestore
+        if (profileId == null || profileId.trim().isEmpty()) {
+            Toast.makeText(NotificationActivity.this, "Profile ID is invalid or empty.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         db.collection("profiles").document(profileId)
                 .update("status", "cancelled")
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(NotificationActivity.this, "Profile status updated to 'cancelled'", Toast.LENGTH_SHORT).show();
+                    Log.d("NotificationActivity", "Profile status successfully updated for ID: " + profileId);
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(NotificationActivity.this, "Failed to update profile status", Toast.LENGTH_SHORT).show();
+                    Log.w("NotificationActivity", "Failed to update profile status for ID: " + profileId, e);
                 });
     }
 

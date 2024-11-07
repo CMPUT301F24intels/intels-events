@@ -18,7 +18,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/back_button" />
 
-    <!-- Event Details Title -->
     <TextView
         android:id="@+id/eventDetailsTextview"
         android:layout_width="wrap_content"
@@ -47,7 +46,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:srcCompat="@tools:sample/avatars" />
 
-    <!-- Event Name TextView -->
     <TextView
         android:id="@+id/eventNameEditText"
         android:layout_width="349dp"
@@ -64,7 +62,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Facility TextView -->
     <TextView
         android:id="@+id/facilityEditText"
         android:layout_width="349dp"
@@ -81,7 +78,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Location TextView -->
     <TextView
         android:id="@+id/locationEditText"
         android:layout_width="349dp"
@@ -98,7 +94,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Date and Time TextView -->
     <TextView
         android:id="@+id/dateTimeEditText"
         android:layout_width="349dp"
@@ -115,7 +110,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Description TextView -->
     <TextView
         android:id="@+id/descriptionEditText"
         android:layout_width="349dp"
@@ -132,7 +126,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Max Attendees TextView -->
     <TextView
         android:id="@+id/max_attendees_textview"
         android:layout_width="349dp"
@@ -149,7 +142,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Geolocation Requirement TextView -->
     <TextView
         android:id="@+id/geolocationRequirementTextView"
         android:layout_width="349dp"
@@ -166,7 +158,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Notification Preference TextView -->
     <TextView
         android:id="@+id/notificationPreferenceTextView"
         android:layout_width="349dp"
@@ -183,7 +174,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Navigation Button -->
     <ImageButton
         android:id="@+id/navigationButton"
         android:layout_width="48dp"
@@ -197,7 +187,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/map_pin" />
 
-    <!-- Edit Button -->
     <ImageButton
         android:id="@+id/editButton"
         android:layout_width="48dp"
@@ -213,7 +202,6 @@
         app:layout_constraintStart_toEndOf="@+id/navigationButton"
         app:srcCompat="@drawable/edit_icon" />
 
-    <!-- Draw Button -->
     <ImageButton
         android:id="@+id/drawButton"
         android:layout_width="48dp"
