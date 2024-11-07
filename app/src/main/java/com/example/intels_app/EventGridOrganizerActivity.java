@@ -110,6 +110,36 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
         CollectionReference eventsRef = db.collection("events");
 
         eventsRef.whereEqualTo("deviceId", deviceId)
+                .get()  // Use `.get()` to fetch data once instead of listening for changes
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (task.getResult() != null && !task.getResult().isEmpty()) {
+                            Log.d("Firestore", "Data received: " + task.getResult().size() + " documents");
+
+                            // Clear the list to avoid duplicates
+                            eventData.clear();
+
+                            // Loop through the documents in the query result
+                            for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                                Event event = documentSnapshot.toObject(Event.class);
+                                if (event != null) {
+                                    event.setId(documentSnapshot.getId()); // Set the document ID
+                                    Log.d("Firestore", "Event added: " + event.getId());
+                                    eventData.add(event); // Add the event to the list
+                                }
+                            }
+                            // Notify the adapter of the data change to refresh the UI
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            Log.d("Firestore", "No documents found.");
+                        }
+                    } else {
+                        Log.w("Firestore", "Error fetching documents", task.getException());
+                    }
+                });
+
+        /*
+        eventsRef.whereEqualTo("deviceId", deviceId)
             .addSnapshotListener((queryDocumentSnapshots, e) -> {
                 if (e != null) {
                     Log.w("Firestore", "Listen failed.", e);
@@ -132,5 +162,6 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
                     Log.d("Firestore", "No documents found.");
                 }
             });
+         */
     }
 }
