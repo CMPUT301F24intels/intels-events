@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 public class EntrantInWaitlist extends AppCompatActivity {
-    private Button waitlist_button, cancelled_button, final_list_button, back_button;
+    private Button waitlist_button, cancelled_button, final_list_button, lottery_list_button, back_button;
     private ListView listView;
     private List<Profile> profileList;
     private CheckBox sendNotificationCheckbox;
@@ -92,6 +92,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
         waitlist_button = findViewById(R.id.btn_waitlist);
         cancelled_button = findViewById(R.id.btn_cancelled);
         final_list_button = findViewById(R.id.final_list_button);
+        lottery_list_button = findViewById(R.id.lottery_list_button);
 
         cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
         waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
@@ -119,10 +120,20 @@ public class EntrantInWaitlist extends AppCompatActivity {
                 finish();
             }
         });
+
         final_list_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(EntrantInWaitlist.this, FinalList.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        lottery_list_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(EntrantInWaitlist.this, LotteryList.class);
                 startActivity(intent);
                 finish();
             }
@@ -259,6 +270,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
                         Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
                     }
                 });
-                /*
+
          */
-    }}
+    }
+}
