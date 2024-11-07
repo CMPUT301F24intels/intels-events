@@ -32,6 +32,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
 import com.bumptech.glide.Glide;
+import com.example.intels_app.CreateQR;
+import com.example.intels_app.ManageEventsActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -163,7 +165,33 @@ public class AddEvent extends AppCompatActivity {
             });
 
 
-            /*// Put poster image into storage. Put uri into newEvent parameters
+            /*/
+
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+
+import com.bumptech.glide.Glide;
+import com.example.intels_app.CreateQR;
+import com.example.intels_app.ManageEventsActivity;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;/ Put poster image into storage. Put uri into newEvent parameters
             StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("posters").child(imageHash);
             storageReference.putBytes(imageData)
                     .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
@@ -202,7 +230,7 @@ public class AddEvent extends AppCompatActivity {
                             })
                     ).addOnFailureListener(e -> {
                         Log.w(TAG, "Image upload failed", e);
-                        Toast.makeText(AddEvent.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AddEvent.this, "Failed to upload image",Toast.LENGTH_SHORT).show();
                     });
 
             // Return to Manage Events activity (if needed)
