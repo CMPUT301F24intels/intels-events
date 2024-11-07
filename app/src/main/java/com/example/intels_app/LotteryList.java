@@ -20,28 +20,36 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FinalList extends AppCompatActivity {
+public class LotteryList extends AppCompatActivity {
     private ListView entrantList;
     private List<Profile> entrantDataList;
-    private ImageButton back_button;
+    private ImageButton backButton;
     private CheckBox sendNotifications;
+    private ProfileAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.final_list);
+        setContentView(R.layout.lottery_list);
 
+        // Initialize views
         entrantList = findViewById(R.id.entrant_list);
+        backButton = findViewById(R.id.back_button);
+        sendNotifications = findViewById(R.id.send_notifications);
+
+        // Set up the list and adapter
         entrantDataList = new ArrayList<>();
-        ProfileAdapter adapter = new ProfileAdapter(this, entrantDataList);
+        adapter = new ProfileAdapter(this, entrantDataList);
         entrantList.setAdapter(adapter);
 
-        back_button = findViewById(R.id.back_button);
-        back_button.setOnClickListener(view -> {
-            Intent intent = new Intent(FinalList.this, EventGridOrganizerActivity.class); //Change back to EventInWaitlist
+        // Set up back button to go to previous activity
+        backButton.setOnClickListener(view -> {
+            Intent intent = new Intent(LotteryList.this, EntrantInWaitlist.class);
             startActivity(intent);
+            finish();
         });
 
+        // Set up the search bar
         EditText searchBar = findViewById(R.id.search_bar);
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
@@ -49,44 +57,53 @@ public class FinalList extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                adapter.getFilter().filter(s);
+                adapter.getFilter().filter(s); // Filter adapter based on search input
             }
 
             @Override
             public void afterTextChanged(Editable s) { }
         });
 
-        sendNotifications = findViewById(R.id.send_notifications);
+        // Set up the checkbox for sending notifications
         sendNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 showCustomNotificationDialog();
             }
         });
 
-        // Fetch accepted entrants from Firestore
-        fetchAcceptedEntrants(adapter);
+        // Fetch the selected entrants from Firestore
+        fetchSelectedEntrants();
     }
 
-    private void fetchAcceptedEntrants(ProfileAdapter adapter) {
+    /**
+     * Fetch entrants from Firestore with status "selected".
+     */
+    private void fetchSelectedEntrants() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("final_list")
+        db.collection("waitlisted_entrants")
+                .whereEqualTo("status", "selected")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        entrantDataList.clear();
+                        entrantDataList.clear();  // Clear the existing data
                         for (DocumentSnapshot document : task.getResult()) {
                             String name = (String) document.get("name");
                             String imageUrl = (String) document.get("imageUrl");
+
+                            // Create a Profile object and add it to the list
                             Profile profile = new Profile(name, imageUrl);
                             entrantDataList.add(profile);
                         }
-                        adapter.notifyDataSetChanged();
+                        adapter.notifyDataSetChanged(); // Notify adapter to refresh the ListView
                     } else {
-                        Toast.makeText(this, "Failed to fetch accepted entrants.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Failed to fetch selected entrants.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
+    /**
+     * Show a dialog to enter a custom notification message.
+     */
     private void showCustomNotificationDialog() {
         EditText input = new EditText(this);
         input.setHint("Enter custom notification message");
@@ -99,7 +116,7 @@ public class FinalList extends AppCompatActivity {
                     String message = input.getText().toString().trim();
                     if (!message.isEmpty()) {
                         sendNotificationToEntrants(message);
-                        sendNotifications.setChecked(false);
+                        sendNotifications.setChecked(false); // Uncheck the checkbox after sending
                     } else {
                         Toast.makeText(this, "Message cannot be empty", Toast.LENGTH_SHORT).show();
                     }
@@ -111,6 +128,10 @@ public class FinalList extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Send notification to all entrants in the lottery list.
+     * @param message Notification message to be sent.
+     */
     private void sendNotificationToEntrants(String message) {
         Toast.makeText(this, "Notification sent: " + message, Toast.LENGTH_LONG).show();
     }

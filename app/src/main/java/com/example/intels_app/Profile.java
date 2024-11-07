@@ -7,7 +7,7 @@ package com.example.intels_app;
     private int imageResId;
     private String imageUrl;
     private String deviceId;
-    private String eventName;
+    /*private String eventName;*/
 
 
 
@@ -64,13 +64,13 @@ package com.example.intels_app;
         this.deviceId = deviceId;
     }
 
-    public String getEventName() {
+    /*public String getEventName() {
         return eventName;
     }
 
     public void setEventId(String eventName) {
         this.eventName = eventName;
-    }
+    }*/
 
     public void setName(String name) {
         this.name = name;
