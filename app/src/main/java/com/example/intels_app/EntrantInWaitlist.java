@@ -189,7 +189,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
         notificationData.put("timestamp", FieldValue.serverTimestamp()); // Server timestamp
         notificationData.put("eventName", eventName); // Tag to associate with the event
 
-        // Add the notification to the top-level `notifications` collection
+        // Add the notification to the top-level notifications collection
         db.collection("notifications")
                 .add(notificationData)
                 .addOnSuccessListener(documentReference -> {
@@ -238,4 +238,4 @@ public class EntrantInWaitlist extends AppCompatActivity {
                         Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
                     }
                 });
-}}
+    }}
