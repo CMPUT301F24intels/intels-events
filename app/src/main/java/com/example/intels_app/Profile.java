@@ -1,6 +1,6 @@
 package com.example.intels_app;
 
-public class Profile {
+ class Profile {
     private String name;
     private String email;
     private int phone_number;
