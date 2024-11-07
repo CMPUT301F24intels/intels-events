@@ -7,6 +7,8 @@ public class Profile {
     private int imageResId;
     private String imageUrl;
     private String deviceId;
+    private String eventName;
+
 
     public Profile(String name, int imageResId) {
         this.name = name;
@@ -43,6 +45,18 @@ public class Profile {
 
     // Default constructor required for Firestore
     public Profile() {}
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public String getEventName() {
+        return eventName;
+    }
+
+    public void setEventId(String eventName) {
+        this.eventName = eventName;
+    }
 
     public void setName(String name) {
         this.name = name;

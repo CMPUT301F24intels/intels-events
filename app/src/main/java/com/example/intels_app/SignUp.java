@@ -37,6 +37,8 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SignUp extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
@@ -45,6 +47,7 @@ public class SignUp extends AppCompatActivity {
     private boolean isCameraOption = false;
     private FirebaseFirestore db;
     private CollectionReference profilesRef;
+    private CollectionReference waitlistRef;
 
     ImageButton back_button;
     EditText name, email, phone_number;
@@ -52,7 +55,7 @@ public class SignUp extends AppCompatActivity {
     ImageView profile_pic;
 
     private String deviceId;
-    private String eventId;
+    private String eventName;
     private String Imagehash;
     private Uri imageUri;
     private byte[] imageData;
@@ -64,11 +67,12 @@ public class SignUp extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         profilesRef = db.collection("profiles");
+        waitlistRef = db.collection("waitlisted_entrants");
 
         deviceId = getIntent().getStringExtra("Device ID");
-        eventId = getIntent().getStringExtra("Event Name");
+        eventName = getIntent().getStringExtra("Event Name");
         Log.d("SignUpActivity", "Received Device ID: " + deviceId); // Log for verification
-        Log.d("SignUpActivity", "Received Event ID: " + eventId);
+        Log.d("SignUpActivity", "Received Event ID: " + eventName);
 
         add_picture = findViewById(R.id.add_picture);
         add_picture.setOnClickListener(view -> showImagePickerDialog());
@@ -100,28 +104,30 @@ public class SignUp extends AppCompatActivity {
             // Create Profile with deviceId
             Profile newProfile = new Profile(deviceId, name.getText().toString(), email.getText().toString(), phoneNumber);
 
+            Map<String, Object> waitlistEntry = new HashMap<>();
+            waitlistEntry.put("deviceId", deviceId);
+            waitlistEntry.put("eventName", eventName);
+            waitlistEntry.put("profile", newProfile);
+
             profilesRef.document(name.getText().toString())
                     .set(newProfile)
                     .addOnSuccessListener(aVoid -> Log.d("Firestore", "Profile successfully added to Firestore!"))
                     .addOnFailureListener(e -> Log.w("FirestoreError", "Error adding profile", e));
 
-            // Save profile under the event's waitlist subdirectory
-            db.collection("events")
-                    .document(eventId)
-                    .collection("waitlist")
-                    .document(deviceId) // Use device ID for uniqueness
-                    .set(newProfile)
+
+            waitlistRef.document(name.getText().toString())
+                    .set(waitlistEntry)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(SignUp.this, "Successfully joined event as Entrant!", Toast.LENGTH_SHORT).show();
-                        Log.d("Firestore", "Entrant successfully added to event waitlist!");
+                        Log.d("Firestore", "Entrant successfully added to waitlisted_events!");
 
-                        // Navigate after both operations succeed
+                        // Navigate after the operation succeeds
                         Intent intent = new Intent(SignUp.this, SuccessWaitlistJoin.class);
                         startActivity(intent);
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(SignUp.this, "Failed to join event as Entrant.", Toast.LENGTH_SHORT).show();
-                        Log.w("FirestoreError", "Error adding entrant to waitlist", e);
+                        Log.w("FirestoreError", "Error adding entrant to waitlisted_events", e);
                     });
         });
 
