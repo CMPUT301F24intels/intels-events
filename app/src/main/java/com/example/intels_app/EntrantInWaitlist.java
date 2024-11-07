@@ -2,11 +2,13 @@ package com.example.intels_app;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -31,30 +34,45 @@ public class EntrantInWaitlist extends AppCompatActivity {
     private ListView listView;
     private List<Profile> profileList;
     private CheckBox sendNotificationCheckbox;
-    private String eventId;
+    private String eventName;
+    private ProfileAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.waitlist_with_entrants);
 
-        EditText searchBar = findViewById(R.id.search_bar);
-        listView = findViewById(R.id.profile_list);
+        SharedPreferences sharedPreferences = getSharedPreferences("EventPrefs", MODE_PRIVATE);
+        eventName = getIntent().getStringExtra("eventName");
 
-        eventId = getIntent().getStringExtra("eventId");
-        Log.d("EntrantInWaitlist", "Retrieved eventId: " + eventId);
-
-        if (eventId == null || eventId.isEmpty()) {
-            Toast.makeText(this, "Event ID is missing. Cannot proceed.", Toast.LENGTH_SHORT).show();
-            return;
+        // Store eventId in SharedPreferences if it's passed in Intent
+        if (eventName != null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("eventId", eventName);
+            editor.apply();
+        } else {
+            // Retrieve eventId from SharedPreferences if not in Intent
+            eventName = sharedPreferences.getString("eventId", null);
+            if (eventName == null) {
+                Toast.makeText(this, "Event ID is missing. Cannot proceed.", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
         }
 
-        profileList = new ArrayList<>();
-        profileList.add(new Profile("Gopi Modi", R.drawable.gopimodi));
-        profileList.add(new Profile("Mr.Bean", R.drawable.bean));
+        Log.d("EntrantInWaitlist", "Retrieved eventId: " + eventName);
 
-        ProfileAdapter adapter = new ProfileAdapter(this, profileList);
+        EditText searchBar = findViewById(R.id.search_bar);
+        listView = findViewById(R.id.profile_list);
+        sendNotificationCheckbox = findViewById(R.id.checkbox_notify);
+
+        profileList = new ArrayList<>();
+        profileList.add(new Profile("Aayushi", "dshjfd@gmail.com", 7050404));
+        profileList.add(new Profile("Janan", "dshjfd@gmail.com", 7050404));
+        adapter = new ProfileAdapter(this, profileList);
         listView.setAdapter(adapter);
+
+        fetchEntrants();
 
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -62,6 +80,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(EntrantInWaitlist.this, EventGridOrganizerActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -95,6 +114,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
 
                 Intent intent = new Intent(EntrantInWaitlist.this, EntrantInWaitlist.class);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -106,6 +126,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
 
                 Intent intent = new Intent(EntrantInWaitlist.this, EntrantInCancelledWaitlist.class);
                 startActivity(intent);
+                finish();
             }
         });
         final_list_button.setOnClickListener(new View.OnClickListener() {
@@ -113,8 +134,10 @@ public class EntrantInWaitlist extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(EntrantInWaitlist.this, FinalList.class);
                 startActivity(intent);
+                finish();
             }
         });
+
         sendNotificationCheckbox = findViewById(R.id.checkbox_notify);
 
         // Set up the listener for the checkbox
@@ -154,7 +177,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // Validate eventId
-        if (eventId == null || eventId.isEmpty()) {
+        if (eventName == null || eventName.isEmpty()) {
             Log.e("Firestore", "eventId is null or empty");
             Toast.makeText(this, "Event ID is missing. Cannot send notification.", Toast.LENGTH_SHORT).show();
             return;
@@ -164,7 +187,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
         Map<String, Object> notificationData = new HashMap<>();
         notificationData.put("message", message); // Custom message
         notificationData.put("timestamp", FieldValue.serverTimestamp()); // Server timestamp
-        notificationData.put("eventId", eventId); // Tag to associate with the event
+        notificationData.put("eventName", eventName); // Tag to associate with the event
 
         // Add the notification to the top-level `notifications` collection
         db.collection("notifications")
@@ -178,4 +201,39 @@ public class EntrantInWaitlist extends AppCompatActivity {
                     Toast.makeText(this, "Failed to save notification", Toast.LENGTH_SHORT).show();
                 });
     }
-}
+
+    private void fetchEntrants() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference waitlistRef = db.collection("waitlisted_entrants");
+
+        List<String> documentNames = new ArrayList<>();
+        EntrantAdapter adapter = new EntrantAdapter(this, documentNames);
+        listView.setAdapter(adapter);
+
+        waitlistRef.whereEqualTo("eventName", eventName)  // Filter by eventName
+                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                    if (e != null) {
+                        Log.w("Firestore", "Listen failed.", e);
+                        Toast.makeText(this, "Error listening to changes.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    documentNames.clear(); // Helps remove duplicates
+
+                    if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
+                        Log.d("EntrantInWaitlist", "Received updated documents from waitlisted_entrants.");
+
+                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            String documentId = documentSnapshot.getId();  // Or get a field like "name"
+                            Log.d("EntrantInWaitlist", "Document ID: " + documentId);
+                            documentNames.add(documentId);  // Store document name (ID) in list
+                        }
+
+                        adapter.notifyDataSetChanged();
+
+                    } else {
+                        Log.w("EntrantInWaitlist", "No document names found for this event.");
+                        Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+}}
