@@ -211,6 +211,37 @@ public class EntrantInWaitlist extends AppCompatActivity {
         listView.setAdapter(adapter);
 
         waitlistRef.whereEqualTo("eventName", eventName)  // Filter by eventName
+                .get()  // Use `.get()` to fetch data once
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Clear existing data to avoid duplicates
+                        documentNames.clear();
+
+                        // Check if the task returned any documents
+                        if (task.getResult() != null && !task.getResult().isEmpty()) {
+                            Log.d("EntrantInWaitlist", "Documents retrieved for waitlisted entrants.");
+
+                            // Iterate over documents in the result
+                            for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                                String documentId = documentSnapshot.getId();  // Or fetch a specific field like "name"
+                                Log.d("EntrantInWaitlist", "Document ID: " + documentId);
+                                documentNames.add(documentId);  // Add document ID (or name) to list
+                            }
+
+                            // Notify the adapter to refresh the ListView
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            Log.w("EntrantInWaitlist", "No documents found for this event.");
+                            Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Log.w("Firestore", "Error fetching documents", task.getException());
+                        Toast.makeText(this, "Error retrieving data.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        /*
+        waitlistRef.whereEqualTo("eventName", eventName)  // Filter by eventName
                 .addSnapshotListener((queryDocumentSnapshots, e) -> {
                     if (e != null) {
                         Log.w("Firestore", "Listen failed.", e);
@@ -238,4 +269,6 @@ public class EntrantInWaitlist extends AppCompatActivity {
                         Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
                     }
                 });
+                /*
+         */
     }}
