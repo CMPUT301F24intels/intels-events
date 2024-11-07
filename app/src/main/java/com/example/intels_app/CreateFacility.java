@@ -1,6 +1,5 @@
 /**
  * When the user uses the app for the first time (new device ID), prompt them to create a facility profile
- * If they are opening the as an existing user (registered device ID), skip this step and open the app's main page
  * @author Janan Panchal
  * @see com.example.intels_app.MainPageActivity Creating a profile leads to main page
  * @see com.example.intels_app.Facility Facility object
@@ -53,8 +52,7 @@ public class CreateFacility extends AppCompatActivity {
     private Facility facility;
 
     /**
-     * When the user uses the app for the first time (new device ID), prompt them to create a facility profile.
-     * Take them to main page otherwise
+     * Create the facility profile using the user-entered details
      * @param savedInstanceState Bundle to save the state of the activity
      */
     @Override
@@ -62,7 +60,7 @@ public class CreateFacility extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_facility);
 
-        // Get the current user's device Id to determine if they need to create a facility profile
+        // Get the current user's device Id to add as a parameter to their facility profile
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
