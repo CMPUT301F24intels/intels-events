@@ -53,16 +53,17 @@ public class ProfileAdapter extends BaseAdapter implements Filterable {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.profile_list_view, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.profile_list_view_entrant, parent, false);
         }
 
         Profile profile = filteredProfiles.get(position);
 
         TextView nameTextView = convertView.findViewById(R.id.profile_name);
-        ImageView profileImageView = convertView.findViewById(R.id.profile_image);
+        //ImageView profileImageView = convertView.findViewById(R.id.profile_image);
 
         nameTextView.setText(profile.getName());
-        profileImageView.setImageResource(profile.getImageResId());
+        //profileImageView.setImageResource(profile.getImageResId());
+        //profileImageView.setImageResource(profile.getImageResId() != 0 ? profile.getImageResId() : R.drawable.default_image);
 
         return convertView;
     }

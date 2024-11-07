@@ -23,6 +23,8 @@
         android:id="@+id/deleteButton"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         android:background="@drawable/circular_button"
         android:backgroundTint="@color/zxing_transparent"
         android:contentDescription="Delete"

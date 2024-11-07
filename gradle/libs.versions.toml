@@ -18,6 +18,7 @@ firebaseStorage = "21.0.1"
 firebaseDatabase = "21.0.0"
 firebaseMessaging = "24.0.3"
 firebaseInstallations = "18.0.0"
+espressoIntents = "3.6.1"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -46,6 +47,7 @@ firebase-storage = { group = "com.google.firebase", name = "firebase-storage", v
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
 firebase-installations = { group = "com.google.firebase", name = "firebase-installations", version.ref = "firebaseInstallations" }
+espresso-intents = { group = "androidx.test.espresso", name = "espresso-intents", version.ref = "espressoIntents" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

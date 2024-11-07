@@ -47,6 +47,7 @@
         <activity android:name=".EntrantInWaitlist" />
         <activity android:name=".EntrantInCancelledWaitlist" />
         <activity android:name=".FinalList"/>
+        <activity android:name=".LotteryList"/>
         <activity android:name=".AdminProfiles"/>
         <activity android:name=".AdminEvents"/>
         <activity android:name=".JoinWaitlistActivity" />
@@ -57,6 +58,7 @@
         <activity android:name=".SignUp" />
         <activity android:name=".SuccessWaitlistJoin" />
         <activity android:name=".DrawCompleteActivity"/>
+        <activity android:name=".SelectedEntrantActivity"/>
 
 
         <activity
