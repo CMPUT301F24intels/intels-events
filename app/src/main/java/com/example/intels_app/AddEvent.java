@@ -2,8 +2,9 @@
  * An organizer can enter details to create a new event including a poster.
  * The event gets created by the system and FireStore is updated with the information.
  * @author Janan Panchal
- * @see com.example.intels_app.ManageEventsActivity
- * @see com.example.intels_app.CreateQR
+ * @see com.example.intels_app.ManageEventsActivity Back button leads to main page
+ * @see com.example.intels_app.CreateQR Adding an even generates a QR code
+ * @see com.example.intels_app.Event Event object
  *
  */
 package com.example.intels_app;

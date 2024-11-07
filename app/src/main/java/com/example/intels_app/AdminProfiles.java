@@ -4,6 +4,7 @@
  * @see com.example.intels_app.MainPageActivity Back button leads to main page
  * @see com.example.intels_app.AdminEvents Clicking the events tab leads to the admin events page
  * @see com.example.intels_app.ProfileAdapterAdmin Custom adapter for the list view
+ * @see com.example.intels_app.Profile Profile object
  */
 package com.example.intels_app;
 
