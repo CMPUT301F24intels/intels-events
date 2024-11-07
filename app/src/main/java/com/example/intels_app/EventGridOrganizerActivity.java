@@ -58,12 +58,12 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Event selectedEvent = (Event) parent.getItemAtPosition(position);
-                String selectedEventId = selectedEvent.getId(); // Get event ID
+                String selectedEventName = selectedEvent.getEventName(); // Get event ID
 
-                Log.d("EventGridOrganizerActivity", "Selected Event ID: " + selectedEventId);
+                Log.d("EventGridOrganizerActivity", "Selected Event ID: " + selectedEventName);
 
                 Intent intent = new Intent(EventGridOrganizerActivity.this, EntrantInWaitlist.class);
-                intent.putExtra("eventId", selectedEventId); // Pass the event ID
+                intent.putExtra("eventName", selectedEventName); // Pass the event ID
                 startActivity(intent);
             }
         });
