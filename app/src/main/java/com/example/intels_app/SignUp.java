@@ -39,6 +39,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class SignUp extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
@@ -47,6 +49,7 @@ public class SignUp extends AppCompatActivity {
     private boolean isCameraOption = false;
     private FirebaseFirestore db;
     private CollectionReference profilesRef;
+    StorageReference storageReference;
     private CollectionReference waitlistRef;
 
     ImageButton back_button;
@@ -58,7 +61,9 @@ public class SignUp extends AppCompatActivity {
     private String eventName;
     private String Imagehash;
     private Uri imageUri;
+    private String imageHash;
     private byte[] imageData;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,8 +106,26 @@ public class SignUp extends AppCompatActivity {
                 return;
             }
 
-            // Create Profile with deviceId
-            Profile newProfile = new Profile(deviceId, name.getText().toString(), email.getText().toString(), phoneNumber);
+            if (imageData == null || imageHash == null) {
+                Toast.makeText(SignUp.this, "Please select or generate a profile picture", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("profile_pics")
+                    .child(imageHash);
+            storageRef.putBytes(imageData)
+                    .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl()
+                            .addOnSuccessListener(uri -> {
+                                String profilePicUrl = uri.toString();
+
+                                Log.d("Hello", "Hello");
+
+                                // Create Profile with deviceId
+                                Profile newProfile = new Profile(deviceId, name.getText().toString(), email.getText().toString(), phoneNumber, profilePicUrl);
+                                profilesRef.document(name.getText().toString())
+                                        .set(newProfile)
+                                        .addOnSuccessListener(aVoid -> Log.d("Firestore", "Profile successfully added to Firestore!"))
+                                        .addOnFailureListener(e -> Log.w("FirestoreError", "Error adding profile", e));
 
             Map<String, Object> waitlistEntry = new HashMap<>();
             waitlistEntry.put("deviceId", deviceId);
@@ -121,14 +144,15 @@ public class SignUp extends AppCompatActivity {
                         Toast.makeText(SignUp.this, "Successfully joined event as Entrant!", Toast.LENGTH_SHORT).show();
                         Log.d("Firestore", "Entrant successfully added to waitlisted_events!");
 
-                        // Navigate after the operation succeeds
+                        // Navigate after both operations succeed
                         Intent intent = new Intent(SignUp.this, SuccessWaitlistJoin.class);
                         startActivity(intent);
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(SignUp.this, "Failed to join event as Entrant.", Toast.LENGTH_SHORT).show();
-                        Log.w("FirestoreError", "Error adding entrant to waitlisted_events", e);
+                        Log.w("FirestoreError", "Error adding entrant to waitlist", e);
                     });
+                }));
         });
 
     }
@@ -156,6 +180,7 @@ public class SignUp extends AppCompatActivity {
                     Bitmap generatedImage = generateProfilePicture(name.getText().toString());
                     profile_pic.setImageBitmap(generatedImage);
                     imageData = bitmapToByteArray(generatedImage); // Convert generated image to byte array if needed
+                    imageHash = hashImage(imageData);
                     break;
             }
             /*
@@ -252,6 +277,8 @@ public class SignUp extends AppCompatActivity {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
                     profile_pic.setImageBitmap(bitmap); // Display the image in ImageView
                     imageData = bitmapToByteArray(bitmap); // Convert to byte array if needed
+                    imageHash = hashImage(imageData);
+                    Log.d(TAG, "Gallery Image Set - imageHash: " + imageHash);  // Log for verification
                 } catch (IOException e) {
                     e.printStackTrace();
                     Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
@@ -264,5 +291,25 @@ public class SignUp extends AppCompatActivity {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         return baos.toByteArray();
+    }
+
+    public static String hashImage(byte[] imageData) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(imageData);
+
+            // Convert bytes to hex string
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashBytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
