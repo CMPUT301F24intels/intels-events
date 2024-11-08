@@ -41,6 +41,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+/**
+ * SignUp activity allows users to register for an event by entering their details and uploading a profile picture.
+ * User information and the profile picture are stored in Firebase Firestore and Firebase Storage.
+ *
+ * The activity includes functionality for image capture and selection, data validation, and navigation.
+ */
 
 public class SignUp extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
