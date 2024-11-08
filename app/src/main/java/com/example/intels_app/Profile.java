@@ -1,13 +1,13 @@
 package com.example.intels_app;
 
-public class Profile {
+ class Profile {
     private String name;
     private String email;
     private int phone_number;
     private int imageResId;
     private String imageUrl;
     private String deviceId;
-    private String eventName;
+    /*private String eventName;*/
 
 
 
@@ -64,13 +64,13 @@ public class Profile {
         this.deviceId = deviceId;
     }
 
-    public String getEventName() {
+    /*public String getEventName() {
         return eventName;
     }
 
     public void setEventId(String eventName) {
         this.eventName = eventName;
-    }
+    }*/
 
     public void setName(String name) {
         this.name = name;
