@@ -11,10 +11,13 @@ package com.example.intels_app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +35,7 @@ public class AdminProfiles extends AppCompatActivity {
     private Button events_button;
     private List<Profile> profileList;
     private Profile profile;
+    private ImageButton imageButton22;
 
     /**
      * Displays a list of all profiles for the admin view.
@@ -53,6 +57,17 @@ public class AdminProfiles extends AppCompatActivity {
         // Initialize the adapter to display the profiles
         ProfileAdapterAdmin adapter = new ProfileAdapterAdmin(this, profileList);
         profile_list.setAdapter(adapter);
+
+        // Initialize the imageButton22
+        imageButton22 = findViewById(R.id.imageButton22);
+
+        // Set click listener for imageButton22
+        imageButton22.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPopupMenu(v);
+            }
+        });
 
         // Retrieve all profile data from FireStore and assign it to profile arraylist
         FirebaseFirestore.getInstance().collection("profiles").get()
@@ -101,5 +116,24 @@ public class AdminProfiles extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+    private void showPopupMenu(View v) {
+        PopupMenu popup = new PopupMenu(this, v);
+        popup.inflate(R.menu.popup_menu);
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.getItemId() == R.id.remove_facility) {
+                    // Handle the "Remove Facility" action here
+                    // For example, you can show a toast message
+                    Toast.makeText(AdminProfiles.this, "Remove Facility clicked", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        popup.show();
     }
 }
