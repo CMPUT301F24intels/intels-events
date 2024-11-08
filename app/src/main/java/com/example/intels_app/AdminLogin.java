@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
  * and validates the input against predefined credentials. Upon successful login,
  * it navigates to the AdminProfiles activity. If the login fails, an error message
  * is displayed, and the password field is cleared.
+ * Author: Dhanshri Patel
  */
 public class AdminLogin extends AppCompatActivity {
     ImageButton back_button;
