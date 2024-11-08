@@ -24,7 +24,14 @@ import android.widget.PopupMenu;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * MainPageActivity serves as the main dashboard of the application, providing navigation to various
+ * sections including event management, joining events, and administrative functions. It also includes
+ * a popup menu for additional options like viewing notifications and accessing user settings.
+ *
+ * This activity initializes Firebase and sets up click listeners for key buttons that navigate to
+ * different parts of the app.
+ */
 public class MainPageActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     //private FirebaseAuth fAuth;
