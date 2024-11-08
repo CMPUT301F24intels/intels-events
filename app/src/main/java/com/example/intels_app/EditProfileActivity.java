@@ -27,6 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.content.SharedPreferences;
+import java.io.IOException;
 
 public class EditProfileActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
@@ -37,8 +38,7 @@ public class EditProfileActivity extends AppCompatActivity {
     Button edit_pfp_button, save_changes_button;
     ImageView profile_pic;
     private boolean isCameraOption = false;
-    EditText name, email, phone_number, password;
-    private boolean isPasswordSet = false; // Track if the password is set
+    EditText name, email, phone_number;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +54,6 @@ public class EditProfileActivity extends AppCompatActivity {
         name = findViewById(R.id.enter_name);
         email = findViewById(R.id.enter_email);
         phone_number = findViewById(R.id.enter_phone_number);
-        password = findViewById(R.id.enter_password); // Initialize password field
         profile_pic = findViewById(R.id.camera_image);
         edit_pfp_button = findViewById(R.id.edit_button);
         save_changes_button = findViewById(R.id.save_changes_button);
@@ -67,15 +66,6 @@ public class EditProfileActivity extends AppCompatActivity {
         // Load existing profile data
         loadProfileData();
 
-        // Set up the password entry dialog
-        password.setOnClickListener(view -> {
-            if (!isPasswordSet) {
-                showPasswordDialog(); // Show dialog to enter password
-            } else {
-                Toast.makeText(this, "Password is already set and cannot be edited.", Toast.LENGTH_SHORT).show();
-            }
-        });
-
         edit_pfp_button.setOnClickListener(view -> showImagePickerDialog());
         save_changes_button.setOnClickListener(view -> saveProfileChanges());
     }
@@ -84,42 +74,11 @@ public class EditProfileActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("UserProfile", MODE_PRIVATE);
         String savedName = sharedPreferences.getString("name", "");
         String savedEmail = sharedPreferences.getString("email", "");
-        String savedPassword = sharedPreferences.getString("password", ""); // Load saved password
         String savedPhone = sharedPreferences.getString("phone", "");
 
         name.setText(savedName);
         email.setText(savedEmail);
         phone_number.setText(savedPhone);
-
-        // Set password field if a password is saved
-        if (!savedPassword.isEmpty()) {
-            password.setText(savedPassword); // Set saved password
-            isPasswordSet = true; // Update password set state
-            password.setEnabled(false); // Disable editing
-        }
-    }
-
-    private void showPasswordDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Set Password");
-
-        final EditText input = new EditText(this);
-        input.setTransformationMethod(null); // Show typed characters
-        builder.setView(input);
-
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            String enteredPassword = input.getText().toString().trim();
-            if (!enteredPassword.isEmpty()) {
-                password.setText(enteredPassword); // Set the password
-                isPasswordSet = true; // Update the state
-                password.setEnabled(false); // Make password field non-editable
-                Toast.makeText(this, "Password set successfully", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Password cannot be empty", Toast.LENGTH_SHORT).show();
-            }
-        });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-        builder.show();
     }
 
     private void showImagePickerDialog() {
@@ -185,7 +144,15 @@ public class EditProfileActivity extends AppCompatActivity {
                 profile_pic.setImageBitmap(photo);
             } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
                 Uri selectedImage = data.getData();
-                profile_pic.setImageURI(selectedImage);
+                try {
+                    // Decode and scale the selected image to fit within the ImageView
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                    Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, profile_pic.getWidth(), profile_pic.getHeight(), true);
+                    profile_pic.setImageBitmap(scaledBitmap);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
@@ -225,10 +192,9 @@ public class EditProfileActivity extends AppCompatActivity {
             return;
         }
         if (enteredEmail.isEmpty()) {
-            Toast.makeText(this, "email cannot be empty", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Email cannot be empty", Toast.LENGTH_SHORT).show();
             return;
         }
-        // Password is not editable, so we skip validation for it.
         if (!isValidPhoneNumber(enteredPhone)) {
             Toast.makeText(this, "Invalid phone number", Toast.LENGTH_SHORT).show();
             return;
@@ -240,11 +206,6 @@ public class EditProfileActivity extends AppCompatActivity {
         editor.putString("name", enteredName);
         editor.putString("email", enteredEmail);
         editor.putString("phone", enteredPhone);
-        // Save password only if it has been set
-        if (isPasswordSet) {
-            String savedPassword = password.getText().toString().trim();
-            editor.putString("password", savedPassword); // Save the password
-        }
         editor.apply();
 
         Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
@@ -290,3 +251,4 @@ public class EditProfileActivity extends AppCompatActivity {
         }
     }
 }
+
