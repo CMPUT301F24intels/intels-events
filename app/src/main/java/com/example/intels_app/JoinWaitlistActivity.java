@@ -20,7 +20,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.join_waitlist);
 
-        /*// Retrieve event details from the intent
+        // Retrieve event details from the intent
         String eventName = getIntent().getStringExtra("eventName");
         String facilityName = getIntent().getStringExtra("facilityName");
         String location = getIntent().getStringExtra("location");
@@ -28,7 +28,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         String description = getIntent().getStringExtra("description");
         int maxAttendees = getIntent().getIntExtra("maxAttendees", 0);
         boolean geolocationRequirement = getIntent().getBooleanExtra("geolocationRequirement", false);
-        String posterUrl = getIntent().getStringExtra("posterUrl");*/
+        String posterUrl = getIntent().getStringExtra("posterUrl");
 
         // Set the retrieved data to the UI elements
         TextView eventNameTextView = findViewById(R.id.eventNameEdit);
@@ -39,15 +39,6 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         TextView maxAttendeesTextView = findViewById(R.id.max_attendees);
         SwitchCompat geolocationSwitch = findViewById(R.id.geolocationRequirementText);
 
-        // Hardcoding Data simply to test, change back after
-        String eventName = "2:00AM";
-        String facilityName = "Main Hall";
-        String location = "123 Event St, City";
-        String dateTime = "2024-11-10 10:00 AM";
-        String description = "This is a sample event description.";
-        int maxAttendees = 100;
-        boolean geolocationRequirement = false;
-        String posterUrl = "wwwwwwww";
 
         eventNameTextView.setText(String.format("Name: %s", eventName));
         facilityTextView.setText(String.format("Facility: %s", facilityName));
