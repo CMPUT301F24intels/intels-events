@@ -24,6 +24,7 @@ import java.util.Map;
  * the event waitlist in Firestore when joining as a guest.
  *
  * This activity also retrieves and logs the device ID for tracking purposes.
+ * Author: Dhanshri Patel
  */
 public class SelectRoleActivity extends AppCompatActivity {
     ImageButton backButton;
