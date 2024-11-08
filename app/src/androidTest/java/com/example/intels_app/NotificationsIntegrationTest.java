@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import java.util.HashMap;
 
-public class NotificationsUnitTest {
+public class NotificationsIntegrationTest {
     @Test
     public void testCustomNotificationStorage() {
         String testEventId = "event123";

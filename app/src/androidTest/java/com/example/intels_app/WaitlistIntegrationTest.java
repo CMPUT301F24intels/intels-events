@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.util.HashMap;
 
-public class WaitlistUnitTests {
+public class WaitlistIntegrationTest {
     @Test
     public void testEntrantJoiningWaitlist() {
         String testDeviceId = "DeviceId123";

@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import java.util.HashMap;
 
-public class EventUnitTests {
+public class EventIntegrationTest {
     @Test
     public void testEventCreationInManageEvents() {
         String testEventId = "newEvent123";
