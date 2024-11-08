@@ -60,6 +60,7 @@
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="Enter Admin Password"
+        android:inputType="textPassword"
         android:paddingStart="10dp"
         android:textColor="@color/white"
         android:textColorHint="#848A94"
