@@ -1,3 +1,16 @@
+/**
+ * This class handles the selection of entrants from a specific
+ * event waitlist in a randomized lottery draw when the organizer selects
+ * to perform a draw. This class selects a specified number of entrants from
+ * a provided waitlist and sends notifications to those who were chosen, not
+ * chosen, using an OrganizerNotifications instance.
+ *
+ * @author Katrina Alejo
+ * @see com.example.intels_app.Waitlist Waitlist class
+ * @see com.example.intels_app.OrganizerNotifications Organizer notifications class
+ *
+ */
+
 package com.example.intels_app;
 
 import java.util.ArrayList;

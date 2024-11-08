@@ -1,3 +1,11 @@
+/**
+ * This class represents a user profile with details such as name, email,
+ * phone number, profile image, and device ID. Along with multiple constructors
+ * it includes getter and setter methods for each field.
+ * @author Aayushi Shah
+ * @see com.google.firebase.firestore.FirebaseFirestore Firebase
+ */
+
 package com.example.intels_app;
 
  class Profile {

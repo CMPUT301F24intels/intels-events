@@ -1,3 +1,12 @@
+/**
+ * This class allows users to edit their profile information, including name,
+ * email, phone number, and profile picture. The activity provides options
+ * for capturing or selecting a profile picture, input validation based on set
+ * parameters, and saving profile changes.
+ * @author Dhanshri Patel
+ * @see com.example.intels_app.MainPageActivity Main screen of app
+ */
+
 package com.example.intels_app;
 
 import android.content.DialogInterface;

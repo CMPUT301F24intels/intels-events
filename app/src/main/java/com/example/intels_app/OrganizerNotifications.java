@@ -1,3 +1,10 @@
+/**
+ * This class displays the notification when not chosen
+ * from a waitlist.
+ * @author Katrina Alejo
+ * @see com.example.intels_app.Entrant Entrant object
+ */
+
 package com.example.intels_app;
 
 public class OrganizerNotifications {
