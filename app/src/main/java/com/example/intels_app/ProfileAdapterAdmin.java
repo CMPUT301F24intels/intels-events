@@ -1,3 +1,9 @@
+/**
+ * Adapter for the profile list view to take the data list and inflate it into the view.
+ * @author Janan Panchal
+ * @see com.example.intels_app.Profile Profile object
+ * @see com.example.intels_app.AdminProfiles Get the data list from the admin profiles page
+ */
 package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;

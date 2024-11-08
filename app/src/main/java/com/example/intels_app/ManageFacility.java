@@ -1,3 +1,9 @@
+/**
+ * Allows the organizer to manage their facility profile by editing the details.
+ * @author Janan Panchal
+ * @see com.example.intels_app.Facility Facility object
+ * @see com.example.intels_app.ManageEventsActivity Back button leads to manage events page
+ */
 package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
