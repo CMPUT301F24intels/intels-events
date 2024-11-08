@@ -120,7 +120,7 @@ public class AdminProfiles extends AppCompatActivity {
             }
         });
     }
-    private void deleteRandomFacility() {
+    private void deleteFacility() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference facilitiesRef = db.collection("facilities");
 
@@ -131,7 +131,7 @@ public class AdminProfiles extends AppCompatActivity {
                         // Get all documents in a list
                         List<DocumentSnapshot> facilities = queryDocumentSnapshots.getDocuments();
 
-                        // Select a random document
+                        // Select a document
                         int randomIndex = new Random().nextInt(facilities.size());
                         DocumentSnapshot randomFacility = facilities.get(randomIndex);
 
@@ -162,7 +162,7 @@ public class AdminProfiles extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 if (item.getItemId() == R.id.remove_facility) {
-                    deleteRandomFacility();
+                    deleteFacility();
                     return true;
                 }
                 return false;
