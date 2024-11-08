@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -16,15 +17,19 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EntrantInCancelledWaitlist extends AppCompatActivity {
     private Button waitlist_button, cancelled_button;
     private ListView listView;
     private List<Profile> profileList;
+    private String eventName;
     private CheckBox sendNotificationCheckbox;
 
     @Override
@@ -47,7 +52,8 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
 
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -55,7 +61,8 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(Editable s) { }
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         waitlist_button = findViewById(R.id.btn_waitlist);
@@ -91,6 +98,7 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         fetchCancelledEntrants(adapter);
     }
 
+
     private void fetchCancelledEntrants(ProfileAdapter adapter) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("waitlisted_entrants")
@@ -118,13 +126,13 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
 
         new AlertDialog.Builder(this)
                 .setTitle("Custom Notification")
-                .setMessage("Enter the message to send to all cancelled entrants:")
+                .setMessage("Enter the message to send to all waitlisted entrants:")
                 .setView(input)
                 .setPositiveButton("Send", (dialog, which) -> {
                     String message = input.getText().toString().trim();
                     if (!message.isEmpty()) {
                         sendNotificationToEntrants(message);
-                        sendNotificationCheckbox.setChecked(false);
+                        sendNotificationCheckbox.setChecked(false); // Uncheck the checkbox after sending
                     } else {
                         Toast.makeText(this, "Message cannot be empty", Toast.LENGTH_SHORT).show();
                     }
@@ -137,6 +145,32 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
     }
 
     private void sendNotificationToEntrants(String message) {
-        Toast.makeText(this, "Notification sent: " + message, Toast.LENGTH_LONG).show();
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Validate eventId
+        if (eventName == null || eventName.isEmpty()) {
+            Log.e("Firestore", "eventId is null or empty");
+            Toast.makeText(this, "Event ID is missing. Cannot send notification.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create notification data to save in Firestore
+        Map<String, Object> notificationData = new HashMap<>();
+        notificationData.put("message", message); // Custom message
+        notificationData.put("timestamp", FieldValue.serverTimestamp()); // Server timestamp
+        notificationData.put("eventName", eventName); // Tag to associate with the event
+
+        // Add the notification to the top-level notifications collection
+        db.collection("notifications")
+                .add(notificationData)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(this, "Notification saved successfully!", Toast.LENGTH_LONG).show();
+                    Log.d("Firestore", "Notification saved with ID: " + documentReference.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error saving notification", e);
+                    Toast.makeText(this, "Failed to save notification", Toast.LENGTH_SHORT).show();
+                });
     }
 }
