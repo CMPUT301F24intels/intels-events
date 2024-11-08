@@ -1,3 +1,11 @@
+/**
+ * This class displays a list of selected entrants in a RecyclerView and binds
+ * each entrant's profile information (such as name and email) to the corresponding
+ * views in the layout.
+ * @author Aayushi Shah
+ * @see com.example.intels_app.Profile Profile object
+ */
+
 package com.example.intels_app;
 
 import android.content.Context;
