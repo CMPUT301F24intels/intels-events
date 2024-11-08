@@ -15,7 +15,14 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * ProfileAdapter is a custom adapter for displaying and filtering a list of Profile objects
+ * in a ListView. It supports search functionality through filtering, updating the displayed
+ * list based on user input.
+ *
+ * This adapter inflates a custom layout for each list item and binds profile data, such as
+ * the name, to the corresponding view elements.
+ */
 public class ProfileAdapter extends BaseAdapter implements Filterable {
     private Context context;
     private List<Profile> originalProfiles;

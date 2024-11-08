@@ -20,6 +20,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * FinalList activity displays a list of accepted event entrants and provides functionality to search the list
+ * and send custom notifications. Entrant data is fetched from Firestore and displayed in a ListView.
+ *
+ * Users can navigate back to the organizer's event grid and compose custom notification messages for selected entrants.
+ */
 public class FinalList extends AppCompatActivity {
     private ListView entrantList;
     private List<Profile> entrantDataList;
