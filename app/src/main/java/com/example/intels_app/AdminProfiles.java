@@ -24,10 +24,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class AdminProfiles extends AppCompatActivity {
     private ImageButton back_button;
@@ -117,6 +120,40 @@ public class AdminProfiles extends AppCompatActivity {
             }
         });
     }
+    private void deleteRandomFacility() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference facilitiesRef = db.collection("facilities");
+
+        // Fetch all facilities from Firestore
+        facilitiesRef.get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        // Get all documents in a list
+                        List<DocumentSnapshot> facilities = queryDocumentSnapshots.getDocuments();
+
+                        // Select a random document
+                        int randomIndex = new Random().nextInt(facilities.size());
+                        DocumentSnapshot randomFacility = facilities.get(randomIndex);
+
+                        // Get the facility name to display after deletion
+                        String facilityName = randomFacility.getString("facilityName");
+
+                        // Delete the selected facility
+                        randomFacility.getReference().delete()
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(AdminProfiles.this, "Removed facility: " + facilityName, Toast.LENGTH_SHORT).show();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(AdminProfiles.this, "Error removing facility: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+                    } else {
+                        Toast.makeText(AdminProfiles.this, "No facilities to remove", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(AdminProfiles.this, "Error fetching facilities: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
     private void showPopupMenu(View v) {
         PopupMenu popup = new PopupMenu(this, v);
         popup.inflate(R.menu.popup_menu);
@@ -125,9 +162,7 @@ public class AdminProfiles extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 if (item.getItemId() == R.id.remove_facility) {
-                    // Handle the "Remove Facility" action here
-                    // For example, you can show a toast message
-                    Toast.makeText(AdminProfiles.this, "Remove Facility clicked", Toast.LENGTH_SHORT).show();
+                    deleteRandomFacility();
                     return true;
                 }
                 return false;
