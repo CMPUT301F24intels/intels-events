@@ -1,3 +1,7 @@
+/**
+ * When the user uses the app for the first time (new device ID), prompt them to create a facility profile
+ * If they are opening the as an existing user (registered device ID), open the app's main page
+ */
 package com.example.intels_app;
 
 import android.content.Intent;
@@ -8,6 +12,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.intels_app.CreateFacility;
+import com.example.intels_app.MainPageActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -32,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Step 1: Get Firebase Device ID
+        // Get Firebase Device ID
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
@@ -52,14 +58,13 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param deviceId The unique device ID retrieved from Firebase.
      */
-    // Step 2: Check if user profile exists based on device ID
     private void checkUserExists(String deviceId) {
         FirebaseFirestore.getInstance().collection("facilities")
                 .whereEqualTo("deviceId", deviceId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                        // User exists, proceed to the main functionality
+                        // User exists, proceed to the main page
                         proceedToApp();
                     } else {
                         // User does not exist, redirect to profile creation
@@ -72,11 +77,11 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Error accessing user information. Please try again.", Toast.LENGTH_LONG).show();
                 });
     }
+
     /**
      * Proceeds to the main application functionality if a user profile exists.
      * Starts {@link MainPageActivity} and finishes this activity.
      */
-    // Method to start the main app if user exists
     private void proceedToApp() {
         Intent intent = new Intent(MainActivity.this, MainPageActivity.class);
         startActivity(intent);
@@ -96,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
         finish(); // Close MainActivity
     }
-
+  
     /**
      * Redirects the user to the entrant profile creation activity if they are new.
      * Passes the device ID to the profile creation activity.

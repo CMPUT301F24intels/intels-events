@@ -1,3 +1,7 @@
+/**
+ * Represents a facility with its details.
+ * @author Janan Panchal
+ */
 package com.example.intels_app;
 
 public class Facility {
@@ -9,10 +13,19 @@ public class Facility {
     private String imageUrl;
     private String deviceID;
 
-    // No argument constructor for Firebase
+    /**
+     * No argument constructor for Firebase
+     */
     public Facility() {}
 
-    // Constructor with all fields except imageUrl for CreateFacility
+    /**
+     * To create a Facility with no Facility image
+     * @param facilityName Name of the facility
+     * @param location Location of the facility
+     * @param email Email of the facility
+     * @param telephone Telephone number of the facility
+     * @param deviceID Device ID of the facility
+     */
     public Facility(String facilityName, String location, String email, int telephone, String deviceID) {
         this.facilityName = facilityName;
         this.location = location;
@@ -21,7 +34,15 @@ public class Facility {
         this.deviceID = deviceID;
     }
 
-    // Constructor with all fields for CreateFacility
+    /**
+     * Create a Facility with a Facility image
+     * @param facilityName Name of the facility
+     * @param location Location of the facility
+     * @param email Email of the facility
+     * @param telephone Telephone number of the facility
+     * @param deviceID Device ID of the facility
+     * @param imageUrl Image URL of the facility
+     */
     public Facility(String facilityName, String location, String email, int telephone, String imageUrl, String deviceID) {
         this.facilityName = facilityName;
         this.location = location;
@@ -31,6 +52,7 @@ public class Facility {
         this.deviceID = deviceID;
     }
 
+    // Getters and setters
     public String getFacilityName() {
         return facilityName;
     }
