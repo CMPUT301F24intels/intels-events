@@ -1,3 +1,14 @@
+/**
+ * This class extends AppCompatActivity and provides a user interface to manage
+ * entrants who have been cancelled/declined themselves from a waitlist. This activity
+ * allows organizers to view, filter, and send notifications to cancelled entrants
+ * using a ListView and search functionality.
+ * @author Aayushi Shah
+ * @see com.example.intels_app.Profile Profile object
+ * @see com.example.intels_app.EntrantInWaitlist Entrant information for an event
+ * @see com.example.intels_app.EventGridOrganizerActivity Organizer's gridview of events
+ */
+
 package com.example.intels_app;
 
 import android.app.AlertDialog;
