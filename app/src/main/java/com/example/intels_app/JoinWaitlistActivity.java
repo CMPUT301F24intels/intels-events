@@ -39,15 +39,6 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         TextView maxAttendeesTextView = findViewById(R.id.max_attendees);
         SwitchCompat geolocationSwitch = findViewById(R.id.geolocationRequirementText);
 
-        /*// Hardcoding Data simply to test, change back after
-        String eventName = "FoodTruckEvent";
-        String facilityName = "Main Hall";
-        String location = "123 Event St, City";
-        String dateTime = "2024-11-10 10:00 AM";
-        String description = "This is a sample event description.";
-        int maxAttendees = 100;
-        boolean geolocationRequirement = false;
-        String posterUrl = "wwwwwwww";*/
 
         eventNameTextView.setText(String.format("Name: %s", eventName));
         facilityTextView.setText(String.format("Facility: %s", facilityName));
