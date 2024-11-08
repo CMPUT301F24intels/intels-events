@@ -60,4 +60,9 @@ public class AdminLogin extends AppCompatActivity {
             }
         });
     }
+
+    public boolean isValidAdminCredentials(String username, String password) {
+        return username.equals(correctusername) && password.equals(correctpassword);
+    }
+
 }
