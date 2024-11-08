@@ -1,3 +1,11 @@
+/**
+ * This adapter is a custom adapter extending ArrayAdapter and inflates a
+ * custom layout for each entrant and populates the entrant listview with
+ * the entrant name.
+ * @author Aayushi Shah
+ * @see android.widget.ArrayAdapter ArrayAdapter
+ */
+
 package com.example.intels_app;
 
 import android.content.Context;
@@ -26,7 +34,7 @@ public class EntrantAdapter extends ArrayAdapter<String> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        // Inflate the custom layout if not already created
+
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.profile_list_view_entrant, parent, false);
         }

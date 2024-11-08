@@ -1,3 +1,15 @@
+/**
+ * This adapter is a custom adapter extending BaseAdapter and  is used to populate
+ * the organizer gridview under View My Waitlist with Event objects to display the
+ * events the organizer has created. Each event item has a event deletion option
+ * which will remove the event from the Firestore Database and the adapter view.
+ * Each item in the gridview is clickable and will enable opening another activity
+ * for organizers to view the entrants associated to the specific event they clicked.
+ * @author Aayushi Shah
+ * @see com.example.intels_app.Event Event object
+ * @see com.example.intels_app.EntrantInWaitlist Entrant information for an event
+ */
+
 package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
