@@ -1,3 +1,13 @@
+/**
+ * This class displays a list of selected entrants from Firestore for a
+ * specific event using a RecyclerView based on the event ID, and displays
+ * each entrant's profile information.
+ * @author Aayushi Shah
+ * @see com.example.intels_app.SelectedEntrantAdapter Adapter for entrants selected in lottery
+ * @see com.google.firebase.firestore.FirebaseFirestore Firebase
+ * @see com.example.intels_app.ManageEventsActivity Manage events home page
+ */
+
 package com.example.intels_app;
 
 import android.content.Intent;

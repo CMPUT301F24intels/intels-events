@@ -1,3 +1,17 @@
+
+/**
+ * This class extends AppCompatActivity and provides a grid view of events for
+ * the entrant, displaying events they are signed up for. This activity retrieves
+ * and displays the events associated with the current device ID from Firestore
+ * and includes navigation options between entrant and organizer views."
+ * @author Aayushi Shah
+ * @see com.example.intels_app.Event Event object
+ * @see com.example.intels_app.CustomAdapterEntrant Adapter for Entrant gridview
+ * @see com.example.intels_app.EventGridOrganizerActivity Organizer Event gridview
+ * @see com.example.intels_app.MainPageActivity Main screen of app
+ * @see FirebaseFirestore
+ */
+
 package com.example.intels_app;
 
 import android.content.Intent;
@@ -10,6 +24,9 @@ import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.intels_app.CustomAdapterEntrant;
+import com.example.intels_app.EventGridOrganizerActivity;
+import com.example.intels_app.MainPageActivity;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;

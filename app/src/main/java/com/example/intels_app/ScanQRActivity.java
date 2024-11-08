@@ -1,3 +1,13 @@
+/**
+ * This class allows for users to scan a QR code and navigate
+ * based on the scan result. It uses QRCodeScanner class to initiate
+ * the scan and handle the results.
+ * @author Het Patel
+ * @see com.example.intels_app.JoinWaitlistActivity Joining waitlist for event
+ * @see com.example.intels_app.QRCodeScanner Scans QR code
+ * @see com.example.intels_app.MainActivity Main screen of app
+ */
+
 package com.example.intels_app;
 
 import android.content.Intent;
@@ -23,9 +33,7 @@ public class ScanQRActivity extends AppCompatActivity {
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //qrCodeScanner.startScan();
-                Intent intent = new Intent(ScanQRActivity.this, JoinWaitlistActivity.class);
-                startActivity(intent);
+                qrCodeScanner.startScan();
             }
 
             /* Uncomment when implementing

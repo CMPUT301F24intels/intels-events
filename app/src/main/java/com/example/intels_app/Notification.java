@@ -1,3 +1,9 @@
+/**
+ * This class represents a notification with a title and message, for sending
+ * and displaying notifications within the app.
+ * @author Katrina Alejo, Aayushi Shah
+ */
+
 package com.example.intels_app;
 
 public class Notification {

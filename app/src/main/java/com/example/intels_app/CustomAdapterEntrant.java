@@ -1,3 +1,13 @@
+/**
+ * This adapter is a custom adapter extending BaseAdapter and  is used to populate
+ * the entrant gridview under View My Waitlist with Event objects to display the
+ * events the entrant has joined the waitlist for. The event manages event deletion
+ * for the user to leave the waitlist and provides a toggle switch for the entrant
+ * to be considered for reselection in draw.
+ * @author Aayushi Shah
+ * @see com.example.intels_app.Event Event object
+ */
+
 package com.example.intels_app;
 
 import android.content.Context;

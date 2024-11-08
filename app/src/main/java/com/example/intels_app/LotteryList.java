@@ -1,3 +1,14 @@
+/**
+ * This class displays a list of selected entrants for a lottery event
+ * in a ListView. This activity enables organizers to search for entrants,
+ * view entrant profiles, and send custom notifications to selected entrants.
+ * @author Katrina Alejo
+ * @see com.example.intels_app.Profile Profiles class
+ * @see com.example.intels_app.ProfileAdapter Adapter for profiles
+ * @see com.example.intels_app.EntrantInWaitlist Entrant information for an event
+ *
+ */
+
 package com.example.intels_app;
 
 import android.app.AlertDialog;

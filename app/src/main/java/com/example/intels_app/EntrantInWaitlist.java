@@ -1,3 +1,14 @@
+/**
+ * This class extends AppCompatActivity and provides a user interface to manage
+ * entrants who have enrolled/joined a waitlist. This activity allows organizers
+ * to view, filter, and send notifications to entrants in waitlist using a ListView
+ * and search functionality.
+ * @author Aayushi Shah
+ * @see com.example.intels_app.Profile Profile object
+ * @see com.example.intels_app.EntrantInCancelledWaitlist Cancelled entrant information
+ * @see com.example.intels_app.EventGridOrganizerActivity Organizer's gridview of events
+ */
+
 package com.example.intels_app;
 
 import android.app.AlertDialog;
