@@ -1,3 +1,14 @@
+/**
+ * This class provides functionality to initiate a QR code scan within an
+ * activity and handle the result to retrieve event details from Firebase
+ * Firestore. If a valid QR code is scanned, the class fetches the event
+ * details and shows the event information.
+ *
+ * @author Het Patel
+ * @see com.google.firebase.firestore.FirebaseFirestore Firebase
+ * @see com.example.intels_app.JoinWaitlistActivity Joining waitlist
+ */
+
 package com.example.intels_app;
 
 import android.app.Activity;

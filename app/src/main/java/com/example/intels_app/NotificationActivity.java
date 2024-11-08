@@ -1,3 +1,14 @@
+/**
+ * This class displays a list of notifications for the user, with options
+ * to accept or decline specific invitations when selected in lottery. It
+ * retrieves notifications from Firebase Firestore and allows the user to
+ * clear all notifications.
+ * @author Katrina Alejo
+ * @see com.example.intels_app.MainPageActivity Main screen of app
+ * @see com.google.firebase.firestore.FirebaseFirestore Firebase
+ *
+ */
+
 package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;

@@ -1,3 +1,11 @@
+/**
+ * This class represents the activity displayed when a draw for an event
+ * is completed. This activity provides an option to view the selected entrants
+ * for the specific event by navigating to the SelectedEntrantActivity.
+ * @author Katrina ALejo
+ * @see com.example.intels_app.SelectedEntrantActivity Selected entrants in draw
+ */
+
 package com.example.intels_app;
 
 import android.content.Intent;

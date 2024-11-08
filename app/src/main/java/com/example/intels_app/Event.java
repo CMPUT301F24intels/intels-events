@@ -1,3 +1,11 @@
+/**
+ * This class represents an event and contains details such as the
+ * event name, facility name, location, date and time, description,
+ * and other settings. This class is designed to be used with Firebase
+ * Firestore for storing event information.
+ * @author Aayushi Shah
+ */
+
 package com.example.intels_app;
 
 import java.io.Serializable;
