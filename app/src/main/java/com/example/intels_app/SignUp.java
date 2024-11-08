@@ -41,6 +41,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+/**
+ * SignUp activity allows users to register for an event by entering their details and uploading a profile picture.
+ * User information and the profile picture are stored in Firebase Firestore and Firebase Storage.
+ *
+ * The activity includes functionality for image capture and selection, data validation, and navigation.
+ */
 
 public class SignUp extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
@@ -49,13 +55,13 @@ public class SignUp extends AppCompatActivity {
     private boolean isCameraOption = false;
     private FirebaseFirestore db;
     private CollectionReference profilesRef;
-    StorageReference storageReference;
+    private StorageReference storageReference;
     private CollectionReference waitlistRef;
 
-    ImageButton back_button;
-    EditText name, email, phone_number;
-    Button add_picture, register_button;
-    ImageView profile_pic;
+    private ImageButton back_button;
+    private EditText name, email, phone_number;
+    private Button add_picture, register_button;
+    private ImageView profile_pic;
 
     private String deviceId;
     private String eventName;
@@ -183,18 +189,6 @@ public class SignUp extends AppCompatActivity {
                     imageHash = hashImage(imageData);
                     break;
             }
-            /*
-            isCameraOption = (which == 0);
-            if (which == 2) {
-                Bitmap generatedImage = generateProfilePicture("Dhanshri");
-                profile_pic.setImageBitmap(generatedImage);
-            } else if (checkAndRequestPermissions()) {
-                if (isCameraOption) {
-                    openCamera();
-                } else {
-                    openGallery();
-                }
-            }*/
         });
         builder.show();
     }
