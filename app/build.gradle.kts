@@ -90,4 +90,5 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation ("org.mockito:mockito-core:3.11.2")
     testImplementation ("com.google.firebase:firebase-firestore:23.0.3")
+    implementation(files("/Users/Janan1/Library/Android/sdk/platforms/android-34/android.jar"))
 }
