@@ -1,12 +1,10 @@
 /**
  * This class displays a list of selected entrants for a lottery event
- * in a ListView. This activity enables organizers to search for entrants,
- * view entrant profiles, and send custom notifications to selected entrants.
- * @author Katrina Alejo
+ * in a RecyclerView based on the event ID and displays each entrant's
+ * profile information.
+ * Author: Katrina Alejo
  * @see com.example.intels_app.Profile Profiles class
- * @see com.example.intels_app.ProfileAdapter Adapter for profiles
- * @see com.example.intels_app.EntrantInWaitlist Entrant information for an event
- *
+ * @see com.example.intels_app.SelectedEntrantAdapter Adapter for profiles
  */
 
 package com.example.intels_app;
@@ -16,15 +14,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.View;
+import android.util.Log;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -32,35 +34,54 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LotteryList extends AppCompatActivity {
-    private ListView entrantList;
-    private List<Profile> entrantDataList;
-    private ImageButton backButton;
+    private RecyclerView recyclerView;
+    private SelectedEntrantAdapter adapter;
+    private List<Profile> selectedEntrants;
+    private FirebaseFirestore db;
+    private String eventId;
     private CheckBox sendNotifications;
-    private ProfileAdapter adapter;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.lottery_list);
 
-        // Initialize views
-        entrantList = findViewById(R.id.entrant_list);
-        backButton = findViewById(R.id.back_button);
-        sendNotifications = findViewById(R.id.send_notifications);
+        // Get the event ID from the intent
+        eventId = getIntent().getStringExtra("eventId");
 
-        // Set up the list and adapter
-        entrantDataList = new ArrayList<>();
-        adapter = new ProfileAdapter(this, entrantDataList);
-        entrantList.setAdapter(adapter);
+        if (eventId == null) {
+            Toast.makeText(this, "Event ID is missing.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
-        // Set up back button to go to previous activity
+        // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
+
+        // Initialize RecyclerView
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        selectedEntrants = new ArrayList<>();
+        adapter = new SelectedEntrantAdapter(this, selectedEntrants);
+        recyclerView.setAdapter(adapter);
+
+        // Load selected entrants from Firestore
+        loadSelectedEntrants();
+
+        // Back button functionality
+        ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(view -> {
             Intent intent = new Intent(LotteryList.this, EntrantInWaitlist.class);
+            intent.putExtra("eventId", eventId); // Pass the eventId back if needed
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             finish();
         });
 
-        // Set up the search bar
+
+
+        // Search functionality
         EditText searchBar = findViewById(R.id.search_bar);
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
@@ -68,47 +89,63 @@ public class LotteryList extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                adapter.getFilter().filter(s); // Filter adapter based on search input
+                adapter.getFilter().filter(s);  // Filter adapter based on search input
             }
 
             @Override
             public void afterTextChanged(Editable s) { }
         });
 
-        // Set up the checkbox for sending notifications
+        // Send Notifications Checkbox
+        sendNotifications = findViewById(R.id.send_notifications);
         sendNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 showCustomNotificationDialog();
             }
         });
-
-        // Fetch the selected entrants from Firestore
-        fetchSelectedEntrants();
     }
 
-    /**
-     * Fetch entrants from Firestore with status "selected".
-     */
-    private void fetchSelectedEntrants() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("waitlisted_entrants")
-                .whereEqualTo("status", "selected")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        entrantDataList.clear();  // Clear the existing data
-                        for (DocumentSnapshot document : task.getResult()) {
-                            String name = (String) document.get("name");
-                            String imageUrl = (String) document.get("imageUrl");
 
-                            // Create a Profile object and add it to the list
-                            Profile profile = new Profile(name, imageUrl);
-                            entrantDataList.add(profile);
-                        }
-                        adapter.notifyDataSetChanged(); // Notify adapter to refresh the ListView
-                    } else {
-                        Toast.makeText(this, "Failed to fetch selected entrants.", Toast.LENGTH_SHORT).show();
+
+    private void loadSelectedEntrants() {
+        db.collection("selected_entrants")
+                .whereEqualTo("eventId", eventId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    selectedEntrants.clear();
+                    List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
+
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        String profileId = doc.getString("profileId");
+
+                        // Retrieve profile data based on profileId
+                        Task<DocumentSnapshot> task = db.collection("profiles").document(profileId).get()
+                                .addOnSuccessListener(profileDoc -> {
+                                    if (profileDoc.exists()) {
+                                        Profile profile = profileDoc.toObject(Profile.class);
+                                        if (profile != null) {
+                                            selectedEntrants.add(profile);
+                                        }
+                                    } else {
+                                        Log.w("LotteryList", "Profile not found for ID: " + profileId);
+                                    }
+                                })
+                                .addOnFailureListener(e -> Log.w("LotteryList", "Error loading profile for ID: " + profileId, e));
+
+                        tasks.add(task);
                     }
+
+                    // Wait for all tasks to complete, then update the adapter
+                    Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
+                        adapter.notifyDataSetChanged();
+                        if (!task.isSuccessful()) {
+                            Log.e("LotteryList", "One or more profile load operations failed.");
+                        }
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("LotteryList", "Error fetching selected entrants", e);
+                    Toast.makeText(this, "Failed to load selected entrants.", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -127,7 +164,7 @@ public class LotteryList extends AppCompatActivity {
                     String message = input.getText().toString().trim();
                     if (!message.isEmpty()) {
                         sendNotificationToEntrants(message);
-                        sendNotifications.setChecked(false); // Uncheck the checkbox after sending
+                        sendNotifications.setChecked(false);  // Uncheck the checkbox after sending
                     } else {
                         Toast.makeText(this, "Message cannot be empty", Toast.LENGTH_SHORT).show();
                     }
@@ -145,5 +182,7 @@ public class LotteryList extends AppCompatActivity {
      */
     private void sendNotificationToEntrants(String message) {
         Toast.makeText(this, "Notification sent: " + message, Toast.LENGTH_LONG).show();
+        // This is where you could add code to send notifications to each profile in selectedEntrants if needed.
     }
 }
+

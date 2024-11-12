@@ -3,7 +3,7 @@
  * entrants who have been cancelled/declined themselves from a waitlist. This activity
  * allows organizers to view, filter, and send notifications to cancelled entrants
  * using a ListView and search functionality.
- * @author Aayushi Shah
+ * @author Aayushi Shah, Katrina Alejo
  * @see com.example.intels_app.Profile Profile object
  * @see com.example.intels_app.EntrantInWaitlist Entrant information for an event
  * @see com.example.intels_app.EventGridOrganizerActivity Organizer's gridview of events
@@ -79,24 +79,18 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         waitlist_button = findViewById(R.id.btn_waitlist);
         cancelled_button = findViewById(R.id.btn_cancelled);
 
-        cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
-        waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-
         waitlist_button.setOnClickListener(v -> {
-            cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-            waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
-
             Intent intent = new Intent(EntrantInCancelledWaitlist.this, EntrantInWaitlist.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent);
         });
 
         cancelled_button.setOnClickListener(v -> {
-            cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
-            waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-
             Intent intent = new Intent(EntrantInCancelledWaitlist.this, EntrantInCancelledWaitlist.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent);
         });
+
 
         sendNotificationCheckbox = findViewById(R.id.checkbox_notify);
         sendNotificationCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -109,6 +103,13 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         fetchCancelledEntrants(adapter);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Set colors when returning to this activity
+        cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
+        waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
+    }
 
     private void fetchCancelledEntrants(ProfileAdapter adapter) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
