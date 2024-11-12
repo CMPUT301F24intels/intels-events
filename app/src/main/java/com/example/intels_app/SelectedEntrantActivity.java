@@ -21,6 +21,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -78,20 +80,35 @@ public class SelectedEntrantActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     selectedEntrants.clear();
+                    List<Task<DocumentSnapshot>> tasks = new ArrayList<>(); // Track DocumentSnapshot tasks
+
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         String profileId = doc.getString("profileId");
 
                         // Retrieve profile data based on profileId
-                        db.collection("profiles").document(profileId).get().addOnSuccessListener(profileDoc -> {
-                            if (profileDoc.exists()) {
-                                Profile profile = profileDoc.toObject(Profile.class);
-                                if (profile != null) {
-                                    selectedEntrants.add(profile);
-                                    adapter.notifyDataSetChanged();
-                                }
-                            }
-                        });
+                        Task<DocumentSnapshot> task = db.collection("profiles").document(profileId).get()
+                                .addOnSuccessListener(profileDoc -> {
+                                    if (profileDoc.exists()) {
+                                        Profile profile = profileDoc.toObject(Profile.class);
+                                        if (profile != null) {
+                                            selectedEntrants.add(profile);
+                                        }
+                                    } else {
+                                        Log.w("SelectedEntrants", "Profile not found for ID: " + profileId);
+                                    }
+                                })
+                                .addOnFailureListener(e -> Log.w("SelectedEntrants", "Error loading profile for ID: " + profileId, e));
+
+                        tasks.add(task);
                     }
+
+                    // Wait for all tasks to complete, then update the adapter
+                    Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
+                        adapter.notifyDataSetChanged();
+                        if (!task.isSuccessful()) {
+                            Log.e("SelectedEntrants", "One or more profile load operations failed.");
+                        }
+                    });
                 })
                 .addOnFailureListener(e -> {
                     Log.w("SelectedEntrants", "Error loading selected entrants", e);

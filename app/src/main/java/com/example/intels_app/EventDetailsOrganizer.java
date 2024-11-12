@@ -30,6 +30,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -127,33 +128,52 @@ public class EventDetailsOrganizer extends AppCompatActivity {
     }
 
     private void performLotteryDraw() {
-        CollectionReference profilesRef = db.collection("profiles");
+        CollectionReference waitlistedEntrantsRef = db.collection("waitlisted_entrants");
+        CollectionReference selectedEntrantsRef = db.collection("selected_entrants");
 
-        profilesRef.get().addOnSuccessListener(queryDocumentSnapshots -> {
-            List<DocumentSnapshot> profileList = queryDocumentSnapshots.getDocuments();
+        // Clear previous selected entries for selected event
+        selectedEntrantsRef.whereEqualTo("eventId", eventId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    WriteBatch batch = db.batch();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        batch.delete(doc.getReference());
+                    }
 
-            if (profileList.isEmpty()) {
-                Toast.makeText(this, "No profiles in the database.", Toast.LENGTH_SHORT).show();
-                return;
-            }
+                    // Commit batch delete
+                    batch.commit().addOnSuccessListener(aVoid -> {
+                        // Query waitlisted entrants for selected event
+                        waitlistedEntrantsRef.whereEqualTo("eventName", eventId)
+                                .get()
+                                .addOnSuccessListener(waitlistQuery -> {
+                                    List<DocumentSnapshot> waitlist = waitlistQuery.getDocuments();
 
-            int numberOfSpots = Integer.parseInt(maxAttendeesTextView.getText().toString().split(": ")[1]);
-            Collections.shuffle(profileList);
-            List<DocumentSnapshot> selectedProfiles = profileList.subList(0, Math.min(numberOfSpots, profileList.size()));
+                                    if (waitlist.isEmpty()) {
+                                        Toast.makeText(this, "No waitlisted profiles for this event.", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
 
-            sendNotificationsToProfiles(profileList, selectedProfiles);
+                                    int numberOfSpots = Integer.parseInt(maxAttendeesTextView.getText().toString().split(": ")[1]);
+                                    Collections.shuffle(waitlist);
 
-            saveSelectedProfiles(selectedProfiles);
+                                    // Select only up to maxAttendees entrants
+                                    List<DocumentSnapshot> selectedProfiles = waitlist.subList(0, Math.min(numberOfSpots, waitlist.size()));
 
-            // After the draw, redirect to the DrawCompleteActivity
-            Intent intent = new Intent(EventDetailsOrganizer.this, DrawCompleteActivity.class);
-            intent.putExtra("eventId", eventId);
-            startActivity(intent);
-        }).addOnFailureListener(e -> {
-            Log.e(TAG, "Error fetching profiles", e);
-            Toast.makeText(this, "Failed to fetch profiles.", Toast.LENGTH_SHORT).show();
-        });
+                                    sendNotificationsToProfiles(waitlist, selectedProfiles);
+                                    saveSelectedProfiles(selectedProfiles);
+
+                                    // After the draw, redirect to the DrawCompleteActivity
+                                    Intent intent = new Intent(EventDetailsOrganizer.this, DrawCompleteActivity.class);
+                                    intent.putExtra("eventId", eventId);
+                                    startActivity(intent);
+                                }).addOnFailureListener(e -> {
+                                    Log.e(TAG, "Error fetching waitlisted entrants", e);
+                                    Toast.makeText(this, "Failed to fetch waitlisted entrants for this event.", Toast.LENGTH_SHORT).show();
+                                });
+                    }).addOnFailureListener(e -> Log.e(TAG, "Failed to delete old selected entrants", e));
+                }).addOnFailureListener(e -> Log.e(TAG, "Error loading previous selected entrants", e));
     }
+
 
     private void sendNotificationsToProfiles(List<DocumentSnapshot> allProfiles, List<DocumentSnapshot> selectedProfiles) {
         List<DocumentSnapshot> unselectedProfiles = new ArrayList<>(allProfiles);
