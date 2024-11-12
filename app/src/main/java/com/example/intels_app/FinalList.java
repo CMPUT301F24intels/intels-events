@@ -25,7 +25,7 @@ import java.util.List;
  * and send custom notifications. Entrant data is fetched from Firestore and displayed in a ListView.
  *
  * Users can navigate back to the organizer's event grid and compose custom notification messages for selected entrants.
- * Author: Dhanshri Patel
+ * Author: Dhanshri Patel, Katrina Alejo
  */
 
 public class FinalList extends AppCompatActivity {

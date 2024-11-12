@@ -3,7 +3,7 @@
  * entrants who have enrolled/joined a waitlist. This activity allows organizers
  * to view, filter, and send notifications to entrants in waitlist using a ListView
  * and search functionality.
- * @author Aayushi Shah
+ * @author Aayushi Shah, Katrina Alejo
  * @see com.example.intels_app.Profile Profile object
  * @see com.example.intels_app.EntrantInCancelledWaitlist Cancelled entrant information
  * @see com.example.intels_app.EventGridOrganizerActivity Organizer's gridview of events
@@ -105,32 +105,19 @@ public class EntrantInWaitlist extends AppCompatActivity {
         final_list_button = findViewById(R.id.final_list_button);
         lottery_list_button = findViewById(R.id.lottery_list_button);
 
-        cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-        waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
-
-        waitlist_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-                waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
-
-                Intent intent = new Intent(EntrantInWaitlist.this, EntrantInWaitlist.class);
-                startActivity(intent);
-                finish();
-            }
+        waitlist_button.setOnClickListener(v -> {
+            Intent intent = new Intent(EntrantInWaitlist.this, EntrantInWaitlist.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(intent);
         });
 
-        cancelled_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
-                waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-
-                Intent intent = new Intent(EntrantInWaitlist.this, EntrantInCancelledWaitlist.class);
-                startActivity(intent);
-                finish();
-            }
+        cancelled_button.setOnClickListener(v -> {
+            Intent intent = new Intent(EntrantInWaitlist.this, EntrantInCancelledWaitlist.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(intent);
         });
+
+
 
         final_list_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -145,6 +132,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(EntrantInWaitlist.this, LotteryList.class);
+                intent.putExtra("eventId", eventName); // Pass eventId to LotteryList
                 startActivity(intent);
                 finish();
             }
@@ -160,6 +148,13 @@ public class EntrantInWaitlist extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Set colors when returning to this activity
+        waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
+        cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
+    }
     private void showCustomNotificationDialog() {
         EditText input = new EditText(this);
         input.setHint("Enter custom notification message");
