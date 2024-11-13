@@ -113,6 +113,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
 
         cancelled_button.setOnClickListener(v -> {
             Intent intent = new Intent(EntrantInWaitlist.this, EntrantInCancelledWaitlist.class);
+            intent.putExtra("eventName", eventName);
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent);
         });
