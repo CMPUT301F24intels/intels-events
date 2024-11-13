@@ -36,13 +36,16 @@ public class FinalList extends AppCompatActivity {
     private ImageButton back_button;
     private CheckBox sendNotifications;
     private String eventName;
+    private String eventId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.final_list);
 
-        // Retrieve eventName from the Intent
+        // Get the event ID from the intent
+        eventId = getIntent().getStringExtra("eventId");
+
         eventName = getIntent().getStringExtra("eventName");
         Log.d("AcceptedEntrants", "Retrieved eventName: " + eventName);
 
@@ -53,8 +56,11 @@ public class FinalList extends AppCompatActivity {
 
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(view -> {
-            Intent intent = new Intent(FinalList.this, EventGridOrganizerActivity.class);
+            Intent intent = new Intent(FinalList.this, EntrantInWaitlist.class);
+            intent.putExtra("eventId", eventId);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
+            finish();
         });
 
         EditText searchBar = findViewById(R.id.search_bar);
