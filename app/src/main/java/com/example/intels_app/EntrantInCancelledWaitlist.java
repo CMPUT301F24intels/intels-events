@@ -120,10 +120,13 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Set colors when returning to this activity
+        // Refresh the list of cancelled entrants when returning to this activity
+        fetchCancelledEntrants((ProfileAdapter) listView.getAdapter());
+        // Set colors for UI
         cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
         waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
     }
+
 
 
     private void fetchCancelledEntrants(ProfileAdapter adapter) {

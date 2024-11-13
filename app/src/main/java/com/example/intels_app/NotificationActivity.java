@@ -149,9 +149,11 @@ public class NotificationActivity extends AppCompatActivity {
                 String profileId = (String) notificationData.get("profileId");
                 String posterUrl = (String) notificationData.get("posterUrl");
 
-                // Display the decline message if the type is "declined"
+                // Display the correct message based on the type
                 if ("declined".equals(type)) {
                     message = "You have declined the invitation.";
+                } else if ("accepted".equals(type)) {
+                    message = "You have accepted the invitation.";
                 }
 
                 addNotification(posterUrl, title, message, type, profileId);
@@ -159,7 +161,6 @@ public class NotificationActivity extends AppCompatActivity {
             notificationCache.clear();
         }
     }
-
 
     private void addNotification(String posterUrl, String title, String message, String type, String profileId) {
         // Inflate the notification item layout
@@ -224,18 +225,30 @@ public class NotificationActivity extends AppCompatActivity {
     }
 
     private void handleAcceptNotification(String profileId) {
-        // Update the status in the `waitlisted_entrants` collection to "accepted"
         if (profileId == null || profileId.trim().isEmpty()) {
             Toast.makeText(NotificationActivity.this, "Profile ID is invalid or empty.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         DocumentReference entrantDocRef = db.collection("waitlisted_entrants").document(profileId);
-
         entrantDocRef.update("status", "accepted")
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(NotificationActivity.this, "Entrant status updated to 'accepted'", Toast.LENGTH_SHORT).show();
                     Log.d("NotificationActivity", "Entrant status successfully updated for ID: " + profileId);
+
+                    // Retrieve the event ID for this notification from the notification list
+                    CollectionReference notificationsRef = db.collection("notifications");
+                    notificationsRef.whereEqualTo("profileId", profileId)
+                            .get()
+                            .addOnSuccessListener(querySnapshot -> {
+                                for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                                    // Update the notification message and type for accepted invitations
+                                    document.getReference().update("message", "You have accepted the invitation.", "type", "accepted")
+                                            .addOnSuccessListener(unused -> Log.d("NotificationActivity", "Notification message updated for ID: " + document.getId()))
+                                            .addOnFailureListener(e -> Log.w("NotificationActivity", "Failed to update notification message", e));
+                                }
+                            })
+                            .addOnFailureListener(e -> Log.w("NotificationActivity", "Failed to fetch notifications for profile ID: " + profileId, e));
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(NotificationActivity.this, "Failed to update entrant status", Toast.LENGTH_SHORT).show();
