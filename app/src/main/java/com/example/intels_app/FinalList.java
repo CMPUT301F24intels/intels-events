@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -23,30 +25,35 @@ import java.util.List;
 /**
  * FinalList activity displays a list of accepted event entrants and provides functionality to search the list
  * and send custom notifications. Entrant data is fetched from Firestore and displayed in a ListView.
- *
+
  * Users can navigate back to the organizer's event grid and compose custom notification messages for selected entrants.
  * Author: Dhanshri Patel, Katrina Alejo
  */
 
 public class FinalList extends AppCompatActivity {
     private ListView entrantList;
-    private List<Profile> entrantDataList;
+    private List<Profile> profileList;
     private ImageButton back_button;
     private CheckBox sendNotifications;
+    private String eventName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.final_list);
 
+        // Retrieve eventName from the Intent
+        eventName = getIntent().getStringExtra("eventName");
+        Log.d("AcceptedEntrants", "Retrieved eventName: " + eventName);
+
         entrantList = findViewById(R.id.entrant_list);
-        entrantDataList = new ArrayList<>();
-        ProfileAdapter adapter = new ProfileAdapter(this, entrantDataList);
+        profileList = new ArrayList<>();
+        ProfileAdapter adapter = new ProfileAdapter(this, profileList);
         entrantList.setAdapter(adapter);
 
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(view -> {
-            Intent intent = new Intent(FinalList.this, EventGridOrganizerActivity.class); //Change back to EventInWaitlist
+            Intent intent = new Intent(FinalList.this, EventGridOrganizerActivity.class);
             startActivity(intent);
         });
 
@@ -72,25 +79,39 @@ public class FinalList extends AppCompatActivity {
         });
 
         // Fetch accepted entrants from Firestore
-        fetchAcceptedEntrants(adapter);
+        fetchAcceptedEntrants((ProfileAdapter) entrantList.getAdapter());
     }
 
     private void fetchAcceptedEntrants(ProfileAdapter adapter) {
+        // Log the event name to confirm it's being passed correctly
+        Log.d("AcceptedEntrants", "Fetching accepted entrants for event: " + eventName);
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("final_list")
+        CollectionReference entrantsRef = db.collection("waitlisted_entrants");
+
+        entrantsRef.whereEqualTo("eventName", eventName) // Ensure it matches the current event
+                .whereEqualTo("status", "accepted") // Filter for accepted status
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        entrantDataList.clear();
+                        profileList.clear();
                         for (DocumentSnapshot document : task.getResult()) {
-                            String name = (String) document.get("name");
-                            String imageUrl = (String) document.get("imageUrl");
+                            String name = document.getString("profile.name");
+                            String imageUrl = document.getString("profile.imageUrl");
                             Profile profile = new Profile(name, imageUrl);
-                            entrantDataList.add(profile);
+                            profileList.add(profile);
+                            Log.d("AcceptedEntrants", "Added profile: Name = " + name + ", ImageUrl = " + imageUrl);
                         }
+                        adapter.updateData(new ArrayList<>(profileList));
                         adapter.notifyDataSetChanged();
+                        Log.d("AcceptedEntrants", "Profile list size: " + profileList.size());
+
+                        if (profileList.isEmpty()) {
+                            Toast.makeText(this, "No accepted entrants found for this event.", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
-                        Toast.makeText(this, "Failed to fetch accepted entrants.", Toast.LENGTH_SHORT).show();
+                        Log.w("Firestore", "Error fetching accepted entrants", task.getException());
+                        Toast.makeText(this, "Failed to retrieve accepted entrants.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
