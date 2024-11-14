@@ -3,7 +3,7 @@
  * entrants who have been cancelled/declined themselves from a waitlist. This activity
  * allows organizers to view, filter, and send notifications to cancelled entrants
  * using a ListView and search functionality.
- * @author Aayushi Shah
+ * @author Aayushi Shah, Katrina Alejo
  * @see com.example.intels_app.Profile Profile object
  * @see com.example.intels_app.EntrantInWaitlist Entrant information for an event
  * @see com.example.intels_app.EventGridOrganizerActivity Organizer's gridview of events
@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -47,6 +48,18 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.waitlist_with_cancelled_entrants);
+
+        // Retrieve eventName from the Intent
+        eventName = getIntent().getStringExtra("eventName");
+        Log.d("CancelledEntrants", "Retrieved eventName: " + eventName);
+
+        if (eventName == null || eventName.isEmpty()) {
+            Toast.makeText(this, "Event ID is missing. Cannot proceed.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        Log.d("CancelledEntrants", "Retrieved eventName: " + eventName);
 
         EditText searchBar = findViewById(R.id.search_bar);
         listView = findViewById(R.id.profile_list);
@@ -79,24 +92,19 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         waitlist_button = findViewById(R.id.btn_waitlist);
         cancelled_button = findViewById(R.id.btn_cancelled);
 
-        cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
-        waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-
         waitlist_button.setOnClickListener(v -> {
-            cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-            waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
-
             Intent intent = new Intent(EntrantInCancelledWaitlist.this, EntrantInWaitlist.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent);
         });
 
         cancelled_button.setOnClickListener(v -> {
-            cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
-            waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-
             Intent intent = new Intent(EntrantInCancelledWaitlist.this, EntrantInCancelledWaitlist.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            intent.putExtra("eventName", eventName);
             startActivity(intent);
         });
+
 
         sendNotificationCheckbox = findViewById(R.id.checkbox_notify);
         sendNotificationCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -109,27 +117,52 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         fetchCancelledEntrants(adapter);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh the list of cancelled entrants when returning to this activity
+        fetchCancelledEntrants((ProfileAdapter) listView.getAdapter());
+        // Set colors for UI
+        cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
+        waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
+    }
+
+
 
     private void fetchCancelledEntrants(ProfileAdapter adapter) {
+        // Log the event name to confirm it's being passed correctly
+        Log.d("CancelledEntrants", "Fetching cancelled entrants for event: " + eventName);
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("waitlisted_entrants")
-                .whereEqualTo("status", "cancelled")
+        CollectionReference entrantsRef = db.collection("waitlisted_entrants");
+
+        entrantsRef.whereEqualTo("eventName", eventName) // Ensure it matches the current event
+                .whereEqualTo("status", "cancelled") // Filter for cancelled status
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         profileList.clear();
                         for (DocumentSnapshot document : task.getResult()) {
-                            String name = (String) document.get("name");
-                            String imageUrl = (String) document.get("imageUrl");
+                            String name = document.getString("profile.name");
+                            String imageUrl = document.getString("profile.imageUrl");
                             Profile profile = new Profile(name, imageUrl);
                             profileList.add(profile);
+                            Log.d("CancelledEntrants", "Added profile: Name = " + name + ", ImageUrl = " + imageUrl);
                         }
+                        adapter.updateData(new ArrayList<>(profileList));
                         adapter.notifyDataSetChanged();
+                        Log.d("CancelledEntrants", "Profile list size: " + profileList.size());
+
+                        if (profileList.isEmpty()) {
+                            Toast.makeText(this, "No cancelled entrants found for this event.", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
-                        Toast.makeText(this, "Failed to fetch cancelled entrants.", Toast.LENGTH_SHORT).show();
+                        Log.w("Firestore", "Error fetching cancelled entrants", task.getException());
+                        Toast.makeText(this, "Failed to retrieve cancelled entrants.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
 
     private void showCustomNotificationDialog() {
         EditText input = new EditText(this);

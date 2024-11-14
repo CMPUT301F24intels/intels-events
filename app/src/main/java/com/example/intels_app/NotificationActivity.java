@@ -36,6 +36,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -140,9 +141,7 @@ public class NotificationActivity extends AppCompatActivity {
     }
 
     private void checkAndDisplayNotifications() {
-        // Check if all event details are loaded
         if (loadedEventDetailsCount == notificationCache.size()) {
-            // Once all notifications have been processed, display them in the view
             for (Map<String, Object> notificationData : notificationCache) {
                 String title = (String) notificationData.get("eventId");
                 String message = (String) notificationData.get("message");
@@ -150,10 +149,15 @@ public class NotificationActivity extends AppCompatActivity {
                 String profileId = (String) notificationData.get("profileId");
                 String posterUrl = (String) notificationData.get("posterUrl");
 
+                // Display the correct message based on the type
+                if ("declined".equals(type)) {
+                    message = "You have declined the invitation.";
+                } else if ("accepted".equals(type)) {
+                    message = "You have accepted the invitation.";
+                }
+
                 addNotification(posterUrl, title, message, type, profileId);
             }
-
-            // Clear the cache after displaying notifications
             notificationCache.clear();
         }
     }
@@ -221,18 +225,30 @@ public class NotificationActivity extends AppCompatActivity {
     }
 
     private void handleAcceptNotification(String profileId) {
-        // Update the status in the `waitlisted_entrants` collection to "accepted"
         if (profileId == null || profileId.trim().isEmpty()) {
             Toast.makeText(NotificationActivity.this, "Profile ID is invalid or empty.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         DocumentReference entrantDocRef = db.collection("waitlisted_entrants").document(profileId);
-
         entrantDocRef.update("status", "accepted")
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(NotificationActivity.this, "Entrant status updated to 'accepted'", Toast.LENGTH_SHORT).show();
                     Log.d("NotificationActivity", "Entrant status successfully updated for ID: " + profileId);
+
+                    // Retrieve the event ID for this notification from the notification list
+                    CollectionReference notificationsRef = db.collection("notifications");
+                    notificationsRef.whereEqualTo("profileId", profileId)
+                            .get()
+                            .addOnSuccessListener(querySnapshot -> {
+                                for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                                    // Update the notification message and type for accepted invitations
+                                    document.getReference().update("message", "You have accepted the invitation.", "type", "accepted")
+                                            .addOnSuccessListener(unused -> Log.d("NotificationActivity", "Notification message updated for ID: " + document.getId()))
+                                            .addOnFailureListener(e -> Log.w("NotificationActivity", "Failed to update notification message", e));
+                                }
+                            })
+                            .addOnFailureListener(e -> Log.w("NotificationActivity", "Failed to fetch notifications for profile ID: " + profileId, e));
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(NotificationActivity.this, "Failed to update entrant status", Toast.LENGTH_SHORT).show();
@@ -241,18 +257,25 @@ public class NotificationActivity extends AppCompatActivity {
     }
 
     private void handleDeclineNotification(String profileId) {
-        // Update the status in the `waitlisted_entrants` collection to "cancelled"
-        if (profileId == null || profileId.trim().isEmpty()) {
-            Toast.makeText(NotificationActivity.this, "Profile ID is invalid or empty.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         DocumentReference entrantDocRef = db.collection("waitlisted_entrants").document(profileId);
-
         entrantDocRef.update("status", "cancelled")
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(NotificationActivity.this, "Entrant status updated to 'cancelled'", Toast.LENGTH_SHORT).show();
                     Log.d("NotificationActivity", "Entrant status successfully updated for ID: " + profileId);
+
+                    // Retrieve the event ID for this notification from the notification list
+                    CollectionReference notificationsRef = db.collection("notifications");
+                    notificationsRef.whereEqualTo("profileId", profileId)
+                            .get()
+                            .addOnSuccessListener(querySnapshot -> {
+                                for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                                    // Update the notification message and type for declined invitations
+                                    document.getReference().update("message", "You have declined the invitation.", "type", "declined")
+                                            .addOnSuccessListener(unused -> Log.d("NotificationActivity", "Notification message updated for ID: " + document.getId()))
+                                            .addOnFailureListener(e -> Log.w("NotificationActivity", "Failed to update notification message", e));
+                                }
+                            })
+                            .addOnFailureListener(e -> Log.w("NotificationActivity", "Failed to fetch notifications for profile ID: " + profileId, e));
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(NotificationActivity.this, "Failed to update entrant status", Toast.LENGTH_SHORT).show();
@@ -261,10 +284,35 @@ public class NotificationActivity extends AppCompatActivity {
     }
 
     private void clearAllNotifications() {
+        // Remove all views from the notification layout in the UI
         notificationListLayout.removeAllViews();
         NotificationManagerCompat.from(this).cancelAll();
-        Toast.makeText(this, "All notifications cleared", Toast.LENGTH_SHORT).show();
+
+        // Clear all notifications from Firestore
+        CollectionReference notificationsRef = db.collection("notifications");
+        notificationsRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                WriteBatch batch = db.batch();
+                for (DocumentSnapshot doc : task.getResult()) {
+                    batch.delete(doc.getReference());
+                }
+
+                // Commit the batch delete to remove all notifications in Firestore
+                batch.commit().addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "All notifications cleared from Firestore", Toast.LENGTH_SHORT).show();
+                }).addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to clear notifications from Firestore", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Error clearing notifications from Firestore", e);
+                });
+            } else {
+                Toast.makeText(this, "No notifications found to clear", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Failed to load notifications for clearing", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Error fetching notifications for clearing", e);
+        });
     }
+
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -278,4 +326,6 @@ public class NotificationActivity extends AppCompatActivity {
             notificationManager.createNotificationChannel(channel);
         }
     }
+
+
 }

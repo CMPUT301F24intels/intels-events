@@ -105,6 +105,12 @@ public class ProfileAdapter extends BaseAdapter implements Filterable {
         }
     }
 
+        public void updateData(List<Profile> newProfiles) {
+            this.filteredProfiles = newProfiles;
+            notifyDataSetChanged();
+        }
+
+
 }
 
 /* JANAN USE THIS FOR ADMIN PROFILE LIST WITH DELETE FUNCTIONALITY
