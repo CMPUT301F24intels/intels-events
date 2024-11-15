@@ -124,6 +124,8 @@ public class EntrantInWaitlist extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(EntrantInWaitlist.this, FinalList.class);
+                intent.putExtra("eventName", eventName);
+                intent.putExtra("eventId", eventName);
                 startActivity(intent);
                 finish();
             }
