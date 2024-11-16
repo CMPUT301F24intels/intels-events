@@ -42,6 +42,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class EditProfileActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
@@ -181,7 +182,10 @@ public class EditProfileActivity extends AppCompatActivity {
         Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint();
-        paint.setColor(ContextCompat.getColor(this, R.color.custom_blue));
+
+        Random random = new Random();
+        int randomcolor = Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+        paint.setColor(randomcolor);
         paint.setStyle(Paint.Style.FILL);
         canvas.drawCircle(size / 2, size / 2, size / 2, paint);
 
