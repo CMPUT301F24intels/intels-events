@@ -81,7 +81,6 @@ public class EntrantInWaitlist extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(EntrantInWaitlist.this, EventGridOrganizerActivity.class);
                 startActivity(intent);
-                finish();
             }
         });
 
