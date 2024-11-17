@@ -9,6 +9,8 @@
 
 package com.example.intels_app;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,6 +24,7 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -37,7 +40,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.content.SharedPreferences;
 
+import com.bumptech.glide.Glide;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -55,13 +61,30 @@ public class EditProfileActivity extends AppCompatActivity {
     ImageView profile_pic;
     private boolean isCameraOption = false;
     EditText name, email, phone_number;
+    Profile profile;
+    String deviceId;
+    Uri image;
+    String imageHash;
+    byte[] imageData;
+    boolean imageUploaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_profile_page);
-
         db = FirebaseFirestore.getInstance();
+
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        deviceId = task.getResult();
+                        Log.d("DeviceID", "Device ID (Firebase Token): " + deviceId);
+
+                        // Use of deviceId to track the organizer's device in Firestore
+                    } else {
+                        Log.e("DeviceID", "Failed to get Firebase Instance ID", task.getException());
+                    }
+                });
 
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(view -> {
@@ -76,27 +99,39 @@ public class EditProfileActivity extends AppCompatActivity {
         edit_pfp_button = findViewById(R.id.edit_button);
         save_changes_button = findViewById(R.id.save_changes_button);
 
-        // Set input filters
-        name.setFilters(new InputFilter[]{new NameInputFilter()});
-        email.setFilters(new InputFilter[]{new EmailInputFilter()});
-        phone_number.setFilters(new InputFilter[]{new PhoneInputFilter()});
-
-        // Load existing profile data
-        loadProfileData();
+        loadProfileDetails();
 
         edit_pfp_button.setOnClickListener(view -> showImagePickerDialog());
-        save_changes_button.setOnClickListener(view -> saveProfileChanges());
+//        save_changes_button.setOnClickListener(view -> saveProfileChanges());
     }
 
-    private void loadProfileData() {
-        SharedPreferences sharedPreferences = getSharedPreferences("UserProfile", MODE_PRIVATE);
-        String savedName = sharedPreferences.getString("name", "");
-        String savedEmail = sharedPreferences.getString("email", "");
-        String savedPhone = sharedPreferences.getString("phone", "");
+    private void loadProfileDetails(){
+        DocumentReference documentRef = db.collection("profiles").document(deviceId);
+        documentRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Profile profile = documentSnapshot.toObject(Profile.class);
+                if (profile != null) {
+                    // Populate the UI with event details
+                    name.setText("Name: " + profile.getName());
+                    email.setText("Email: " + profile.getEmail());
+                    phone_number.setText("Phone Number: " + profile.getPhone_number());
 
-        name.setText(savedName);
-        email.setText(savedEmail);
-        phone_number.setText(savedPhone);
+                    // Load event poster image using Glide
+                    if (profile.getImageUrl() != null && !profile.getImageUrl().isEmpty()) {
+                        Glide.with(getApplicationContext())
+                                .load(profile.getImageUrl())
+                                .placeholder(R.drawable.pfp_placeholder_image)
+                                .error(R.drawable.person_image)
+                                .into(profile_pic);
+                    } else {
+                        Log.w(TAG, "No poster URL found in the document");
+                        profile_pic.setImageResource(R.drawable.person_image);
+                    }
+                }
+            } else {
+                Log.e(TAG, "No such document exists");
+            }
+        }).addOnFailureListener(e -> Log.w(TAG, "Error getting document", e));
     }
 
     private void showImagePickerDialog() {
@@ -202,84 +237,6 @@ public class EditProfileActivity extends AppCompatActivity {
         return bitmap;
     }
 
-    private void saveProfileChanges() {
-        String enteredName = name.getText().toString().trim();
-        String enteredEmail = email.getText().toString().trim();
-        String enteredPhone = phone_number.getText().toString().trim();
 
-        // Validate inputs
-        if (enteredName.isEmpty()) {
-            Toast.makeText(this, "Name cannot be empty", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (enteredEmail.isEmpty()) {
-            Toast.makeText(this, "Email cannot be empty", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (!isValidPhoneNumber(enteredPhone)) {
-            Toast.makeText(this, "Invalid phone number", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Save data to SharedPreferences
-        SharedPreferences sharedPreferences = getSharedPreferences("UserProfile", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("name", enteredName);
-        editor.putString("email", enteredEmail);
-        editor.putString("phone", enteredPhone);
-        editor.apply();
-
-        // Save data to Firestore
-        Map<String, Object> profileData = new HashMap<>();
-        profileData.put("name", enteredName);
-        profileData.put("email", enteredEmail);
-        profileData.put("phone", enteredPhone);
-
-        db.collection("profiles_new")
-                .document(enteredEmail) // Using email as document ID for uniqueness
-                .set(profileData)
-                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to update profile in Firestore", Toast.LENGTH_SHORT).show());
-    }
-
-    private boolean isValidPhoneNumber(String phoneNumber) {
-        return phoneNumber.matches("\\d{10}"); // Example validation for a 10-digit number
-    }
-
-    private static class NameInputFilter implements InputFilter {
-        @Override
-        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-            for (int i = start; i < end; i++) {
-                if (!Character.isLetter(source.charAt(i)) && !Character.isSpaceChar(source.charAt(i))) {
-                    return "";
-                }
-            }
-            return null;
-        }
-    }
-
-    private static class EmailInputFilter implements InputFilter {
-        @Override
-        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-            for (int i = start; i < end; i++) {
-                if (Character.isWhitespace(source.charAt(i))) {
-                    return "";
-                }
-            }
-            return null;
-        }
-    }
-
-    private static class PhoneInputFilter implements InputFilter {
-        @Override
-        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-            for (int i = start; i < end; i++) {
-                if (!Character.isDigit(source.charAt(i))) {
-                    return "";
-                }
-            }
-            return null;
-        }
-    }
 }
 

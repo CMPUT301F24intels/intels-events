@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,7 +31,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class ProfileDetailsAdmin extends AppCompatActivity {
 
     private ImageView profile_pic;
-    private EditText name, email, phone_number;
+    private TextView name, email, phone_number;
     private ImageButton back_button;
     private FirebaseFirestore db;
     private String profileId;
