@@ -5,7 +5,7 @@
  * which will remove the event from the Firestore Database and the adapter view.
  * Each item in the gridview is clickable and will enable opening another activity
  * for organizers to view the entrants associated to the specific event they clicked.
- * @author Aayushi Shah
+ * @author Aayushi Shah, Dhanshri Patel
  * @see com.example.intels_app.Event Event object
  * @see com.example.intels_app.EntrantInWaitlist Entrant information for an event
  */
@@ -87,6 +87,11 @@ public class CustomAdapterOrganizer extends BaseAdapter {
                 notifyDataSetChanged();
                 Toast.makeText(context, "Event deleted", Toast.LENGTH_SHORT).show();
             }
+        });
+        convertView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, EntrantInWaitlist.class);
+            intent.putExtra("eventId", data.get(position).getEventName());
+            context.startActivity(intent);
         });
 
         return convertView;
