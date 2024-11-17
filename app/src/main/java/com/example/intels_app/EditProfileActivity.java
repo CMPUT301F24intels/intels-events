@@ -21,6 +21,7 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -73,18 +74,7 @@ public class EditProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_profile_page);
         db = FirebaseFirestore.getInstance();
-
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        deviceId = task.getResult();
-                        Log.d("DeviceID", "Device ID (Firebase Token): " + deviceId);
-
-                        // Use of deviceId to track the organizer's device in Firestore
-                    } else {
-                        Log.e("DeviceID", "Failed to get Firebase Instance ID", task.getException());
-                    }
-                });
+        deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(view -> {
