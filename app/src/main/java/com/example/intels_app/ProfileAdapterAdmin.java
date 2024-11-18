@@ -1,6 +1,6 @@
 /**
  * Adapter for the profile list view to take the data list and inflate it into the view.
- * @author Janan Panchal
+ * @author Janan Panchal, Dhanshri Patel
  * @see com.example.intels_app.Profile Profile object
  * @see com.example.intels_app.AdminProfiles Get the data list from the admin profiles page
  */
@@ -8,6 +8,7 @@ package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.BaseAdapter;
@@ -88,6 +89,12 @@ public class ProfileAdapterAdmin extends BaseAdapter {
                 notifyDataSetChanged();
                 Toast.makeText(context, "Event deleted", Toast.LENGTH_SHORT).show();
             }
+        });
+
+        convertView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ProfileDetailsAdmin.class);
+            intent.putExtra("profileId", profiles.get(position).getName());
+            context.startActivity(intent);
         });
 
         return convertView;

@@ -1,6 +1,6 @@
 /**
  * Displays a list of all profiles for the admin view.
- * @author Janan Panchal
+ * @author Janan Panchal, Dhanshri Patel
  * @see com.example.intels_app.MainPageActivity Back button leads to main page
  * @see com.example.intels_app.AdminEvents Clicking the events tab leads to the admin events page
  * @see com.example.intels_app.ProfileAdapterAdmin Custom adapter for the list view
@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -116,6 +117,17 @@ public class AdminProfiles extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(AdminProfiles.this, MainPageActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        profile_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Profile selectedProfile = (Profile) parent.getItemAtPosition(position);
+
+                Intent intent = new Intent(AdminProfiles.this, ProfileDetailsAdmin.class);
+                intent.putExtra("profileId", selectedProfile.getDeviceId());
                 startActivity(intent);
             }
         });

@@ -5,7 +5,7 @@
  * which will remove the event from the Firestore Database and the adapter view.
  * Each item in the gridview is clickable and will enable opening another activity
  * for organizers to view the entrants associated to the specific event they clicked.
- * @author Aayushi Shah
+ * @author Aayushi Shah, Dhanshri Patel
  * @see com.example.intels_app.Event Event object
  * @see com.example.intels_app.EntrantInWaitlist Entrant information for an event
  */
@@ -70,17 +70,17 @@ public class CustomAdapterOrganizer extends BaseAdapter {
             public void onClick(View v) {
                 // Remove item from Firestore, data list, and notify adapter
                 FirebaseFirestore.getInstance().collection("events").document(currentEvent.getEventName())
-                                .delete()
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void unused) {
-                                                Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                                            }
-                                        }).addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.w(TAG, "Error deleting document", e);
-                                            }
+                        .delete()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error deleting document", e);
+                            }
                         });
 
                 data.remove(position);
@@ -88,10 +88,9 @@ public class CustomAdapterOrganizer extends BaseAdapter {
                 Toast.makeText(context, "Event deleted", Toast.LENGTH_SHORT).show();
             }
         });
-
         convertView.setOnClickListener(v -> {
             Intent intent = new Intent(context, EntrantInWaitlist.class);
-            intent.putExtra("eventId", data.get(position).getEventName()); // Pass the event ID or name
+            intent.putExtra("eventId", data.get(position).getEventName());
             context.startActivity(intent);
         });
 

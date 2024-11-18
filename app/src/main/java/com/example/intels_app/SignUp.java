@@ -41,6 +41,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Random;
+
 /**
  * SignUp activity allows users to register for an event by entering their details and uploading a profile picture.
  * User information and the profile picture are stored in Firebase Firestore and Firebase Storage.
@@ -240,7 +242,10 @@ public class SignUp extends AppCompatActivity {
         Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint();
-        paint.setColor(ContextCompat.getColor(this, R.color.custom_blue));
+
+        Random random = new Random();
+        int randomcolor = Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+        paint.setColor(randomcolor);
         paint.setStyle(Paint.Style.FILL);
         canvas.drawCircle(size / 2, size / 2, size / 2, paint);
 
