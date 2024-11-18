@@ -114,6 +114,11 @@ public class AdminEvents extends AppCompatActivity {
         profile_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
         facilities_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
 
+        // Popup menu
+        ImageButton popupMenuButton = findViewById(R.id.imageButton23);
+        popupMenuButton.setOnClickListener(v -> PopupMenuHelper.showPopupMenu(this, v));
+
+
         // If profile button clicked, switch to profile page
         profile_button.setOnClickListener(new View.OnClickListener() {
             @Override
