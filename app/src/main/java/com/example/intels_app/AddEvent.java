@@ -116,7 +116,6 @@ public class AddEvent extends AppCompatActivity {
             // Get user's event details text fields and switches
             EditText maxAttendees = findViewById(R.id.max_attendees_number);
             EditText eventName = findViewById(R.id.eventNameEditText);
-            EditText facility = findViewById(R.id.facilityEditText);
             EditText location = findViewById(R.id.locationEditText);
             EditText dateTime = findViewById(R.id.dateTimeEditText);
             EditText description = findViewById(R.id.descriptionEditText);
@@ -141,7 +140,6 @@ public class AddEvent extends AppCompatActivity {
                                         // Create a new event with the entered details and device ID
                                         Event newEvent = new Event(
                                                 eventName.getText().toString(),
-                                                facility.getText().toString(),
                                                 location.getText().toString(),
                                                 dateTime.getText().toString(),
                                                 description.getText().toString(),
@@ -157,13 +155,7 @@ public class AddEvent extends AppCompatActivity {
                                         .set(newEvent)
                                                 .addOnSuccessListener(documentReference -> {
                                                     Intent intent = new Intent(AddEvent.this, CreateQR.class);
-                                                    // Pass all necessary details to CreateQR activity
                                                     intent.putExtra("Event Name", eventName.getText().toString());
-                                                    intent.putExtra("Facility", facility.getText().toString());
-                                                    intent.putExtra("Location", location.getText().toString());
-                                                    intent.putExtra("DateTime", dateTime.getText().toString());
-                                                    intent.putExtra("Description", description.getText().toString());
-                                                    intent.putExtra("Max Attendees", Integer.parseInt(maxAttendees.getText().toString()));
                                                     startActivity(intent);
                                                 })
                                                 .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));

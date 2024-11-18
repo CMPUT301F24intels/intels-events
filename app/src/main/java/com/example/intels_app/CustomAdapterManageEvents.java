@@ -108,7 +108,7 @@ public class CustomAdapterManageEvents extends BaseAdapter {
         // Set up click listener to navigate to EventDetailsOrganizer
         convertView.setOnClickListener(v -> {
             Intent intent = new Intent(context, EventDetailsOrganizer.class);
-            intent.putExtra("eventId", data.get(position).getEventName()); // Pass the event ID or name
+            intent.putExtra("Event Name", data.get(position).getEventName()); // Pass the event ID or name
             context.startActivity(intent);
         });
 
