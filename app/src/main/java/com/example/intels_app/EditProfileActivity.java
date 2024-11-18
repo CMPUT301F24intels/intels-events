@@ -151,18 +151,22 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void saveProfileChanges() {
         if (imageUploaded) {
-            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("profile_pics").child(imageHash);
+            StorageReference storageReference = FirebaseStorage
+                    .getInstance()
+                    .getReference()
+                    .child("profile_pics")
+                    .child(imageHash);
             storageReference.putBytes(imageData)
                     .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
                             .addOnSuccessListener(uri -> {
-                                String profile_pic_url = uri.toString();
+                                String new_profile_pic_url = uri.toString();
 
                                 profile = new Profile(
                                         deviceId,
                                         name.getText().toString(),
                                         email.getText().toString(),
                                         Integer.parseInt(phone_number.getText().toString()),
-                                        profile_pic_url
+                                        new_profile_pic_url
                                 );
                             })).addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
         } else {
