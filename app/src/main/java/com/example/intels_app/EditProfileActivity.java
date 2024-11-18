@@ -39,14 +39,23 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.test.services.events.platform.TestRunErrorEvent;
+
 import android.content.SharedPreferences;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.installations.FirebaseInstallations;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -74,7 +83,19 @@ public class EditProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_profile_page);
         db = FirebaseFirestore.getInstance();
-        deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        FirebaseInstallations.getInstance().getId()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        deviceId = task.getResult();
+                        Log.d("Device ID", "Device ID in EditProfile: " + deviceId);
+                        loadProfileDetails();
+                        save_changes_button.setOnClickListener(view -> saveProfileChanges());
+                    } else {
+                        Log.e("Device ID Error", "Unable to get Device ID in EditProfile", task.getException());
+                        Toast.makeText(this, "Error retrieving Device ID", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(view -> {
@@ -89,22 +110,25 @@ public class EditProfileActivity extends AppCompatActivity {
         edit_pfp_button = findViewById(R.id.edit_button);
         save_changes_button = findViewById(R.id.save_changes_button);
 
-        loadProfileDetails();
-
-        edit_pfp_button.setOnClickListener(view -> showImagePickerDialog());
-//        save_changes_button.setOnClickListener(view -> saveProfileChanges());
+        edit_pfp_button.setOnClickListener(view -> {
+                showImagePickerDialog();
+                imageUploaded = true;
+        });
     }
 
     private void loadProfileDetails(){
-        DocumentReference documentRef = db.collection("profiles").document(deviceId);
-        documentRef.get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()) {
+        db.collection("profiles")
+                .whereEqualTo("deviceId", deviceId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+            if (!queryDocumentSnapshots.isEmpty()) {
+                DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
                 Profile profile = documentSnapshot.toObject(Profile.class);
                 if (profile != null) {
                     // Populate the UI with event details
-                    name.setText("Name: " + profile.getName());
-                    email.setText("Email: " + profile.getEmail());
-                    phone_number.setText("Phone Number: " + profile.getPhone_number());
+                    name.setText(profile.getName());
+                    email.setText(profile.getEmail());
+                    phone_number.setText(String.valueOf(profile.getPhone_number()));
 
                     // Load event poster image using Glide
                     if (profile.getImageUrl() != null && !profile.getImageUrl().isEmpty()) {
@@ -121,7 +145,44 @@ public class EditProfileActivity extends AppCompatActivity {
             } else {
                 Log.e(TAG, "No such document exists");
             }
-        }).addOnFailureListener(e -> Log.w(TAG, "Error getting document", e));
+        }).addOnFailureListener(e ->
+                        Log.w(TAG, "Error getting document", e));
+    }
+
+    private void saveProfileChanges() {
+        if (imageUploaded) {
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("profile_pics").child(imageHash);
+            storageReference.putBytes(imageData)
+                    .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
+                            .addOnSuccessListener(uri -> {
+                                String profile_pic_url = uri.toString();
+
+                                profile = new Profile(
+                                        deviceId,
+                                        name.getText().toString(),
+                                        email.getText().toString(),
+                                        Integer.parseInt(phone_number.getText().toString()),
+                                        profile_pic_url
+                                );
+                            })).addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
+        } else {
+            profile = new Profile(
+                    deviceId,
+                    name.getText().toString(),
+                    email.getText().toString(),
+                    Integer.parseInt(phone_number.getText().toString())
+            );
+        }
+        FirebaseFirestore.getInstance().collection("profiles").document(name.getText().toString())
+                .set(profile)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Image upload failed", e);
+                    Toast.makeText(EditProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void showImagePickerDialog() {
@@ -129,15 +190,25 @@ public class EditProfileActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select Profile Picture");
         builder.setItems(options, (dialog, which) -> {
-            isCameraOption = (which == 0);
-            if (which == 2) {
-                profile_pic.setImageBitmap(generateProfilePicture(name.getText().toString()));
-            } else if (checkAndRequestPermissions()) {
-                if (isCameraOption) {
-                    openCamera();
-                } else {
-                    openGallery();
-                }
+            switch (which) {
+                case 0: // Take Photo
+                    isCameraOption = true;
+                    if (checkAndRequestPermissions()) {
+                        openCamera();
+                    }
+                    break;
+                case 1: // Choose from Gallery
+                    isCameraOption = false;
+                    if (checkAndRequestPermissions()) {
+                        openGallery();
+                    }
+                    break;
+                case 2: // Generate with Initials
+                    Bitmap generatedImage = generateProfilePicture(name.getText().toString());
+                    profile_pic.setImageBitmap(generatedImage);
+                    imageData = bitmapToByteArray(generatedImage); // Convert generated image to byte array if needed
+                    imageHash = hashImage(imageData);
+                    break;
             }
         });
         builder.show();
@@ -181,17 +252,24 @@ public class EditProfileActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_IMAGE_CAPTURE && data != null) {
-                Bitmap photo = (Bitmap) data.getExtras().get("data");
-                profile_pic.setImageBitmap(photo);
+                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                if (bitmap != null) {
+                    profile_pic.setImageBitmap(bitmap); // Display the image in ImageView
+                    imageData = bitmapToByteArray(bitmap);
+                    imageHash = hashImage(imageData);// Convert to byte array if needed
+                }
             } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
                 Uri selectedImage = data.getData();
                 try {
                     // Decode and scale the selected image to fit within the ImageView
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-                    Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, profile_pic.getWidth(), profile_pic.getHeight(), true);
-                    profile_pic.setImageBitmap(scaledBitmap);
+                    profile_pic.setImageBitmap(bitmap);
+                    imageData = bitmapToByteArray(bitmap); // Convert to byte array if needed
+                    imageHash = hashImage(imageData);
+                    Log.d(TAG, "Gallery Image Set - imageHash: " + imageHash);
                 } catch (IOException e) {
                     e.printStackTrace();
                     Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
@@ -227,6 +305,30 @@ public class EditProfileActivity extends AppCompatActivity {
         return bitmap;
     }
 
+    private byte[] bitmapToByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        return baos.toByteArray();
+    }
 
+    public static String hashImage(byte[] imageData) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(imageData);
+
+            // Convert bytes to hex string
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashBytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
 
