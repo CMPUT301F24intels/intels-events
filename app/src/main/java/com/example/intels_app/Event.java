@@ -59,6 +59,33 @@ public class Event implements Serializable {
         //this.qrCode = qrCode;
     }
 
+    // Constructor without facility name for event creation
+    public Event(String EventName, String Location, String DateTime, String Description, int MaxAttendees, boolean GeolocationRequirement, boolean NotifPreference, String PosterUrl, String deviceId) {
+        this.eventName = EventName;
+        this.location = Location;
+        this.dateTime = DateTime;
+        this.description = Description;
+        this.maxAttendees = MaxAttendees;
+        this.geolocationRequirement = GeolocationRequirement;
+        this.notifPreference = NotifPreference;
+        this.posterUrl = PosterUrl;
+        this.deviceId = deviceId;
+    }
+
+    // Constructor without facility name for event creation
+    public Event(String EventName, String Location, String DateTime, String Description, int MaxAttendees, boolean GeolocationRequirement, boolean NotifPreference, String PosterUrl, String QrCodeUrl, String deviceId) {
+        this.eventName = EventName;
+        this.location = Location;
+        this.dateTime = DateTime;
+        this.description = Description;
+        this.maxAttendees = MaxAttendees;
+        this.geolocationRequirement = GeolocationRequirement;
+        this.notifPreference = NotifPreference;
+        this.posterUrl = PosterUrl;
+        this.qrCodeUrl = QrCodeUrl;
+        this.deviceId = deviceId;
+    }
+
     // Getters and setters
 
     public String getDeviceId() {

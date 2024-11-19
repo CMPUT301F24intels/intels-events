@@ -38,7 +38,7 @@
         android:id="@+id/pfpPlaceholder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="28dp"
+        android:layout_marginStart="44dp"
         android:layout_marginTop="38dp"
         android:layout_marginBottom="472dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -63,8 +63,8 @@
         android:id="@+id/edit_poster_button"
         android:layout_width="148dp"
         android:layout_height="45dp"
-        android:layout_marginTop="116dp"
-        android:layout_marginEnd="28dp"
+        android:layout_marginTop="160dp"
+        android:layout_marginEnd="40dp"
         android:backgroundTint="#3580FF"
         android:fontFamily="@font/poppins_semibold"
         android:text="@string/add_poster"
@@ -88,35 +88,6 @@
         app:layout_constraintTop_toBottomOf="@+id/notifPreferenceTextView"
         app:layout_constraintVertical_bias="0.0" />
 
-    <TextView
-        android:id="@+id/max_attendees_textview"
-        android:layout_width="148dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:layout_marginEnd="28dp"
-        android:background="#0A0C16"
-        android:fontFamily="@font/poppins_semibold"
-        android:text="Max Attendees:"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edit_poster_button" />
-
-    <EditText
-        android:id="@+id/max_attendees_number"
-        android:layout_width="148dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="28dp"
-        android:background="#0A0C16"
-        android:fontFamily="@font/poppins_semibold"
-        android:inputType="number"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/max_attendees_textview" />
-
     <EditText
         android:id="@+id/eventNameEditText"
         android:layout_width="349dp"
@@ -134,13 +105,13 @@
         app:layout_constraintTop_toBottomOf="@+id/pfpPlaceholder" />
 
     <EditText
-        android:id="@+id/facilityEditText"
+        android:id="@+id/max_attendees_number"
         android:layout_width="349dp"
         android:layout_height="45dp"
         android:layout_marginTop="10dp"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
-        android:hint="@string/facility"
+        android:hint="Max Attendees"
         android:paddingStart="10dp"
         android:textColor="@color/white"
         android:textColorHint="#848A94"
@@ -163,7 +134,7 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/facilityEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/max_attendees_number" />
 
     <EditText
         android:id="@+id/dateTimeEditText"

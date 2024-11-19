@@ -84,17 +84,6 @@ public class ManageEventsActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(e -> Log.w("Firestore", "Error fetching documents", e));
 
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Event selectedEvent = (Event) parent.getItemAtPosition(position);
-
-                Intent intent = new Intent(ManageEventsActivity.this, EventDetailsOrganizer.class);
-                intent.putExtra("eventId", selectedEvent.getId()); // Use appropriate method to get ID
-                startActivity(intent);
-            }
-        });
-
         ImageButton backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
