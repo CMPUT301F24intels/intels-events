@@ -36,12 +36,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.content.SharedPreferences;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 public class EditProfileActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_IMAGE_PICK = 2;
     private static final int PERMISSION_REQUEST_CODE = 100;
+    private FirebaseFirestore db;
 
     ImageButton back_button;
     Button edit_pfp_button, save_changes_button;
@@ -53,6 +60,8 @@ public class EditProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_profile_page);
+
+        db = FirebaseFirestore.getInstance();
 
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(view -> {
@@ -173,7 +182,10 @@ public class EditProfileActivity extends AppCompatActivity {
         Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint();
-        paint.setColor(ContextCompat.getColor(this, R.color.custom_blue));
+
+        Random random = new Random();
+        int randomcolor = Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+        paint.setColor(randomcolor);
         paint.setStyle(Paint.Style.FILL);
         canvas.drawCircle(size / 2, size / 2, size / 2, paint);
 
@@ -217,7 +229,17 @@ public class EditProfileActivity extends AppCompatActivity {
         editor.putString("phone", enteredPhone);
         editor.apply();
 
-        Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
+        // Save data to Firestore
+        Map<String, Object> profileData = new HashMap<>();
+        profileData.put("name", enteredName);
+        profileData.put("email", enteredEmail);
+        profileData.put("phone", enteredPhone);
+
+        db.collection("profiles_new")
+                .document(enteredEmail) // Using email as document ID for uniqueness
+                .set(profileData)
+                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to update profile in Firestore", Toast.LENGTH_SHORT).show());
     }
 
     private boolean isValidPhoneNumber(String phoneNumber) {

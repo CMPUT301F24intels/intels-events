@@ -83,23 +83,23 @@
             app:layout_constraintBottom_toTopOf="@id/checkbox_notify">
 
             <Button
-                android:id="@+id/final_list_button"
+                android:id="@+id/lottery_list_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginEnd="8dp"
                 android:backgroundTint="#663580FF"
-                android:text="Final List"
+                android:text="Lottery List"
                 android:textColor="@color/white" />
 
             <Button
-                android:id="@+id/lottery_list_button"
+                android:id="@+id/final_list_button"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="8dp"
                 android:backgroundTint="#663580FF"
-                android:text="Lottery List"
+                android:text="Final List"
                 android:textColor="@color/white" />
 
         </LinearLayout>

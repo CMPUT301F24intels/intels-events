@@ -3,7 +3,7 @@
  * entrants who have been cancelled/declined themselves from a waitlist. This activity
  * allows organizers to view, filter, and send notifications to cancelled entrants
  * using a ListView and search functionality.
- * @author Aayushi Shah
+ * @author Aayushi Shah, Katrina Alejo
  * @see com.example.intels_app.Profile Profile object
  * @see com.example.intels_app.EntrantInWaitlist Entrant information for an event
  * @see com.example.intels_app.EventGridOrganizerActivity Organizer's gridview of events
@@ -27,6 +27,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -47,6 +48,18 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.waitlist_with_cancelled_entrants);
+
+        // Retrieve eventName from the Intent
+        eventName = getIntent().getStringExtra("eventName");
+        Log.d("CancelledEntrants", "Retrieved eventName: " + eventName);
+
+        if (eventName == null || eventName.isEmpty()) {
+            Toast.makeText(this, "Event ID is missing. Cannot proceed.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        Log.d("CancelledEntrants", "Retrieved eventName: " + eventName);
 
         EditText searchBar = findViewById(R.id.search_bar);
         listView = findViewById(R.id.profile_list);
@@ -79,24 +92,19 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         waitlist_button = findViewById(R.id.btn_waitlist);
         cancelled_button = findViewById(R.id.btn_cancelled);
 
-        cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
-        waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-
         waitlist_button.setOnClickListener(v -> {
-            cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-            waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
-
             Intent intent = new Intent(EntrantInCancelledWaitlist.this, EntrantInWaitlist.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(intent);
         });
 
         cancelled_button.setOnClickListener(v -> {
-            cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
-            waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-
             Intent intent = new Intent(EntrantInCancelledWaitlist.this, EntrantInCancelledWaitlist.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            intent.putExtra("eventId", eventName);
             startActivity(intent);
         });
+
 
         sendNotificationCheckbox = findViewById(R.id.checkbox_notify);
         sendNotificationCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -104,32 +112,73 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                 showCustomNotificationDialog();
             }
         });
-
-        // Fetch cancelled entrants from Firestore
-        fetchCancelledEntrants(adapter);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh the list of cancelled entrants when returning to this activity
+        fetchCancelledEntrants((ProfileAdapter) listView.getAdapter());
+        // Set colors for UI
+        cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
+        waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
+    }
 
     private void fetchCancelledEntrants(ProfileAdapter adapter) {
+        Log.d("CancelledEntrants", "Fetching declined entrants for event: " + eventName);
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("waitlisted_entrants")
-                .whereEqualTo("status", "cancelled")
+        CollectionReference notificationsRef = db.collection("notifications");
+
+        // Fetch notifications where the type is "declined" and the event matches
+        notificationsRef
+                .whereEqualTo("type", "declined")
+                .whereEqualTo("eventId", eventName)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        profileList.clear();
-                        for (DocumentSnapshot document : task.getResult()) {
-                            String name = (String) document.get("name");
-                            String imageUrl = (String) document.get("imageUrl");
-                            Profile profile = new Profile(name, imageUrl);
-                            profileList.add(profile);
+                        profileList.clear(); // Clear the list before populating
+                        List<DocumentSnapshot> notifications = task.getResult().getDocuments();
+
+                        if (notifications.isEmpty()) {
+                            Toast.makeText(this, "No declined entrants found for this event.", Toast.LENGTH_SHORT).show();
+                            adapter.updateData(new ArrayList<>(profileList));
+                            adapter.notifyDataSetChanged();
+                            return;
                         }
-                        adapter.notifyDataSetChanged();
+
+                        // Fetch profile data for each declined notification
+                        for (DocumentSnapshot notification : notifications) {
+                            String profileId = notification.getString("profileId");
+
+                            if (profileId != null) {
+                                db.collection("waitlisted_entrants")
+                                        .document(profileId)
+                                        .get()
+                                        .addOnSuccessListener(profileDoc -> {
+                                            if (profileDoc.exists()) {
+                                                String name = profileDoc.getString("profile.name");
+                                                String imageUrl = profileDoc.getString("profile.imageUrl");
+                                                Profile profile = new Profile(name, imageUrl);
+                                                profileList.add(profile);
+                                                Log.d("CancelledEntrants", "Added profile: " + name);
+                                            }
+
+                                            // Update the adapter after adding profiles
+                                            adapter.updateData(new ArrayList<>(profileList));
+                                            adapter.notifyDataSetChanged();
+                                        })
+                                        .addOnFailureListener(e -> Log.w("Firestore", "Error fetching profile for ID: " + profileId, e));
+                            }
+                        }
                     } else {
-                        Toast.makeText(this, "Failed to fetch cancelled entrants.", Toast.LENGTH_SHORT).show();
+                        Log.w("Firestore", "Error fetching declined notifications", task.getException());
+                        Toast.makeText(this, "Failed to retrieve declined entrants.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
+
 
     private void showCustomNotificationDialog() {
         EditText input = new EditText(this);
