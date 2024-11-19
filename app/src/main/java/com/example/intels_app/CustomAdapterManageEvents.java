@@ -23,13 +23,16 @@ import androidx.annotation.NonNull;
 import com.example.intels_app.EventDetailsOrganizer;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 
 public class CustomAdapterManageEvents extends BaseAdapter {
     private Context context;
     private ArrayList<Event> data;
+    Event event;
 
     /**
      * Takes a list of events
@@ -92,17 +95,50 @@ public class CustomAdapterManageEvents extends BaseAdapter {
         // Set up delete button functionality
         ImageButton deleteButton = convertView.findViewById(R.id.deleteButton);
         deleteButton.setOnClickListener(v -> {
-
-            // Delete the event from Firestore
             FirebaseFirestore.getInstance().collection("events")
                     .document(data.get(position).getEventName())
-                    .delete()
-                    .addOnSuccessListener(unused -> {
-                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                        Toast.makeText(context, "Event deleted", Toast.LENGTH_SHORT).show();
-                        data.remove(position);
-                        notifyDataSetChanged();
-                    }).addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
+                    .get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            event = documentSnapshot.toObject(Event.class);
+
+                            // Ensure that event is not null before proceeding
+                            if (event != null) {
+                                // Delete poster from storage
+                                FirebaseStorage.getInstance().getReferenceFromUrl(event.getPosterUrl()).delete()
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                Log.d(TAG, "Poster successfully deleted.");
+                                            }
+                                        }).addOnFailureListener(e -> Log.w(TAG, "Failed to delete poster.", e));
+
+                                // Delete QR from storage
+                                FirebaseStorage.getInstance().getReferenceFromUrl(event.getQrCodeUrl()).delete()
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void unused) {
+                                                Log.d(TAG, "QR successfully deleted.");
+                                            }
+                                        }).addOnFailureListener(e -> Log.w(TAG, "Failed to delete QR code.", e));
+
+                                // Delete the event from Firestore
+                                FirebaseFirestore.getInstance().collection("events")
+                                        .document(data.get(position).getEventName())
+                                        .delete()
+                                        .addOnSuccessListener(unused -> {
+                                            Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                            Toast.makeText(context, "Event deleted", Toast.LENGTH_SHORT).show();
+                                            data.remove(position);
+                                            notifyDataSetChanged();
+                                        }).addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
+                            } else {
+                                Log.w(TAG, "Event data is null, cannot delete.");
+                                Toast.makeText(context, "Failed to retrieve event data", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }).addOnFailureListener(e -> Log.w(TAG, "Failed to fetch event details for deletion", e));
         });
 
         // Set up click listener to navigate to EventDetailsOrganizer
@@ -114,4 +150,5 @@ public class CustomAdapterManageEvents extends BaseAdapter {
 
         return convertView;
     }
+
 }
