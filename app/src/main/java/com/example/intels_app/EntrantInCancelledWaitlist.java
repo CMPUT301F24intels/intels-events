@@ -65,8 +65,10 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         listView = findViewById(R.id.profile_list);
 
         profileList = new ArrayList<>();
-        ProfileAdapter adapter = new ProfileAdapter(this, profileList);
+        CancelledProfileAdapter adapter = new CancelledProfileAdapter(this, profileList);
         listView.setAdapter(adapter);
+
+
 
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(view -> {
