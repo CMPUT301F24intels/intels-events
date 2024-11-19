@@ -93,30 +93,53 @@ public class FinalList extends AppCompatActivity {
         Log.d("AcceptedEntrants", "Fetching accepted entrants for event: " + eventName);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference entrantsRef = db.collection("waitlisted_entrants");
+        CollectionReference notificationsRef = db.collection("notifications");
 
-        entrantsRef.whereEqualTo("eventName", eventName) // Ensure it matches the current event
-                .whereEqualTo("status", "accepted") // Filter for accepted status
+        // Fetch notifications where the type is "accepted" and eventId matches eventName
+        notificationsRef
+                .whereEqualTo("type", "accepted")
+                .whereEqualTo("eventId", eventName)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        profileList.clear();
-                        for (DocumentSnapshot document : task.getResult()) {
-                            String name = document.getString("profile.name");
-                            String imageUrl = document.getString("profile.imageUrl");
-                            Profile profile = new Profile(name, imageUrl);
-                            profileList.add(profile);
-                            Log.d("AcceptedEntrants", "Added profile: Name = " + name + ", ImageUrl = " + imageUrl);
-                        }
-                        adapter.updateData(new ArrayList<>(profileList));
-                        adapter.notifyDataSetChanged();
-                        Log.d("AcceptedEntrants", "Profile list size: " + profileList.size());
+                        profileList.clear(); // Clear the list before populating
+                        List<DocumentSnapshot> notifications = task.getResult().getDocuments();
 
-                        if (profileList.isEmpty()) {
+                        if (notifications.isEmpty()) {
                             Toast.makeText(this, "No accepted entrants found for this event.", Toast.LENGTH_SHORT).show();
+                            adapter.updateData(new ArrayList<>(profileList));
+                            adapter.notifyDataSetChanged();
+                            return;
+                        }
+
+                        // Fetch profile data for each accepted notification
+                        for (DocumentSnapshot notification : notifications) {
+                            String profileId = notification.getString("profileId");
+
+                            if (profileId != null) {
+                                db.collection("waitlisted_entrants")
+                                        .document(profileId)
+                                        .get()
+                                        .addOnSuccessListener(profileDoc -> {
+                                            if (profileDoc.exists()) {
+                                                String name = profileDoc.getString("profile.name");
+                                                String imageUrl = profileDoc.getString("profile.imageUrl");
+                                                Profile profile = new Profile(name, imageUrl);
+                                                profileList.add(profile);
+                                                Log.d("AcceptedEntrants", "Added profile: Name = " + name + ", ImageUrl = " + imageUrl);
+                                            }
+
+                                            // Update the adapter after adding profiles
+                                            adapter.updateData(new ArrayList<>(profileList));
+                                            adapter.notifyDataSetChanged();
+                                        })
+                                        .addOnFailureListener(e -> Log.w("Firestore", "Error fetching profile for ID: " + profileId, e));
+                            } else {
+                                Log.w("AcceptedEntrants", "Missing profileId in notification.");
+                            }
                         }
                     } else {
-                        Log.w("Firestore", "Error fetching accepted entrants", task.getException());
+                        Log.w("Firestore", "Error fetching accepted notifications", task.getException());
                         Toast.makeText(this, "Failed to retrieve accepted entrants.", Toast.LENGTH_SHORT).show();
                     }
                 });
