@@ -56,10 +56,10 @@ public class FinalList extends AppCompatActivity {
 
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(view -> {
-            Intent intent = new Intent(FinalList.this, EntrantInWaitlist.class);
+            /*Intent intent = new Intent(FinalList.this, EntrantInWaitlist.class);
             intent.putExtra("eventId", eventId);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
+            startActivity(intent);*/
             finish();
         });
 

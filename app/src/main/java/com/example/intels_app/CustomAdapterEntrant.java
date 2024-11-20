@@ -10,6 +10,7 @@
 
 package com.example.intels_app;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -69,38 +70,46 @@ public class CustomAdapterEntrant extends BaseAdapter {
         eventText.setText(event.getEventName());
 
         deleteButton.setOnClickListener(v -> {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            new AlertDialog.Builder(context)
+                    .setTitle("Confirm Deletion")
+                    .setMessage("Are you sure you want to leave the waitlist for this event?")
+                    .setPositiveButton("Confirm", (dialog, which) -> {
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-            // Query Firestore to find the document with the matching deviceId and eventName
-            db.collection("waitlisted_entrants")
-                    .whereEqualTo("deviceId", deviceId) // Match the device ID
-                    .whereEqualTo("eventName", event.getEventName()) // Match the event name
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
-                            for (DocumentSnapshot document : task.getResult()) {
-                                // Delete the matching document
-                                document.getReference().delete()
-                                        .addOnSuccessListener(aVoid -> {
-                                            // Remove the event from the local list and refresh the UI
-                                            data.remove(position);
-                                            notifyDataSetChanged();
-                                            Toast.makeText(context, "Event removed from waitlist", Toast.LENGTH_SHORT).show();
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            Toast.makeText(context, "Failed to delete event", Toast.LENGTH_SHORT).show();
-                                            Log.e("Firestore", "Error deleting document", e);
-                                        });
-                            }
-                        } else {
-                            Toast.makeText(context, "No matching event found", Toast.LENGTH_SHORT).show();
-                            Log.w("Firestore", "No matching document found.");
-                        }
+                        // Query Firestore to find the document with the matching deviceId and eventName
+                        db.collection("waitlisted_entrants")
+                                .whereEqualTo("deviceId", deviceId) // Match the device ID
+                                .whereEqualTo("eventName", event.getEventName()) // Match the event name
+                                .get()
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
+                                        for (DocumentSnapshot document : task.getResult()) {
+                                            document.getReference().delete()
+                                                    .addOnSuccessListener(aVoid -> {
+                                                        data.remove(position);
+                                                        notifyDataSetChanged();
+                                                        Toast.makeText(context, "Event removed from waitlist", Toast.LENGTH_SHORT).show();
+                                                    })
+                                                    .addOnFailureListener(e -> {
+                                                        Toast.makeText(context, "Failed to delete event", Toast.LENGTH_SHORT).show();
+                                                        Log.e("Firestore", "Error deleting document", e);
+                                                    });
+                                        }
+                                    } else {
+                                        Toast.makeText(context, "No matching event found", Toast.LENGTH_SHORT).show();
+                                        Log.w("Firestore", "No matching document found.");
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(context, "Error fetching event", Toast.LENGTH_SHORT).show();
+                                    Log.e("Firestore", "Error fetching document", e);
+                                });
                     })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(context, "Error fetching event", Toast.LENGTH_SHORT).show();
-                        Log.e("Firestore", "Error fetching document", e);
-                    });
+                    .setNegativeButton("Cancel", (dialog, which) -> {
+                        // Dismiss the dialog if the user cancels
+                        dialog.dismiss();
+                    })
+                    .show();
         });
 
 
