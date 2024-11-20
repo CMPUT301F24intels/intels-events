@@ -30,15 +30,25 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.join_waitlist);
 
-        // Retrieve event details from the intent
-        String eventName = getIntent().getStringExtra("eventName");
+        //This hardcoded data is only to TEST, REMOVE AFTER TO REAL CODE
+        String eventName = "Raceeeee";
+        String facilityName = "Tech Auditorium";
+        String location = "Whyte Ave, Edmonton";
+        String dateTime = "2024-12-01 10:00 AM";
+        String description = "A conference bringing together the brightest minds in tech.";
+        int maxAttendees = 5;
+        boolean geolocationRequirement = true;
+        String posterUrl = "https://testingexample.com/poster.jpg";
+
+        // Retrieve event details from the intent REAL CODE
+        /*String eventName = getIntent().getStringExtra("eventName");
         String facilityName = getIntent().getStringExtra("facilityName");
         String location = getIntent().getStringExtra("location");
         String dateTime = getIntent().getStringExtra("dateTime");
         String description = getIntent().getStringExtra("description");
         int maxAttendees = getIntent().getIntExtra("maxAttendees", 0);
         boolean geolocationRequirement = getIntent().getBooleanExtra("geolocationRequirement", false);
-        String posterUrl = getIntent().getStringExtra("posterUrl");
+        String posterUrl = getIntent().getStringExtra("posterUrl");*/
 
         // Set the retrieved data to the UI elements
         TextView eventNameTextView = findViewById(R.id.eventNameEdit);

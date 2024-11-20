@@ -77,7 +77,7 @@ public class MainPageActivity extends AppCompatActivity {
         joinEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainPageActivity.this, ScanQRActivity.class); //Change back to ScanQRActivity
+                Intent intent = new Intent(MainPageActivity.this, JoinWaitlistActivity.class); //Change back to ScanQRActivity
                 startActivity(intent);
             }
         });
