@@ -52,6 +52,7 @@ import com.google.firebase.installations.FirebaseInstallations;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -73,6 +74,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private boolean isCameraOption = false;
     private EditText name, email, phone_number;
     private String finalImageUrl;
+    private String oldImageUrl;
     private Profile oldProfile;
     private Profile profile;
     private String deviceId;
@@ -155,25 +157,68 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void saveProfileChanges() {
         if (imageUploaded) {
-            StorageReference storageReference = FirebaseStorage
-                    .getInstance()
-                    .getReference()
-                    .child("profile_pics")
-                    .child(imageHash);
-            storageReference.putBytes(imageData)
-                    .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
-                            .addOnSuccessListener(uri -> {
-                                String new_profile_pic_url = uri.toString();
+            db.collection("profiles")
+                    .whereEqualTo("deviceId", deviceId)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                            oldProfile = documentSnapshot.toObject(Profile.class);
+                            if (oldProfile != null) {
+                                oldImageUrl = oldProfile.getImageUrl();
+                            }
+                        }
+                        FirebaseStorage.getInstance().getReferenceFromUrl(oldImageUrl).delete()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        Log.d(TAG, "Old profile picture deleted successfully");
 
-                                profile = new Profile(
-                                        deviceId,
-                                        name.getText().toString(),
-                                        email.getText().toString(),
-                                        Integer.parseInt(phone_number.getText().toString()),
-                                        new_profile_pic_url
-                                );
-                            })).addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
-        } else {
+                                        FirebaseStorage.getInstance().getReference().child("profile_pics")
+                                                .child(imageHash)
+                                                .putBytes(imageData)
+                                                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                        Log.d(TAG, "New profile picture uploaded successfully");
+
+                                                        FirebaseStorage.getInstance().getReference().child("profile_pics").child(imageHash).getDownloadUrl()
+                                                                .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                                    @Override
+                                                                    public void onSuccess(Uri uri) {
+                                                                        finalImageUrl = uri.toString();
+                                                                        Log.d(TAG, "New Profile URL: " + finalImageUrl);
+
+                                                                        profile = new Profile(
+                                                                                deviceId,
+                                                                                name.getText().toString(),
+                                                                                email.getText().toString(),
+                                                                                Integer.parseInt(phone_number.getText().toString()),
+                                                                                finalImageUrl
+                                                                        );
+
+                                                                        db.collection("profiles")
+                                                                                .document(name.getText().toString())
+                                                                                .set(profile)
+                                                                                .addOnSuccessListener(documentReference -> {
+                                                                                    Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
+                                                                                    finish();
+                                                                                })
+                                                                                .addOnFailureListener(e -> {
+                                                                                    Log.w(TAG, "Image upload failed", e);
+                                                                                    Toast.makeText(EditProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                                                                                });
+
+                                                                    }
+                                                                });
+
+                                                    }
+                                                });
+                                    }
+                                });
+                    });
+        }
+        else {
             db.collection("profiles")
                     .whereEqualTo("deviceId", deviceId)
                     .get()
