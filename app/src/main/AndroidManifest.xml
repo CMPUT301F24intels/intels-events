@@ -61,6 +61,7 @@
         <activity android:name=".SelectedEntrantActivity"/>
         <activity android:name=".ProfileDetailsAdmin"/>
         <activity android:name=".EditEventActivity"/>
+        <activity android:name=".EventDetailsAdmin"/>
 
         <activity
             android:name=".NotificationActivity"
