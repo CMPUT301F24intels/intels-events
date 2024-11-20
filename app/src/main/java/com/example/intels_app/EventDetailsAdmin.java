@@ -38,17 +38,14 @@ import java.util.List;
 import java.util.Map;
 
 public class EventDetailsAdmin extends AppCompatActivity {
-
     private static final String TAG = "EventDetailsOrganizer";
+    private String eventName;
     private Event event;
     private ImageButton backButton;
     private Button deleteQRButton, deletePosterButton;
     private ImageView posterImageView, qrImageView;
     private TextView eventNameEditText, facilityEditText, locationEditText, dateTimeEditText,
             descriptionEditText, maxAttendeesTextView, geolocationRequirementTextView, notificationPreferenceTextView;
-
-    private FirebaseFirestore db;
-    private String eventName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,6 +60,9 @@ public class EventDetailsAdmin extends AppCompatActivity {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         event = documentSnapshot.toObject(Event.class);
+
+                        // Load event details from Firestore
+                        loadEventDetails();
                     }
                 });
 
@@ -83,12 +83,6 @@ public class EventDetailsAdmin extends AppCompatActivity {
         notificationPreferenceTextView = findViewById(R.id.notificationPreferenceTextView);
         posterImageView = findViewById(R.id.posterImageView);
         qrImageView = findViewById(R.id.qrImageView);
-
-        // Initialize Firestore
-        db = FirebaseFirestore.getInstance();
-
-        // Load event details from Firestore
-        loadEventDetails();
 
         // Back button to navigate back to the manage events screen
         backButton = findViewById(R.id.back_button);
@@ -152,48 +146,40 @@ public class EventDetailsAdmin extends AppCompatActivity {
     }
 
     private void loadEventDetails() {
-        DocumentReference documentRef = db.collection("events").document(eventName);
-        documentRef.get().addOnSuccessListener(documentSnapshot -> {
-            if (documentSnapshot.exists()) {
-                Event event = documentSnapshot.toObject(Event.class);
-                if (event != null) {
-                    // Populate the UI with event details
-                    eventNameEditText.setText("Event Name: " + event.getEventName());
-                    facilityEditText.setText("Facility: " + event.getFacilityName());
-                    locationEditText.setText("Location: " + event.getLocation());
-                    dateTimeEditText.setText("Date and Time: " + event.getDateTime());
-                    descriptionEditText.setText("Description: " + event.getDescription());
-                    maxAttendeesTextView.setText("Max Attendees: " + event.getMaxAttendees());
-                    geolocationRequirementTextView.setText("Geolocation Requirement: " + event.isGeolocationRequirement());
-                    notificationPreferenceTextView.setText("Notification Preference: " + event.isNotifPreference());
+        if (event != null) {
+            // Populate the UI with event details
+            eventNameEditText.setText("Event Name: " + event.getEventName());
+            facilityEditText.setText("Facility: " + event.getFacilityName());
+            locationEditText.setText("Location: " + event.getLocation());
+            dateTimeEditText.setText("Date and Time: " + event.getDateTime());
+            descriptionEditText.setText("Description: " + event.getDescription());
+            maxAttendeesTextView.setText("Max Attendees: " + event.getMaxAttendees());
+            geolocationRequirementTextView.setText("Geolocation Requirement: " + event.isGeolocationRequirement());
+            notificationPreferenceTextView.setText("Notification Preference: " + event.isNotifPreference());
 
-                    // Load event poster image using Glide
-                    if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
-                        Glide.with(getApplicationContext())
-                                .load(event.getPosterUrl())
-                                .placeholder(R.drawable.pfp_placeholder_image)
-                                .error(R.drawable.person_image)
-                                .into(posterImageView);
-                    } else {
-                        Log.w(TAG, "No poster URL found in the document");
-                        posterImageView.setImageResource(R.drawable.person_image);
-                    }
-
-                    // Load qr code image using Glide
-                    if (event.getQrCodeUrl() != null && !event.getQrCodeUrl().isEmpty()) {
-                        Glide.with(getApplicationContext())
-                                .load(event.getQrCodeUrl())
-                                .placeholder(R.drawable.pfp_placeholder_image)
-                                .error(R.drawable.person_image)
-                                .into(qrImageView);
-                    } else {
-                        Log.w(TAG, "No poster URL found in the document");
-                        qrImageView.setImageResource(R.drawable.pfp_placeholder_image);
-                    }
-                }
+            // Load event poster image using Glide
+            if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
+                Glide.with(getApplicationContext())
+                        .load(event.getPosterUrl())
+                        .placeholder(R.drawable.pfp_placeholder_image)
+                        .error(R.drawable.person_image)
+                        .into(posterImageView);
             } else {
-                Log.e(TAG, "No such document exists");
+                Log.w(TAG, "No poster URL found in the document");
+                posterImageView.setImageResource(R.drawable.person_image);
             }
-        }).addOnFailureListener(e -> Log.w(TAG, "Error getting document", e));
+
+            // Load qr code image using Glide
+            if (event.getQrCodeUrl() != null && !event.getQrCodeUrl().isEmpty()) {
+                Glide.with(getApplicationContext())
+                        .load(event.getQrCodeUrl())
+                        .placeholder(R.drawable.pfp_placeholder_image)
+                        .error(R.drawable.person_image)
+                        .into(qrImageView);
+            } else {
+                Log.w(TAG, "No poster URL found in the document");
+                qrImageView.setImageResource(R.drawable.pfp_placeholder_image);
+            }
+        }
     }
 }
