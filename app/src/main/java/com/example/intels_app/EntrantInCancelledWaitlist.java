@@ -103,7 +103,7 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         cancelled_button.setOnClickListener(v -> {
             Intent intent = new Intent(EntrantInCancelledWaitlist.this, EntrantInCancelledWaitlist.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            intent.putExtra("eventId", eventName);
+            intent.putExtra("eventName", eventName);
             startActivity(intent);
         });
 
@@ -135,7 +135,7 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         // Fetch notifications where the type is "declined" and the event matches
         notificationsRef
                 .whereEqualTo("type", "declined")
-                .whereEqualTo("eventId", eventName)
+                .whereEqualTo("eventName", eventName)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -230,7 +230,7 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
             Map<String, Object> notificationData = new HashMap<>();
             notificationData.put("message", message);
             notificationData.put("timestamp", FieldValue.serverTimestamp());
-            notificationData.put("eventId", eventName);
+            notificationData.put("eventName", eventName);
             notificationData.put("profileId", deviceId);
 
             // Add the notification to the Firestore database

@@ -76,7 +76,7 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
                 Log.d("EventGridOrganizerActivity", "Selected Event ID: " + selectedEventName);
 
                 Intent intent = new Intent(EventGridOrganizerActivity.this, EntrantInWaitlist.class);
-                intent.putExtra("eventId", selectedEventName); // Pass the event ID
+                intent.putExtra("eventName", selectedEventName); // Pass the event ID
                 startActivity(intent);
             }
         });

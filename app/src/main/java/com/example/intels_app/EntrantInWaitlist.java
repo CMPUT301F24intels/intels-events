@@ -53,7 +53,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.waitlist_with_entrants);
 
-        eventName = getIntent().getStringExtra("eventId");
+        eventName = getIntent().getStringExtra("eventName");
 
         if (eventName == null || eventName.isEmpty()) {
             Toast.makeText(this, "Event ID is missing. Cannot proceed.", Toast.LENGTH_SHORT).show();
@@ -124,7 +124,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(EntrantInWaitlist.this, FinalList.class);
                 intent.putExtra("eventName", eventName);
-                intent.putExtra("eventId", eventName);
+                intent.putExtra("eventName", eventName);
                 startActivity(intent);
                 finish();
             }
@@ -134,7 +134,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(EntrantInWaitlist.this, LotteryList.class);
-                intent.putExtra("eventId", eventName); // Pass eventId to LotteryList
+                intent.putExtra("eventName", eventName); // Pass eventName to LotteryList
                 startActivity(intent);
                 finish();
             }
@@ -185,10 +185,10 @@ public class EntrantInWaitlist extends AppCompatActivity {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Validate eventId
+        // Validate eventName
         if (eventName == null || eventName.isEmpty()) {
-            Log.e("Firestore", "eventId is null or empty");
-            Toast.makeText(this, "Event ID is missing. Cannot send notification.", Toast.LENGTH_SHORT).show();
+            Log.e("Firestore", "eventName is null or empty");
+            Toast.makeText(this, "Event Name is missing. Cannot send notification.", Toast.LENGTH_SHORT).show();
             return;
         }
 

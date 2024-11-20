@@ -89,7 +89,7 @@ public class SelectRoleActivity extends AppCompatActivity {
 
     private void addGuestToWaitlist() {
         // Retrieve the event ID or name from the intent, passed from the previous activity
-        String eventId = getIntent().getStringExtra("Event Name");
+        eventName = getIntent().getStringExtra("Event Name");
 
         if (deviceId == null) {
             Toast.makeText(this, "Device ID not available. Try again later.", Toast.LENGTH_SHORT).show();
@@ -98,11 +98,11 @@ public class SelectRoleActivity extends AppCompatActivity {
 
         Map<String, Object> waitlistEntry = new HashMap<>();
         waitlistEntry.put("deviceId", deviceId);
-        waitlistEntry.put("eventId", eventId);
+        waitlistEntry.put("eventName", eventName);
 
         // Profile guestProfile = new Profile(deviceId);
 
-        waitlistRef.document("Guest" + "_" + eventId)
+        waitlistRef.document("Guest" + "_" + eventName)
                 .set(waitlistEntry)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(SelectRoleActivity.this, "Successfully joined event as Guest!", Toast.LENGTH_SHORT).show();

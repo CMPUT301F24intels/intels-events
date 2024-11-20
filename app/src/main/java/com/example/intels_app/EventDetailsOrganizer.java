@@ -152,7 +152,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         CollectionReference selectedEntrantsRef = db.collection("selected_entrants");
 
         // Clear previous selected entries for selected event
-        selectedEntrantsRef.whereEqualTo("eventId", eventName)
+        selectedEntrantsRef.whereEqualTo("eventName", eventName)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     WriteBatch batch = db.batch();
@@ -184,7 +184,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
                                     // After the draw, redirect to the DrawCompleteActivity
                                     Intent intent = new Intent(EventDetailsOrganizer.this, DrawCompleteActivity.class);
-                                    intent.putExtra("eventId", eventName);
+                                    intent.putExtra("eventName", eventName);
                                     startActivity(intent);
                                 }).addOnFailureListener(e -> {
                                     Log.e(TAG, "Error fetching waitlisted entrants", e);
@@ -213,12 +213,12 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         Toast.makeText(this, "Lottery draw complete. Notifications sent.", Toast.LENGTH_SHORT).show();
     }
 
-    private void sendNotificationToProfile(String profileId, String eventId, String message, String type) {
+    private void sendNotificationToProfile(String profileId, String eventName, String message, String type) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         Map<String, Object> notificationData = new HashMap<>();
         notificationData.put("profileId", profileId);
-        notificationData.put("eventId", eventId);
+        notificationData.put("eventName", eventName);
         notificationData.put("message", message);
         notificationData.put("timestamp", FieldValue.serverTimestamp());
         notificationData.put("type", type);
@@ -235,7 +235,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         for (DocumentSnapshot profile : selectedProfiles) {
             Map<String, Object> entrantData = new HashMap<>();
             entrantData.put("profileId", profile.getId());
-            entrantData.put("eventId", eventName);
+            entrantData.put("eventName", eventName);
             entrantData.put("timestamp", FieldValue.serverTimestamp());
 
             selectedEntrantsRef.add(entrantData)

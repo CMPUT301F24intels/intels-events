@@ -84,6 +84,12 @@ public class JoinWaitlistActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
+                intent.putExtra("Event Name", eventName);
+                intent.putExtra("Facility", facilityName);
+                intent.putExtra("Location", location);
+                intent.putExtra("DateTime", dateTime);
+                intent.putExtra("Description", description);
+                intent.putExtra("Max Attendees", maxAttendees);
                 startActivity(intent);
             }
         });
@@ -96,7 +102,6 @@ public class JoinWaitlistActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
 
         if (eventNameTextView != null) {
             eventNameTextView.setText(eventName);
@@ -116,19 +121,5 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         if (maxAttendeesTextView != null) {
             maxAttendeesTextView.setText(String.valueOf(maxAttendees));
         }
-
-        joinWaitlistButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
-                intent.putExtra("Event Name", eventName);
-                intent.putExtra("Facility", facilityName);
-                intent.putExtra("Location", location);
-                intent.putExtra("DateTime", dateTime);
-                intent.putExtra("Description", description);
-                intent.putExtra("Max Attendees", maxAttendees);
-                startActivity(intent);
-            }
-        });
     }
 }

@@ -90,24 +90,24 @@ public class NotificationActivity extends AppCompatActivity {
                     List<DocumentSnapshot> notifications = querySnapshot.getDocuments();
                     loadedEventDetailsCount = 0; // Reset loaded counter
                     for (DocumentSnapshot notificationDoc : notifications) {
-                        String eventId = notificationDoc.getString("eventId");
+                        String eventName = notificationDoc.getString("eventName");
                         String message = notificationDoc.getString("message");
                         String type = notificationDoc.getString("type");
                         String profileId = notificationDoc.getString("profileId");
 
                         // Store notification data in the cache
                         Map<String, Object> notificationData = new HashMap<>();
-                        notificationData.put("eventId", eventId);
+                        notificationData.put("eventName", eventName);
                         notificationData.put("message", message);
                         notificationData.put("type", type);
                         notificationData.put("profileId", profileId);
                         notificationCache.add(notificationData);
 
-                        // Load event details if eventId is available
-                        if (eventId != null && !eventId.isEmpty()) {
-                            loadEventDetailsForNotification(eventId, notificationData);
+                        // Load event details if eventName is available
+                        if (eventName != null && !eventName.isEmpty()) {
+                            loadEventDetailsForNotification(eventName, notificationData);
                         } else {
-                            // No eventId, increment loaded counter
+                            // No eventName, increment loaded counter
                             loadedEventDetailsCount++;
                             checkAndDisplayNotifications();
                         }
@@ -121,8 +121,8 @@ public class NotificationActivity extends AppCompatActivity {
         });
     }
 
-    private void loadEventDetailsForNotification(String eventId, Map<String, Object> notificationData) {
-        DocumentReference eventRef = db.collection("events").document(eventId);
+    private void loadEventDetailsForNotification(String eventName, Map<String, Object> notificationData) {
+        DocumentReference eventRef = db.collection("events").document(eventName);
         eventRef.get().addOnSuccessListener(eventDoc -> {
             String posterUrl = eventDoc.getString("posterUrl");
             notificationData.put("posterUrl", posterUrl);
@@ -143,7 +143,7 @@ public class NotificationActivity extends AppCompatActivity {
     private void checkAndDisplayNotifications() {
         if (loadedEventDetailsCount == notificationCache.size()) {
             for (Map<String, Object> notificationData : notificationCache) {
-                String title = (String) notificationData.get("eventId");
+                String title = (String) notificationData.get("eventName");
                 String message = (String) notificationData.get("message");
                 String type = (String) notificationData.get("type");
                 String profileId = (String) notificationData.get("profileId");
