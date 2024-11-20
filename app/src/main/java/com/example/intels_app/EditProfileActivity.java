@@ -44,6 +44,7 @@ import androidx.test.services.events.platform.TestRunErrorEvent;
 import android.content.SharedPreferences;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -66,17 +67,18 @@ public class EditProfileActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 100;
     private FirebaseFirestore db;
 
-    ImageButton back_button;
-    Button edit_pfp_button, save_changes_button;
-    ImageView profile_pic;
+    private ImageButton back_button;
+    private Button edit_pfp_button, save_changes_button;
+    private ImageView profile_pic;
     private boolean isCameraOption = false;
-    EditText name, email, phone_number;
-    Profile profile;
-    String deviceId;
-    Uri image;
-    String imageHash;
-    byte[] imageData;
-    boolean imageUploaded;
+    private EditText name, email, phone_number;
+    private String finalImageUrl;
+    private Profile oldProfile;
+    private Profile profile;
+    private String deviceId;
+    private String imageHash;
+    private byte[] imageData;
+    private boolean imageUploaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +98,8 @@ public class EditProfileActivity extends AppCompatActivity {
                         Toast.makeText(this, "Error retrieving Device ID", Toast.LENGTH_SHORT).show();
                     }
                 });
+
+
 
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(view -> {
@@ -170,23 +174,36 @@ public class EditProfileActivity extends AppCompatActivity {
                                 );
                             })).addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
         } else {
-            profile = new Profile(
-                    deviceId,
-                    name.getText().toString(),
-                    email.getText().toString(),
-                    Integer.parseInt(phone_number.getText().toString())
-            );
+            db.collection("profiles")
+                    .whereEqualTo("deviceId", deviceId)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                            oldProfile = documentSnapshot.toObject(Profile.class);
+                            if (oldProfile != null){
+                                finalImageUrl = oldProfile.getImageUrl();
+                            }
+                        }
+                        profile = new Profile(
+                                deviceId,
+                                name.getText().toString(),
+                                email.getText().toString(),
+                                Integer.parseInt(phone_number.getText().toString()),
+                                finalImageUrl
+                        );
+                        FirebaseFirestore.getInstance().collection("profiles").document(name.getText().toString())
+                                .set(profile)
+                                .addOnSuccessListener(documentReference -> {
+                                    Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.w(TAG, "Image upload failed", e);
+                                    Toast.makeText(EditProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                                });
+                    });
         }
-        FirebaseFirestore.getInstance().collection("profiles").document(name.getText().toString())
-                .set(profile)
-                .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    Log.w(TAG, "Image upload failed", e);
-                    Toast.makeText(EditProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
-                });
     }
 
     private void showImagePickerDialog() {
@@ -245,7 +262,9 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivity(intent);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+        }
     }
 
     private void openGallery() {
