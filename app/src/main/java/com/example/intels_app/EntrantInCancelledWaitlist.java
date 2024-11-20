@@ -192,7 +192,7 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
 
         new AlertDialog.Builder(this)
                 .setTitle("Custom Notification")
-                .setMessage("Enter the message to send to all waitlisted entrants:")
+                .setMessage("Enter the message to send to all cancelled entrants:")
                 .setView(input)
                 .setPositiveButton("Send", (dialog, which) -> {
                     String message = input.getText().toString().trim();
@@ -211,32 +211,39 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
     }
 
     private void sendNotificationToEntrants(String message) {
-
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Validate eventId
-        if (eventName == null || eventName.isEmpty()) {
-            Log.e("Firestore", "eventId is null or empty");
-            Toast.makeText(this, "Event ID is missing. Cannot send notification.", Toast.LENGTH_SHORT).show();
+        if (profileList.isEmpty()) {
+            Toast.makeText(this, "No cancelled entrants to notify.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Create notification data to save in Firestore
-        Map<String, Object> notificationData = new HashMap<>();
-        notificationData.put("message", message); // Custom message
-        notificationData.put("timestamp", FieldValue.serverTimestamp()); // Server timestamp
-        notificationData.put("eventName", eventName); // Tag to associate with the event
+        for (Profile profile : profileList) {
+            String deviceId = profile.getDeviceId(); // Get the deviceId for each profile
 
-        // Add the notification to the top-level notifications collection
-        db.collection("notifications")
-                .add(notificationData)
-                .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(this, "Notification saved successfully!", Toast.LENGTH_LONG).show();
-                    Log.d("Firestore", "Notification saved with ID: " + documentReference.getId());
-                })
-                .addOnFailureListener(e -> {
-                    Log.w("Firestore", "Error saving notification", e);
-                    Toast.makeText(this, "Failed to save notification", Toast.LENGTH_SHORT).show();
-                });
+            if (deviceId == null || deviceId.isEmpty()) {
+                Log.e("Firestore", "Device ID is null or empty for profile: " + profile.getName());
+                continue;
+            }
+
+            // Create notification data for each entrant
+            Map<String, Object> notificationData = new HashMap<>();
+            notificationData.put("message", message);
+            notificationData.put("timestamp", FieldValue.serverTimestamp());
+            notificationData.put("eventId", eventName);
+            notificationData.put("profileId", deviceId);
+
+            // Add the notification to the Firestore database
+            db.collection("notifications")
+                    .add(notificationData)
+                    .addOnSuccessListener(documentReference -> {
+                        Log.d("Firestore", "Notification sent to: " + profile.getName());
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.w("Firestore", "Failed to send notification to: " + profile.getName(), e);
+                    });
+        }
+
+        Toast.makeText(this, "Notifications sent to all cancelled entrants.", Toast.LENGTH_LONG).show();
     }
 }
