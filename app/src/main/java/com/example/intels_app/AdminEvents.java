@@ -61,7 +61,11 @@ public class AdminEvents extends AppCompatActivity {
         list_event = new ArrayList<>();
 
         // Inflate the custom adapter with the list of events
-        CustomAdapterManageEvents adapter = new CustomAdapterManageEvents(this, list_event);
+        CustomAdapterManageEvents adapter = new CustomAdapterManageEvents(this, list_event, position -> {
+            Intent intent = new Intent(AdminEvents.this, EventDetailsAdmin.class);
+            intent.putExtra("Event Name", list_event.get(position).getEventName());
+            startActivity(intent);
+        });
         events_gridview.setAdapter(adapter);
 
         // Get all events from FireStore "events" collection and add them to the list
