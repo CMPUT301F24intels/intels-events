@@ -76,7 +76,7 @@ package com.example.intels_app;
         return eventName;
     }
 
-    public void setEventId(String eventName) {
+    public void setEventName(String eventName) {
         this.eventName = eventName;
     }*/
 

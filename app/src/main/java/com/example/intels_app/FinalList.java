@@ -36,7 +36,6 @@ public class FinalList extends AppCompatActivity {
     private ImageButton back_button;
     private CheckBox sendNotifications;
     private String eventName;
-    private String eventId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +43,7 @@ public class FinalList extends AppCompatActivity {
         setContentView(R.layout.final_list);
 
         // Get the event ID from the intent
-        eventId = getIntent().getStringExtra("eventId");
+        eventName = getIntent().getStringExtra("eventName");
 
         eventName = getIntent().getStringExtra("eventName");
         Log.d("AcceptedEntrants", "Retrieved eventName: " + eventName);
@@ -57,7 +56,7 @@ public class FinalList extends AppCompatActivity {
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(view -> {
             /*Intent intent = new Intent(FinalList.this, EntrantInWaitlist.class);
-            intent.putExtra("eventId", eventId);
+            intent.putExtra("eventName", eventName);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);*/
             finish();
@@ -95,10 +94,10 @@ public class FinalList extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference notificationsRef = db.collection("notifications");
 
-        // Fetch notifications where the type is "accepted" and eventId matches eventName
+        // Fetch notifications where the type is "accepted" and eventName matches eventName
         notificationsRef
                 .whereEqualTo("type", "accepted")
-                .whereEqualTo("eventId", eventName)
+                .whereEqualTo("eventName", eventName)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

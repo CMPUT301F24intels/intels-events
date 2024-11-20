@@ -18,16 +18,16 @@ import androidx.appcompat.app.AppCompatActivity;
 public class DrawCompleteActivity extends AppCompatActivity {
 
     private Button entrantsSelectedButton;
-    private String eventId;
+    private String eventName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.draw_complete);
 
-        eventId = getIntent().getStringExtra("eventId");
+        eventName = getIntent().getStringExtra("eventName");
 
-        if (eventId == null || eventId.isEmpty()) {
+        if (eventName == null || eventName.isEmpty()) {
             finish();
             return;
         }
@@ -36,7 +36,7 @@ public class DrawCompleteActivity extends AppCompatActivity {
 
         entrantsSelectedButton.setOnClickListener(v -> {
             Intent intent = new Intent(DrawCompleteActivity.this, SelectedEntrantActivity.class);
-            intent.putExtra("eventId", eventId);
+            intent.putExtra("eventName", eventName);
             startActivity(intent);
         });
     }

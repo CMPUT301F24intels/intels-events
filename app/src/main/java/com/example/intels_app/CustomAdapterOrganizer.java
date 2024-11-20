@@ -90,7 +90,7 @@ public class CustomAdapterOrganizer extends BaseAdapter {
         });
         convertView.setOnClickListener(v -> {
             Intent intent = new Intent(context, EntrantInWaitlist.class);
-            intent.putExtra("eventId", data.get(position).getEventName());
+            intent.putExtra("eventName", data.get(position).getEventName());
             context.startActivity(intent);
         });
 

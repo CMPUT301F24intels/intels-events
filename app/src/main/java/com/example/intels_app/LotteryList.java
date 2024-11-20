@@ -38,7 +38,7 @@ public class LotteryList extends AppCompatActivity {
     private SelectedEntrantAdapter adapter;
     private List<Profile> selectedEntrants;
     private FirebaseFirestore db;
-    private String eventId;
+    private String eventName;
     private CheckBox sendNotifications;
 
     @Override
@@ -47,9 +47,9 @@ public class LotteryList extends AppCompatActivity {
         setContentView(R.layout.lottery_list);
 
         // Get the event ID from the intent
-        eventId = getIntent().getStringExtra("eventId");
+        eventName = getIntent().getStringExtra("eventName");
 
-        if (eventId == null) {
+        if (eventName == null) {
             Toast.makeText(this, "Event ID is missing.", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -73,7 +73,7 @@ public class LotteryList extends AppCompatActivity {
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(view -> {
             Intent intent = new Intent(LotteryList.this, EntrantInWaitlist.class);
-            intent.putExtra("eventId", eventId); // Pass the eventId back if needed
+            intent.putExtra("eventName", eventName); // Pass the eventName back if needed
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             finish();
@@ -109,7 +109,7 @@ public class LotteryList extends AppCompatActivity {
 
     private void loadSelectedEntrants() {
         db.collection("selected_entrants")
-                .whereEqualTo("eventId", eventId)
+                .whereEqualTo("eventName", eventName)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     selectedEntrants.clear();

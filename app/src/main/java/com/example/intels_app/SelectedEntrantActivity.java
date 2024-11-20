@@ -34,7 +34,7 @@ public class SelectedEntrantActivity extends AppCompatActivity {
     private SelectedEntrantAdapter adapter;
     private List<Profile> selectedEntrants;
     private FirebaseFirestore db;
-    private String eventId;
+    private String eventName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,9 +42,9 @@ public class SelectedEntrantActivity extends AppCompatActivity {
         setContentView(R.layout.activity_selected_entrants);
 
         // Get the event ID from the intent
-        eventId = getIntent().getStringExtra("eventId");
+        eventName = getIntent().getStringExtra("eventName");
 
-        if (eventId == null) {
+        if (eventName == null) {
             Toast.makeText(this, "Event ID is missing.", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -76,7 +76,7 @@ public class SelectedEntrantActivity extends AppCompatActivity {
 
     private void loadSelectedEntrants() {
         db.collection("selected_entrants")
-                .whereEqualTo("eventId", eventId)
+                .whereEqualTo("eventName", eventName)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     selectedEntrants.clear();
