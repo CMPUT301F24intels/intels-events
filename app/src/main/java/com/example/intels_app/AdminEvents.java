@@ -31,7 +31,7 @@ import java.util.List;
 public class AdminEvents extends AppCompatActivity {
     private Button profile_button;
     private Button events_button;
-    private List<Event> list_event;
+    private ArrayList<Event> list_event;
 
     /**
      * Displays a list of all events for the admin view.
@@ -57,10 +57,15 @@ public class AdminEvents extends AppCompatActivity {
 
         // Find the grid view and initialize a list of events
         GridView events_gridview = findViewById(R.id.events_gridview);
+
         list_event = new ArrayList<>();
 
         // Inflate the custom adapter with the list of events
-        CustomAdapterOrganizer adapter = new CustomAdapterOrganizer(this, list_event);
+        CustomAdapterManageEvents adapter = new CustomAdapterManageEvents(this, list_event, position -> {
+            Intent intent = new Intent(AdminEvents.this, EventDetailsAdmin.class);
+            intent.putExtra("Event Name", list_event.get(position).getEventName());
+            startActivity(intent);
+        });
         events_gridview.setAdapter(adapter);
 
         // Get all events from FireStore "events" collection and add them to the list

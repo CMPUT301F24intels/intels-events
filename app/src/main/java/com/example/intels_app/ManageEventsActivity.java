@@ -62,7 +62,11 @@ public class ManageEventsActivity extends AppCompatActivity {
         GridView gridview = findViewById(R.id.gridViewEvents);
         eventData = new ArrayList<>();
 
-        adapter = new CustomAdapterManageEvents(this, eventData);
+        adapter = new CustomAdapterManageEvents(this, eventData, position -> {
+            Intent intent = new Intent(ManageEventsActivity.this, EventDetailsOrganizer.class);
+            intent.putExtra("Event Name", eventData.get(position).getEventName());
+            startActivity(intent);
+        });
         gridview.setAdapter(adapter);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();

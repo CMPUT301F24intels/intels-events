@@ -161,16 +161,22 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                                             if (profileDoc.exists()) {
                                                 String name = profileDoc.getString("profile.name");
                                                 String imageUrl = profileDoc.getString("profile.imageUrl");
-                                                Profile profile = new Profile(name, imageUrl);
-                                                profileList.add(profile);
-                                                Log.d("CancelledEntrants", "Added profile: " + name);
-                                            }
 
-                                            // Update the adapter after adding profiles
-                                            adapter.updateData(new ArrayList<>(profileList));
-                                            adapter.notifyDataSetChanged();
+                                                // Create the profile with deviceId
+                                                Profile profile = new Profile(profileId, name, null, 0, imageUrl);
+                                                profileList.add(profile);
+                                                Log.d("CancelledEntrants", "Added profile: " + name + ", ID: " + profileId);
+
+                                                // Notify adapter
+                                                adapter.updateData(profileList);
+                                                adapter.notifyDataSetChanged();
+                                            } else {
+                                                Log.e("CancelledEntrants", "Profile document does not exist for ID: " + profileId);
+                                            }
                                         })
                                         .addOnFailureListener(e -> Log.w("Firestore", "Error fetching profile for ID: " + profileId, e));
+                            } else {
+                                Log.e("CancelledEntrants", "profileId is null or empty in notifications collection.");
                             }
                         }
                     } else {
@@ -179,8 +185,6 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                     }
                 });
     }
-
-
 
     private void showCustomNotificationDialog() {
         EditText input = new EditText(this);

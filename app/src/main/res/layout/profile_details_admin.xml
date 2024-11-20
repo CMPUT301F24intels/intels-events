@@ -45,6 +45,7 @@
         android:textColorHint="@color/white"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/email" />
 
@@ -70,7 +71,7 @@
         android:id="@+id/name"
         android:layout_width="376dp"
         android:layout_height="45dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="30dp"
         android:background="@drawable/rounded_button"
         android:fontFamily="sans-serif-condensed"
         android:hint="Name"
@@ -82,18 +83,30 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.542"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_pic" />
+        app:layout_constraintTop_toBottomOf="@+id/remove_pfp_button" />
 
     <ImageView
         android:id="@+id/profile_pic"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:layout_marginTop="52dp"
+        android:layout_marginTop="36dp"
         android:scaleType="centerCrop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_details"
         tools:srcCompat="@tools:sample/avatars" />
+
+    <Button
+        android:id="@+id/remove_pfp_button"
+        android:layout_width="162dp"
+        android:layout_height="43dp"
+        android:layout_marginTop="17dp"
+        android:backgroundTint="#90FF3535"
+        android:text="Remove Picture"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile_pic" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

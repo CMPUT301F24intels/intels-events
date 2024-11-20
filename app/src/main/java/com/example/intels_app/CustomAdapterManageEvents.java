@@ -32,16 +32,23 @@ import java.util.ArrayList;
 public class CustomAdapterManageEvents extends BaseAdapter {
     private Context context;
     private ArrayList<Event> data;
+    private OnEventClickListener listener;
     Event event;
+
+    // Define the interface inside the adapter
+    public interface OnEventClickListener {
+        void onEventClick(int position);
+    }
 
     /**
      * Takes a list of events
      * @param context Context of the activity
      * @param data List of events
      */
-    public CustomAdapterManageEvents(Context context, ArrayList<Event> data) {
+    public CustomAdapterManageEvents(Context context, ArrayList<Event> data, OnEventClickListener listener) {
         this.context = context;
         this.data = data;
+        this.listener = listener;
     }
 
     /**
@@ -141,11 +148,10 @@ public class CustomAdapterManageEvents extends BaseAdapter {
                     }).addOnFailureListener(e -> Log.w(TAG, "Failed to fetch event details for deletion", e));
         });
 
-        // Set up click listener to navigate to EventDetailsOrganizer
         convertView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, EventDetailsOrganizer.class);
-            intent.putExtra("Event Name", data.get(position).getEventName()); // Pass the event ID or name
-            context.startActivity(intent);
+            if (listener != null) {
+                listener.onEventClick(position);
+            }
         });
 
         return convertView;
