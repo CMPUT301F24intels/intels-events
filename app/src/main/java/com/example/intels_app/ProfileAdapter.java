@@ -24,9 +24,9 @@ import java.util.List;
  * @see Profile profile object
  */
 public class ProfileAdapter extends BaseAdapter implements Filterable {
-    private Context context;
-    private List<Profile> originalProfiles;
-    private List<Profile> filteredProfiles;
+    public Context context;
+    public List<Profile> originalProfiles;
+    public List<Profile> filteredProfiles;
     private Filter ProfileFilter;
 
     public ProfileAdapter(Context context, List<Profile> profileList) {
