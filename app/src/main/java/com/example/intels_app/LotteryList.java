@@ -29,9 +29,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldPath;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -198,8 +200,66 @@ public class LotteryList extends AppCompatActivity {
      * @param message Notification message to be sent.
      */
     private void sendNotificationToEntrants(String message) {
-        Toast.makeText(this, "Notification sent: " + message, Toast.LENGTH_LONG).show();
-        // This is where you could add code to send notifications to each profile in selectedEntrants if needed.
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Validate the message
+        if (message == null || message.isEmpty()) {
+            Toast.makeText(this, "Message cannot be empty.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (selectedEntrants.isEmpty()) {
+            Toast.makeText(this, "No selected entrants found.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        for (Profile entrant : selectedEntrants) {
+            String profileId = entrant.getName();
+
+            if (profileId == null || profileId.isEmpty()) {
+                Log.w("Notification", "Profile ID missing for entrant.");
+                continue;
+            }
+
+            // Fetch deviceId from waitlisted_entrants collection
+            db.collection("waitlisted_entrants")
+                    .document(profileId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String deviceId = documentSnapshot.getString("deviceId");
+                            if (deviceId != null && !deviceId.isEmpty()) {
+                                sendNotificationToProfile(deviceId, profileId, message);
+                            } else {
+                                Log.w("Notification", "Device ID is missing for profile: " + profileId);
+                            }
+                        } else {
+                            Log.w("Notification", "No document found for profileId: " + profileId);
+                        }
+                    })
+                    .addOnFailureListener(e -> Log.e("Notification", "Error fetching deviceId for profileId: " + profileId, e));
+        }
+
+        Toast.makeText(this, "Notifications are being sent to selected entrants.", Toast.LENGTH_SHORT).show();
     }
+
+    private void sendNotificationToProfile(String deviceId, String profileId, String message) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Create notification data
+        Map<String, Object> notificationData = new HashMap<>();
+        notificationData.put("deviceId", deviceId);
+        notificationData.put("profileId", profileId);
+        notificationData.put("eventName", eventName);
+        notificationData.put("message", message);
+        notificationData.put("timestamp", FieldValue.serverTimestamp());
+
+        // Add the notification to the Firestore collection
+        db.collection("notifications")
+                .add(notificationData)
+                .addOnSuccessListener(documentReference -> Log.d("Notification", "Notification sent with ID: " + documentReference.getId()))
+                .addOnFailureListener(e -> Log.e("Notification", "Error sending notification", e));
+    }
+
 }
 
