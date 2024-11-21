@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,7 +35,7 @@ import com.google.firebase.storage.FirebaseStorage;
 public class ProfileDetailsAdmin extends AppCompatActivity {
     private Profile profile;
     private ImageView profile_pic;
-    private EditText name, email, phone_number;
+    private TextView name, email, phone_number;
     private ImageButton back_button;
     private Button delete_pfp_button;
     private FirebaseFirestore db;

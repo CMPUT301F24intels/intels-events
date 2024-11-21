@@ -57,6 +57,7 @@ package com.example.intels_app;
         this.imageUrl = imageUrl;
     }
 
+
     public Profile(String deviceId) {
         this.deviceId = deviceId;
     }
