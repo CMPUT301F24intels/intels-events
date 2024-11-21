@@ -9,6 +9,7 @@ import static android.content.ContentValues.TAG;
 
 import static androidx.core.content.ContextCompat.startActivity;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -132,8 +133,18 @@ public class CustomAdapterManageEvents extends BaseAdapter {
             // Set up delete button functionality for Event
             ImageButton deleteButton = convertView.findViewById(R.id.deleteButton);
             deleteButton.setOnClickListener(v -> {
-                // Delete event-related operations
-                deleteEvent(position);
+                new AlertDialog.Builder(context)
+                        .setTitle("Confirm Deletion")
+                        .setMessage("Are you sure you want to delete this event?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            // Delete event-related operations
+                            deleteEvent(position);
+                        })
+                        .setNegativeButton("No", (dialog, which) -> {
+                            // Dismiss the dialog if the user cancels
+                            dialog.dismiss();
+                        })
+                        .show();
             });
 
             // Set click listener for the event item
@@ -152,8 +163,18 @@ public class CustomAdapterManageEvents extends BaseAdapter {
             // Set up delete button functionality for Facility
             ImageButton deleteButton = convertView.findViewById(R.id.deleteButton);
             deleteButton.setOnClickListener(v -> {
-                // Delete facility-related operations
-                deleteFacility(position);
+                new AlertDialog.Builder(context)
+                        .setTitle("Confirm Deletion")
+                        .setMessage("Are you sure you want to delete this facility?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            // Delete event-related operations
+                            deleteFacility(position);
+                        })
+                        .setNegativeButton("No", (dialog, which) -> {
+                            // Dismiss the dialog if the user cancels
+                            dialog.dismiss();
+                        })
+                        .show();
             });
 
             convertView.setOnClickListener(v -> {
