@@ -7,6 +7,8 @@ package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -31,9 +33,12 @@ import java.util.ArrayList;
 
 public class CustomAdapterManageEvents extends BaseAdapter {
     private Context context;
-    private ArrayList<Event> data;
+    private ArrayList<Event> eventData;
+    private ArrayList<Facility> facilityData;
     private OnEventClickListener listener;
+    private boolean isEventAdapter; // To differentiate between Event and Facility types
     Event event;
+    Facility facility;
 
     // Define the interface inside the adapter
     public interface OnEventClickListener {
@@ -42,36 +47,57 @@ public class CustomAdapterManageEvents extends BaseAdapter {
 
     /**
      * Takes a list of events
+     *
      * @param context Context of the activity
-     * @param data List of events
+     * @param data    List of events
      */
     public CustomAdapterManageEvents(Context context, ArrayList<Event> data, OnEventClickListener listener) {
         this.context = context;
-        this.data = data;
+        this.eventData = data;
         this.listener = listener;
+        this.isEventAdapter = true;
+    }
+
+    public CustomAdapterManageEvents(Context context, ArrayList<Facility> data) {
+        this.context = context;
+        this.facilityData = data;
+        this.isEventAdapter = false;
     }
 
     /**
      * Returns the number of items in the list
+     *
      * @return The number of items in the event list
      */
     @Override
     public int getCount() {
-        return data.size();
+        if (isEventAdapter && eventData != null) {
+            return eventData.size();
+        } else if (!isEventAdapter && facilityData != null) {
+            return facilityData.size();
+        }
+        return 0;
     }
 
     /**
      * Returns the item at the given position
+     *
      * @param position The position of the item in the list
      * @return The item at the given position
      */
     @Override
     public Object getItem(int position) {
-        return data.get(position);
+        if (isEventAdapter && eventData != null) {
+            return eventData.get(position);
+        } else if (!isEventAdapter && facilityData != null) {
+            return facilityData.get(position);
+        }
+        return null;
     }
 
     /**
      * Returns the id of the item at the given position
+     *
      * @param position The position of the item in the list
      * @return The id of the item at the given position
      */
@@ -82,9 +108,10 @@ public class CustomAdapterManageEvents extends BaseAdapter {
 
     /**
      * Inflates the event data into gridview
-     * @param position The position of the item in the list
+     *
+     * @param position    The position of the item in the list
      * @param convertView The view to be inflated
-     * @param parent The parent view
+     * @param parent      The parent view
      * @return The inflated view
      */
     @Override
@@ -95,66 +122,117 @@ public class CustomAdapterManageEvents extends BaseAdapter {
             convertView = LayoutInflater.from(context).inflate(R.layout.grid_item_manage_event, parent, false);
         }
 
-        // Set the text for each item
-        TextView eventText = convertView.findViewById(R.id.event_text);
-        eventText.setText(data.get(position).getEventName()); // Populate each item’s text
+        // Populate the view based on the data type
+        if (isEventAdapter && eventData != null) {
 
-        // Set up delete button functionality
-        ImageButton deleteButton = convertView.findViewById(R.id.deleteButton);
-        deleteButton.setOnClickListener(v -> {
-            FirebaseFirestore.getInstance().collection("events")
-                    .document(data.get(position).getEventName())
-                    .get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            event = documentSnapshot.toObject(Event.class);
+            // Handling Event type
+            TextView eventText = convertView.findViewById(R.id.event_text);
+            eventText.setText(eventData.get(position).getEventName());
 
-                            // Ensure that event is not null before proceeding
-                            if (event != null) {
-                                // Delete poster from storage
-                                FirebaseStorage.getInstance().getReferenceFromUrl(event.getPosterUrl()).delete()
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void unused) {
-                                                Log.d(TAG, "Poster successfully deleted.");
-                                            }
-                                        }).addOnFailureListener(e -> Log.w(TAG, "Failed to delete poster.", e));
+            // Set up delete button functionality for Event
+            ImageButton deleteButton = convertView.findViewById(R.id.deleteButton);
+            deleteButton.setOnClickListener(v -> {
+                // Delete event-related operations
+                deleteEvent(position);
+            });
 
-                                // Delete QR from storage
-                                FirebaseStorage.getInstance().getReferenceFromUrl(event.getQrCodeUrl()).delete()
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void unused) {
-                                                Log.d(TAG, "QR successfully deleted.");
-                                            }
-                                        }).addOnFailureListener(e -> Log.w(TAG, "Failed to delete QR code.", e));
+            // Set click listener for the event item
+            convertView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onEventClick(position);
+                }
+            });
 
-                                // Delete the event from Firestore
-                                FirebaseFirestore.getInstance().collection("events")
-                                        .document(data.get(position).getEventName())
-                                        .delete()
-                                        .addOnSuccessListener(unused -> {
-                                            Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                                            Toast.makeText(context, "Event deleted", Toast.LENGTH_SHORT).show();
-                                            data.remove(position);
-                                            notifyDataSetChanged();
-                                        }).addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
-                            } else {
-                                Log.w(TAG, "Event data is null, cannot delete.");
-                                Toast.makeText(context, "Failed to retrieve event data", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }).addOnFailureListener(e -> Log.w(TAG, "Failed to fetch event details for deletion", e));
-        });
+        } else if (!isEventAdapter && facilityData != null) {
 
-        convertView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onEventClick(position);
-            }
-        });
+            // Set the text for each item
+            TextView facilityText = convertView.findViewById(R.id.event_text);
+            facilityText.setText(facilityData.get(position).getFacilityName()); // Populate each item’s text
+
+            // Set up delete button functionality for Facility
+            ImageButton deleteButton = convertView.findViewById(R.id.deleteButton);
+            deleteButton.setOnClickListener(v -> {
+                // Delete facility-related operations
+                deleteFacility(position);
+            });
+
+            convertView.setOnClickListener(v -> {
+                Intent intent = new Intent(context, FacilityDetailsAdmin.class);
+                intent.putExtra("Facility Name", facilityData.get(position).getFacilityName());
+                context.startActivity(intent);
+            });
+        }
 
         return convertView;
     }
 
+    // Method to delete event data from Firestore and Storage
+    private void deleteEvent(int position) {
+        FirebaseFirestore.getInstance().collection("events")
+                .document(eventData.get(position).getEventName())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    event = documentSnapshot.toObject(Event.class);
+
+                    if (event != null) {
+                        // Delete poster and QR code from Firebase Storage
+                        FirebaseStorage.getInstance().getReferenceFromUrl(event.getPosterUrl()).delete()
+                                .addOnSuccessListener(unused -> Log.d(TAG, "Poster successfully deleted."))
+                                .addOnFailureListener(e -> Log.w(TAG, "Failed to delete poster.", e));
+
+                        FirebaseStorage.getInstance().getReferenceFromUrl(event.getQrCodeUrl()).delete()
+                                .addOnSuccessListener(unused -> Log.d(TAG, "QR successfully deleted."))
+                                .addOnFailureListener(e -> Log.w(TAG, "Failed to delete QR code.", e));
+
+                        // Delete event from Firestore
+                        FirebaseFirestore.getInstance().collection("events")
+                                .document(eventData.get(position).getEventName())
+                                .delete()
+                                .addOnSuccessListener(unused -> {
+                                    Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                    Toast.makeText(context, "Event deleted", Toast.LENGTH_SHORT).show();
+                                    eventData.remove(position);
+                                    notifyDataSetChanged();
+                                })
+                                .addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
+                    } else {
+                        Log.w(TAG, "Event data is null, cannot delete.");
+                        Toast.makeText(context, "Failed to retrieve event data", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> Log.w(TAG, "Failed to fetch event details for deletion", e));
+    }
+
+    // Method to delete facility data from FireStore and Storage
+    private void deleteFacility(int position) {
+        FirebaseFirestore.getInstance().collection("facilities")
+                .document(facilityData.get(position).getFacilityName())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    facility = documentSnapshot.toObject(Facility.class);
+
+                    if (facility != null) {
+                        // Delete facility image from Firebase Storage
+                        FirebaseStorage.getInstance().getReferenceFromUrl(facility.getFacilityImageUrl()).delete()
+                                .addOnSuccessListener(unused -> Log.d(TAG, "Image successfully deleted."))
+                                .addOnFailureListener(e -> Log.w(TAG, "Failed to delete image.", e));
+
+                        // Delete facility from Firestore
+                        FirebaseFirestore.getInstance().collection("facilities")
+                                .document(facilityData.get(position).getFacilityName())
+                                .delete()
+                                .addOnSuccessListener(unused -> {
+                                    Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                    Toast.makeText(context, "Facility deleted", Toast.LENGTH_SHORT).show();
+                                    facilityData.remove(position);
+                                    notifyDataSetChanged();
+                                })
+                                .addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
+                    } else {
+                        Log.w(TAG, "Facility data is null, cannot delete.");
+                        Toast.makeText(context, "Failed to retrieve facility data", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> Log.w(TAG, "Failed to fetch facility details for deletion", e));
+    }
 }
