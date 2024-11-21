@@ -2,6 +2,7 @@ package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -83,26 +84,36 @@ public class FacilityDetailsAdmin extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                // Remove image from Storage
-                FirebaseStorage.getInstance().getReferenceFromUrl(facility.getFacilityImageUrl()).delete()
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void unused) {
+                new AlertDialog.Builder(FacilityDetailsAdmin.this)
+                        .setTitle("Confirm Deletion")
+                        .setMessage("Are you sure you want to delete this image?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            // Remove image from Storage
+                            FirebaseStorage.getInstance().getReferenceFromUrl(facility.getFacilityImageUrl()).delete()
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
 
-                                // Remove image URL from FireStore
-                                FirebaseFirestore.getInstance().collection("facilities").document(facilityName)
-                                        .update("facilityImageUrl", null)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void unused) {
-                                                Log.d(TAG, "Image URL removed successfully");
-                                                facilityImage.setImageResource(R.drawable.pfp_placeholder_image);
-                                                removeImageButton.setVisibility(View.INVISIBLE);
-                                            }
-                                        });
+                                            // Remove image URL from FireStore
+                                            FirebaseFirestore.getInstance().collection("facilities").document(facilityName)
+                                                    .update("facilityImageUrl", null)
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void unused) {
+                                                            Log.d(TAG, "Image URL removed successfully");
+                                                            facilityImage.setImageResource(R.drawable.pfp_placeholder_image);
+                                                            removeImageButton.setVisibility(View.INVISIBLE);
+                                                        }
+                                                    });
 
-                            }
-                        });
+                                        }
+                                    });
+                        })
+                        .setNegativeButton("No", (dialog, which) -> {
+                            // Dismiss the dialog if the user cancels
+                            dialog.dismiss();
+                        })
+                        .show();
             }
         });
     }

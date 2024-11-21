@@ -14,6 +14,7 @@ package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -68,24 +69,35 @@ public class CustomAdapterOrganizer extends BaseAdapter {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Remove item from Firestore, data list, and notify adapter
-                FirebaseFirestore.getInstance().collection("events").document(currentEvent.getEventName())
-                        .delete()
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void unused) {
-                                Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Error deleting document", e);
-                            }
-                        });
+                new AlertDialog.Builder(context)
+                        .setTitle("Confirm Deletion")
+                        .setMessage("Are you sure you want to delete this event?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            // Delete event-related operations
+                            // Remove item from Firestore, data list, and notify adapter
+                            FirebaseFirestore.getInstance().collection("events").document(currentEvent.getEventName())
+                                    .delete()
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(TAG, "Error deleting document", e);
+                                        }
+                                    });
 
-                data.remove(position);
-                notifyDataSetChanged();
-                Toast.makeText(context, "Event deleted", Toast.LENGTH_SHORT).show();
+                            data.remove(position);
+                            notifyDataSetChanged();
+                            Toast.makeText(context, "Event deleted", Toast.LENGTH_SHORT).show();
+                        })
+                        .setNegativeButton("No", (dialog, which) -> {
+                            // Dismiss the dialog if the user cancels
+                            dialog.dismiss();
+                        })
+                        .show();
             }
         });
         convertView.setOnClickListener(v -> {

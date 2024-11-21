@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import static com.example.intels_app.CreateQR.bitmapToByteArray;
 import static com.example.intels_app.CreateQR.hashImage;
 
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -114,7 +115,6 @@ public class EditEventActivity extends AppCompatActivity {
         replacePosterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 // Open gallery and glide image into view
                 Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setType("image/*");
