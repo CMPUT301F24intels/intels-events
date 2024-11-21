@@ -96,9 +96,15 @@ public class SelectRoleActivity extends AppCompatActivity {
             return;
         }
 
+        Map<String, Object> guestProfile = new HashMap<>();
+        guestProfile.put("name", "Guest_" + eventName);
+        guestProfile.put("deviceId", deviceId);
+
+        // Prepare the waitlist entry with embedded profile
         Map<String, Object> waitlistEntry = new HashMap<>();
         waitlistEntry.put("deviceId", deviceId);
         waitlistEntry.put("eventName", eventName);
+        waitlistEntry.put("profile", guestProfile);
 
         // Profile guestProfile = new Profile(deviceId);
 

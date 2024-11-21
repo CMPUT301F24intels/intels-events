@@ -28,10 +28,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LotteryList extends AppCompatActivity {
     private RecyclerView recyclerView;
@@ -113,35 +115,50 @@ public class LotteryList extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     selectedEntrants.clear();
-                    List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
+                    List<String> profileIds = new ArrayList<>();
 
+                    // Step 1: Extract all profileIds from selected_entrants
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         String profileId = doc.getString("profileId");
-
-                        // Retrieve profile data based on profileId
-                        Task<DocumentSnapshot> task = db.collection("profiles").document(profileId).get()
-                                .addOnSuccessListener(profileDoc -> {
-                                    if (profileDoc.exists()) {
-                                        Profile profile = profileDoc.toObject(Profile.class);
-                                        if (profile != null) {
-                                            selectedEntrants.add(profile);
-                                        }
-                                    } else {
-                                        Log.w("LotteryList", "Profile not found for ID: " + profileId);
-                                    }
-                                })
-                                .addOnFailureListener(e -> Log.w("LotteryList", "Error loading profile for ID: " + profileId, e));
-
-                        tasks.add(task);
+                        if (profileId != null) {
+                            profileIds.add(profileId);
+                        }
                     }
 
-                    // Wait for all tasks to complete, then update the adapter
-                    Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
+                    if (profileIds.isEmpty()) {
+                        Toast.makeText(this, "No entrants selected for this event.", Toast.LENGTH_SHORT).show();
                         adapter.notifyDataSetChanged();
-                        if (!task.isSuccessful()) {
-                            Log.e("LotteryList", "One or more profile load operations failed.");
-                        }
-                    });
+                        return;
+                    }
+
+                    // Step 2: Query waitlisted_entrants for all profileIds
+                    db.collection("waitlisted_entrants")
+                            .whereIn(FieldPath.documentId(), profileIds)
+                            .get()
+                            .addOnSuccessListener(waitlistedDocs -> {
+                                for (DocumentSnapshot doc : waitlistedDocs) {
+                                    // Extract profile details from waitlisted_entrants
+                                    Map<String, Object> profileData = (Map<String, Object>) doc.get("profile");
+
+                                    if (profileData != null) {
+                                        String name = (String) profileData.get("name");
+                                        String status = (String) profileData.get("status"); // e.g., "accepted" or "pending"
+
+                                        // Create a Profile object or similar representation
+                                        Profile profile = new Profile(name, status);
+                                        selectedEntrants.add(profile);
+                                    } else {
+                                        Log.w("LotteryList", "Profile missing in waitlisted_entrants for ID: " + doc.getId());
+                                    }
+                                }
+
+                                // Notify the adapter after loading all profiles
+                                adapter.notifyDataSetChanged();
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.w("LotteryList", "Error fetching profile details from waitlisted_entrants", e);
+                                Toast.makeText(this, "Failed to load entrant details.", Toast.LENGTH_SHORT).show();
+                            });
                 })
                 .addOnFailureListener(e -> {
                     Log.w("LotteryList", "Error fetching selected entrants", e);
