@@ -11,13 +11,13 @@
         android:id="@+id/back_button"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
         android:background="?attr/selectableItemBackground"
         android:contentDescription="Back"
         android:src="@drawable/ic_arrow_back"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp" />
 
     <Button
         android:id="@+id/btn_waitlist"
@@ -63,17 +63,14 @@
 
     <ListView
         android:id="@+id/profile_list"
-        android:layout_width="418dp"
-        android:layout_height="774dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
         android:divider="@android:color/darker_gray"
         android:dividerHeight="1dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_row_layout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_bar" />
+        app:layout_constraintTop_toBottomOf="@id/search_bar"
+        app:layout_constraintBottom_toTopOf="@id/bottom_row_layout"
+        android:layout_marginTop="8dp"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottom_row_layout"
