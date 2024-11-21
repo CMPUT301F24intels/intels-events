@@ -8,6 +8,7 @@
 
 package com.example.intels_app;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -96,26 +97,36 @@ public class EventDetailsAdmin extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                // Remove image from storage
-                FirebaseStorage.getInstance().getReferenceFromUrl(event.getQrCodeUrl()).delete()
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void unused) {
+                new AlertDialog.Builder(EventDetailsAdmin.this)
+                        .setTitle("Confirm Deletion")
+                        .setMessage("Are you sure you want to delete this QR code?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            // Remove image from storage
+                            FirebaseStorage.getInstance().getReferenceFromUrl(event.getQrCodeUrl()).delete()
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
 
-                                // Remove QR Code URL from event details
-                                FirebaseFirestore.getInstance().collection("events").document(eventName)
-                                        .update("qrCodeUrl", null)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void unused) {
-                                                Log.d(TAG, "QR code URL removed successfully");
-                                                qrImageView.setImageResource(R.drawable.pfp_placeholder_image);
-                                                deleteQRButton.setVisibility(View.INVISIBLE);
+                                            // Remove QR Code URL from event details
+                                            FirebaseFirestore.getInstance().collection("events").document(eventName)
+                                                    .update("qrCodeUrl", null)
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void unused) {
+                                                            Log.d(TAG, "QR code URL removed successfully");
+                                                            qrImageView.setImageResource(R.drawable.pfp_placeholder_image);
+                                                            deleteQRButton.setVisibility(View.INVISIBLE);
 
-                                            }
-                                        });
-                            }
-                        });
+                                                        }
+                                                    });
+                                        }
+                                    });
+                        })
+                        .setNegativeButton("No", (dialog, which) -> {
+                            dialog.dismiss();
+                        })
+                        .show();
+
             }
         });
 
@@ -124,25 +135,34 @@ public class EventDetailsAdmin extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                // Remove image from storage
-                FirebaseStorage.getInstance().getReferenceFromUrl(event.getPosterUrl()).delete()
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void unused) {
+                new AlertDialog.Builder(EventDetailsAdmin.this)
+                        .setTitle("Confirm Deletion")
+                        .setMessage("Are you sure you want to delete this poster?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            // Remove image from storage
+                            FirebaseStorage.getInstance().getReferenceFromUrl(event.getPosterUrl()).delete()
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
 
-                                // Remove poster URL from event details
-                                FirebaseFirestore.getInstance().collection("events").document(eventName)
-                                        .update("posterUrl", null)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void unused) {
-                                                Log.d(TAG, "Poster URL removed successfully");
-                                                posterImageView.setImageResource(R.drawable.pfp_placeholder_image);
-                                                deletePosterButton.setVisibility(View.INVISIBLE);
-                                            }
-                                        });
-                            }
-                        });
+                                            // Remove poster URL from event details
+                                            FirebaseFirestore.getInstance().collection("events").document(eventName)
+                                                    .update("posterUrl", null)
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void unused) {
+                                                            Log.d(TAG, "Poster URL removed successfully");
+                                                            posterImageView.setImageResource(R.drawable.pfp_placeholder_image);
+                                                            deletePosterButton.setVisibility(View.INVISIBLE);
+                                                        }
+                                                    });
+                                        }
+                                    });
+                        })
+                        .setNegativeButton("No", (dialog, which) -> {
+                            dialog.dismiss();
+                        })
+                        .show();
             }
         });
     }
