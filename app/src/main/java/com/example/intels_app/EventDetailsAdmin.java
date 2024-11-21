@@ -110,6 +110,7 @@ public class EventDetailsAdmin extends AppCompatActivity {
                                             public void onSuccess(Void unused) {
                                                 Log.d(TAG, "QR code URL removed successfully");
                                                 qrImageView.setImageResource(R.drawable.pfp_placeholder_image);
+                                                deleteQRButton.setVisibility(View.INVISIBLE);
 
                                             }
                                         });
@@ -137,6 +138,7 @@ public class EventDetailsAdmin extends AppCompatActivity {
                                             public void onSuccess(Void unused) {
                                                 Log.d(TAG, "Poster URL removed successfully");
                                                 posterImageView.setImageResource(R.drawable.pfp_placeholder_image);
+                                                deletePosterButton.setVisibility(View.INVISIBLE);
                                             }
                                         });
                             }
@@ -167,6 +169,7 @@ public class EventDetailsAdmin extends AppCompatActivity {
             } else {
                 Log.w(TAG, "No poster URL found in the document");
                 posterImageView.setImageResource(R.drawable.person_image);
+                deletePosterButton.setVisibility(View.INVISIBLE);
             }
 
             // Load qr code image using Glide
@@ -179,6 +182,7 @@ public class EventDetailsAdmin extends AppCompatActivity {
             } else {
                 Log.w(TAG, "No poster URL found in the document");
                 qrImageView.setImageResource(R.drawable.pfp_placeholder_image);
+                deleteQRButton.setVisibility(View.INVISIBLE);
             }
         }
     }

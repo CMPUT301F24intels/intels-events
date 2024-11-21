@@ -88,6 +88,7 @@ public class ProfileDetailsAdmin extends AppCompatActivity {
                                             public void onSuccess(Void unused) {
                                                 Log.d(TAG, "Profile picture URL removed successfully");
                                                 profile_pic.setImageResource(R.drawable.person_image);
+                                                delete_pfp_button.setVisibility(View.INVISIBLE);
                                             }
                                         });
 
@@ -126,6 +127,7 @@ public class ProfileDetailsAdmin extends AppCompatActivity {
                     } else {
                         Log.w(TAG, "No poster URL found in the document");
                         profile_pic.setImageResource(R.drawable.person_image);
+                        delete_pfp_button.setVisibility(View.INVISIBLE);
                     }
                 }
             } else {

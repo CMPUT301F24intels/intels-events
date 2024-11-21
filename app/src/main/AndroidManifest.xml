@@ -62,6 +62,8 @@
         <activity android:name=".ProfileDetailsAdmin"/>
         <activity android:name=".EditEventActivity"/>
         <activity android:name=".EventDetailsAdmin"/>
+        <activity android:name=".AdminFacilities" />
+        <activity android:name=".FacilityDetailsAdmin" />
 
         <activity
             android:name=".NotificationActivity"

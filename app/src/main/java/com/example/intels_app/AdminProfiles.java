@@ -37,6 +37,7 @@ public class AdminProfiles extends AppCompatActivity {
     private ImageButton back_button;
     private Button profile_button;
     private Button events_button;
+    private Button facilities_button;
     private List<Profile> profileList;
     private Profile profile;
     private ImageButton imageButton22;
@@ -62,6 +63,7 @@ public class AdminProfiles extends AppCompatActivity {
         ProfileAdapterAdmin adapter = new ProfileAdapterAdmin(this, profileList);
         profile_list.setAdapter(adapter);
 
+        /*
         // Initialize the imageButton22
         imageButton22 = findViewById(R.id.imageButton22);
 
@@ -71,7 +73,7 @@ public class AdminProfiles extends AppCompatActivity {
             public void onClick(View v) {
                 showPopupMenu(v);
             }
-        });
+        });*/
 
         // Retrieve all profile data from FireStore and assign it to profile arraylist
         FirebaseFirestore.getInstance().collection("profiles").get()
@@ -92,10 +94,12 @@ public class AdminProfiles extends AppCompatActivity {
         // Initialize buttons
         profile_button = findViewById(R.id.profile_button);
         events_button = findViewById(R.id.events_button);
+        facilities_button = findViewById(R.id.facilities_button);
 
         // Set button colors
         profile_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
         events_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
+        facilities_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
 
         // If event button clicked, switch to events page that shows all events to admin
         events_button.setOnClickListener(new View.OnClickListener() {
@@ -105,9 +109,26 @@ public class AdminProfiles extends AppCompatActivity {
                 // Change button colour to mimic switching of tabs
                 events_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
                 profile_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
+                facilities_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
 
                 Intent intent = new Intent(AdminProfiles.this, AdminEvents.class);
                 startActivity(intent);
+            }
+        });
+
+        // If facilities button clicked, switch to facilities page
+        facilities_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                // Change button colour to mimic switching of tabs
+                events_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
+                profile_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
+                facilities_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
+
+                Intent intent = new Intent(AdminProfiles.this, AdminFacilities.class);
+                startActivity(intent);
+
             }
         });
 
