@@ -18,6 +18,7 @@ import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +38,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.installations.FirebaseInstallations;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,6 +63,22 @@ public class NotificationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notification);
 
+        db = FirebaseFirestore.getInstance();
+
+        FirebaseInstallations.getInstance().getId()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        String deviceId = task.getResult();
+                        Log.d("NotificationActivity", "Device ID: " + deviceId);
+
+                        // Load notifications specific to this device
+                        loadNotificationsFromFirestore(deviceId);
+                    } else {
+                        Log.e("NotificationActivity", "Unable to get device ID", task.getException());
+                        Toast.makeText(this, "Failed to retrieve device ID", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
         createNotificationChannel();
 
         backButton = findViewById(R.id.back_button);
@@ -77,13 +95,14 @@ public class NotificationActivity extends AppCompatActivity {
         // Clear all notifications when 'Clear All' is clicked
         clearAllButton.setOnClickListener(view -> clearAllNotifications());
 
-        // Load notifications from Firestore
-        loadNotificationsFromFirestore();
+
     }
 
-    private void loadNotificationsFromFirestore() {
+    private void loadNotificationsFromFirestore(String deviceId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference notificationsRef = db.collection("notifications");
-        notificationsRef.get().addOnCompleteListener(task -> {
+
+        notificationsRef.whereEqualTo("deviceId", deviceId).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 QuerySnapshot querySnapshot = task.getResult();
                 if (querySnapshot != null && !querySnapshot.isEmpty()) {
