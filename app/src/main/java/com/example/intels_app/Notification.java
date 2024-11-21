@@ -9,6 +9,7 @@ package com.example.intels_app;
 public class Notification {
     private String title;
     private String message;
+    private String deviceId;
 
     public Notification() {
         // Default constructor required for calls to DataSnapshot.getValue(Notification.class)
@@ -17,6 +18,16 @@ public class Notification {
     public Notification(String title, String message) {
         this.title = title;
         this.message = message;
+    }
+
+    public Notification(String title, String message, String deviceId) {
+        this.title = title;
+        this.message = message;
+        this.deviceId = deviceId;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
     }
 
     public String getTitle() {
