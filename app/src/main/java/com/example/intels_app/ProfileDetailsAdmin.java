@@ -2,6 +2,7 @@ package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -74,26 +75,36 @@ public class ProfileDetailsAdmin extends AppCompatActivity {
         delete_pfp_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                new AlertDialog.Builder(ProfileDetailsAdmin.this)
+                    .setTitle("Confirm Deletion")
+                    .setMessage("Are you sure you want to delete this profile picture?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        // Remove image from storage
+                        FirebaseStorage.getInstance().getReferenceFromUrl(profile.getImageUrl()).delete()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
 
-                // Remove image from storage
-                FirebaseStorage.getInstance().getReferenceFromUrl(profile.getImageUrl()).delete()
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void unused) {
+                                        // Remove pfp URL from profile details
+                                        FirebaseFirestore.getInstance().collection("profiles").document(profileId)
+                                                .update("imageUrl", null)
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        Log.d(TAG, "Profile picture URL removed successfully");
+                                                        profile_pic.setImageResource(R.drawable.person_image);
+                                                        delete_pfp_button.setVisibility(View.INVISIBLE);
+                                                    }
+                                                });
 
-                                // Remove pfp URL from profile details
-                                FirebaseFirestore.getInstance().collection("profiles").document(profileId)
-                                        .update("imageUrl", null)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void unused) {
-                                                Log.d(TAG, "Profile picture URL removed successfully");
-                                                profile_pic.setImageResource(R.drawable.person_image);
-                                            }
-                                        });
-
-                            }
-                        });
+                                    }
+                                });
+                    })
+                    .setNegativeButton("No", (dialog, which) -> {
+                        // Dismiss the dialog if the user cancels
+                        dialog.dismiss();
+                    })
+                    .show();
             }
         });
 
@@ -127,6 +138,7 @@ public class ProfileDetailsAdmin extends AppCompatActivity {
                     } else {
                         Log.w(TAG, "No poster URL found in the document");
                         profile_pic.setImageResource(R.drawable.person_image);
+                        delete_pfp_button.setVisibility(View.INVISIBLE);
                     }
                 }
             } else {

@@ -20,27 +20,32 @@
 
     <Button
         android:id="@+id/btn_waitlist"
-        android:layout_width="120dp"
-        android:layout_height="60dp"
-        android:text="Entrants In Waitlist"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_marginStart="68dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginEnd="68dp"
         android:backgroundTint="@color/default_color"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/back_button"
+        android:text="Entrants In Waitlist"
+        android:fontFamily="@font/poppins_semibold"
+        android:textSize="15sp"
         app:layout_constraintEnd_toStartOf="@id/btn_cancelled"
-        app:layout_constraintHorizontal_bias="0.5"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/back_button" />
 
     <Button
         android:id="@+id/btn_cancelled"
-        android:layout_width="120dp"
-        android:layout_height="60dp"
-        android:text="Cancelled Entrants"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginEnd="8dp"
         android:backgroundTint="@color/default_color"
-        app:layout_constraintTop_toTopOf="parent"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Cancelled Entrants"
+        android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="25dp"
-        android:layout_marginTop="8dp" />
+        app:layout_constraintTop_toBottomOf="@+id/back_button" />
+
 
     <EditText
         android:id="@+id/search_bar"

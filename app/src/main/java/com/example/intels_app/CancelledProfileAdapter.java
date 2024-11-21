@@ -8,6 +8,7 @@
 
 package com.example.intels_app;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,30 +46,40 @@ public class CancelledProfileAdapter extends ProfileAdapter {
 
         // Set up delete button functionality
         deleteButton.setOnClickListener(v -> {
-            String deviceId = profile.getDeviceId(); // Retrieve deviceId
+            new AlertDialog.Builder(context)
+                    .setTitle("Confirm Deletion")
+                    .setMessage("Are you sure you want to delete this profile?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        String deviceId = profile.getDeviceId(); // Retrieve deviceId
 
-            if (deviceId == null || deviceId.isEmpty()) {
-                Toast.makeText(context, "Document ID is invalid or empty.", Toast.LENGTH_SHORT).show();
-                return;
-            }
+                        if (deviceId == null || deviceId.isEmpty()) {
+                            Toast.makeText(context, "Document ID is invalid or empty.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
-            // Remove locally
-            filteredProfiles.remove(position);
-            notifyDataSetChanged();
+                        // Remove locally
+                        filteredProfiles.remove(position);
+                        notifyDataSetChanged();
 
-            // Delete from Firestore
-            FirebaseFirestore.getInstance()
-                    .collection("waitlisted_entrants")
-                    .document(deviceId) // Use deviceId to reference the Firestore document
-                    .delete()
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(context, "Cancelled entrant deleted: " + profile.getName(), Toast.LENGTH_SHORT).show();
-                        Log.d("CancelledEntrants", "Successfully deleted profile with ID: " + deviceId);
+                        // Delete from Firestore
+                        FirebaseFirestore.getInstance()
+                                .collection("waitlisted_entrants")
+                                .document(deviceId) // Use deviceId to reference the Firestore document
+                                .delete()
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(context, "Cancelled entrant deleted: " + profile.getName(), Toast.LENGTH_SHORT).show();
+                                    Log.d("CancelledEntrants", "Successfully deleted profile with ID: " + deviceId);
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(context, "Failed to delete entrant from Firebase", Toast.LENGTH_SHORT).show();
+                                    Log.e("CancelledEntrants", "Error deleting profile with ID: " + deviceId, e);
+                                });
                     })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(context, "Failed to delete entrant from Firebase", Toast.LENGTH_SHORT).show();
-                        Log.e("CancelledEntrants", "Error deleting profile with ID: " + deviceId, e);
-                    });
+                    .setNegativeButton("No", (dialog, which) -> {
+                        // Dismiss the dialog if the user cancels
+                        dialog.dismiss();
+                    })
+                    .show();
         });
 
         return convertView;

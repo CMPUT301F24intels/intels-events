@@ -22,31 +22,31 @@
         android:id="@+id/eventDetailssTextview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="56dp"
         android:layout_marginTop="24dp"
         android:fontFamily="@font/poppins_semibold"
         android:text="Event Details"
         android:textColor="@color/white"
-        android:textSize="20sp"
+        android:textSize="25sp"
         app:layout_constraintStart_toEndOf="@id/back_button_1"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/qrCodeImage_2"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/eventDetailssTextview"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:scaleType="centerCrop"
-        tools:srcCompat="@tools:sample/avatars" />
+        tools:srcCompat="@drawable/pfp_placeholder_image" />
 
     <TextView
         android:id="@+id/eventNameEdit"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="11dp"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="Event Name"
@@ -54,9 +54,9 @@
         android:textColor="@color/white"
         android:textColorHint="#848A94"
         android:textSize="15sp"
-        app:layout_constraintTop_toBottomOf="@id/qrCodeImage_2"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/qrCodeImage_2" />
 
     <TextView
         android:id="@+id/facilityEdit"
@@ -142,7 +142,7 @@
         android:id="@+id/geolocationRequirementText"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/rounded_corner_rectangle_light_gray"
         android:fontFamily="@font/poppins_semibold"
         android:paddingStart="10dp"
@@ -151,21 +151,21 @@
         android:textAlignment="viewStart"
         android:textColor="#848A94"
         android:textSize="15sp"
-        app:layout_constraintTop_toBottomOf="@id/max_attendees"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/max_attendees" />
 
     <Button
         android:id="@+id/join_waitlist_button"
         android:layout_width="347dp"
         android:layout_height="51dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginBottom="15dp"
         android:backgroundTint="#17AF42"
         android:fontFamily="@font/poppins_semibold"
         android:text="Join Waitlist"
         android:textSize="15sp"
-        app:layout_constraintTop_toBottomOf="@id/geolocationRequirementText"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -200,23 +200,35 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
         for (DocumentSnapshot selectedProfile : selectedProfiles) {
             String profileId = selectedProfile.getId();
+            String deviceId = selectedProfile.getString("deviceId");
+            Log.d(TAG, "Selected Profile ID: " + profileId + ", Device ID: " + deviceId);
+
             String message = "Congratulations! You have been selected for the event!";
-            sendNotificationToProfile(profileId, eventName, message, "selected");
+            sendNotificationToProfile(deviceId, profileId, eventName, message, "selected");
         }
 
         for (DocumentSnapshot unselectedProfile : unselectedProfiles) {
             String profileId = unselectedProfile.getId();
+            String deviceId = unselectedProfile.getString("deviceId");
+            Log.d(TAG, "Unselected Profile ID: " + profileId + ", Device ID: " + deviceId);
+
             String message = "Sorry, you were not selected this time. Please stay tuned for more events.";
-            sendNotificationToProfile(profileId, eventName, message, "not_selected");
+            sendNotificationToProfile(deviceId, profileId, eventName, message, "not_selected");
         }
 
         Toast.makeText(this, "Lottery draw complete. Notifications sent.", Toast.LENGTH_SHORT).show();
     }
 
-    private void sendNotificationToProfile(String profileId, String eventName, String message, String type) {
+    private void sendNotificationToProfile(String deviceId, String profileId, String eventName, String message, String type) {
+        if (deviceId == null || deviceId.isEmpty()) {
+            Log.w(TAG, "Device ID is missing for profile: " + profileId);
+            return;
+        }
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         Map<String, Object> notificationData = new HashMap<>();
+        notificationData.put("deviceId", deviceId);
         notificationData.put("profileId", profileId);
         notificationData.put("eventName", eventName);
         notificationData.put("message", message);
