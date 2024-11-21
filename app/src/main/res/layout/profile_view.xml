@@ -22,47 +22,53 @@
         android:layout_width="129dp"
         android:layout_height="60dp"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="88dp"
+        android:layout_marginTop="11dp"
         android:backgroundTint="#0A0C16"
+        android:fontFamily="@font/poppins_semibold"
         android:text="Profiles"
+        android:textSize="15sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/back_button" />
 
     <Button
         android:id="@+id/events_button"
         android:layout_width="129dp"
         android:layout_height="60dp"
         android:layout_marginStart="3dp"
-        android:layout_marginTop="88dp"
+        android:layout_marginTop="11dp"
         android:layout_marginEnd="132dp"
         android:backgroundTint="#0A0C16"
+        android:fontFamily="@font/poppins_semibold"
         android:text="Events"
+        android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="@+id/facilities_button"
         app:layout_constraintStart_toEndOf="@+id/profile_button"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/back_button" />
 
     <Button
         android:id="@+id/facilities_button"
         android:layout_width="129dp"
         android:layout_height="60dp"
-        android:layout_marginTop="88dp"
+        android:layout_marginTop="11dp"
         android:layout_marginEnd="8dp"
         android:backgroundTint="#0A0C16"
+        android:fontFamily="@font/poppins_semibold"
         android:text="Facilities"
+        android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/back_button" />
 
     <ListView
         android:id="@+id/profile_list"
-        android:layout_width="411dp"
-        android:layout_height="437dp"
-        android:layout_marginTop="35dp"
+        android:layout_width="389dp"
+        android:layout_height="611dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginBottom="11dp"
         app:layout_constraintBottom_toTopOf="@+id/search_bar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/events_button"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.097" />
 
     <EditText
         android:id="@+id/search_bar"
