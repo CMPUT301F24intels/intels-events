@@ -25,17 +25,18 @@
             android:id="@+id/eventDetailsTextview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Selected Entrants"
-            android:textSize="24sp"
             android:fontFamily="@font/poppins_semibold"
+            android:paddingStart="30dp"
+            android:text="Selected Entrants"
             android:textAlignment="center"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:textSize="25sp" />
 
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="631dp" />
 
 </LinearLayout>

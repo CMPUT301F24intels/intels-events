@@ -10,6 +10,7 @@
 
 package com.example.intels_app;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -30,7 +31,17 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.join_waitlist);
 
-        // Retrieve event details from the intent
+//        //This hardcoded data is only to TEST, REMOVE AFTER TO REAL CODE
+//        String eventName = "Movie Night";
+//        String facilityName = "Tech Auditorium";
+//        String location = "Whyte Ave, Edmonton";
+//        String dateTime = "2024-12-01 10:00 AM";
+//        String description = "A conference bringing together the brightest minds in tech.";
+//        int maxAttendees = 5;
+//        boolean geolocationRequirement = true;
+//        String posterUrl = "https://testingexample.com/poster.jpg";
+
+        // Retrieve event details from the intent REAL CODE
         String eventName = getIntent().getStringExtra("eventName");
         String facilityName = getIntent().getStringExtra("facilityName");
         String location = getIntent().getStringExtra("location");
@@ -73,8 +84,35 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         joinWaitlistButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
-                startActivity(intent);
+                if (geolocationRequirement) {
+                    new AlertDialog.Builder(JoinWaitlistActivity.this)
+                            .setTitle("Confirm Join")
+                            .setMessage("This event tracks your geolocation. Are you sure you want to join this event?")
+                            .setPositiveButton("Yes", (dialog, which) -> {
+                                Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
+                                intent.putExtra("Event Name", eventName);
+                                intent.putExtra("Facility", facilityName);
+                                intent.putExtra("Location", location);
+                                intent.putExtra("DateTime", dateTime);
+                                intent.putExtra("Description", description);
+                                intent.putExtra("Max Attendees", maxAttendees);
+                                startActivity(intent);
+                            })
+                            .setNegativeButton("No", (dialog, which) -> {
+                                // Dismiss the dialog if the user cancels
+                                dialog.dismiss();
+                            })
+                            .show();
+                } else {
+                    Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
+                    intent.putExtra("Event Name", eventName);
+                    intent.putExtra("Facility", facilityName);
+                    intent.putExtra("Location", location);
+                    intent.putExtra("DateTime", dateTime);
+                    intent.putExtra("Description", description);
+                    intent.putExtra("Max Attendees", maxAttendees);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -86,7 +124,6 @@ public class JoinWaitlistActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
 
         if (eventNameTextView != null) {
             eventNameTextView.setText(eventName);
@@ -106,19 +143,5 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         if (maxAttendeesTextView != null) {
             maxAttendeesTextView.setText(String.valueOf(maxAttendees));
         }
-
-        joinWaitlistButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
-                intent.putExtra("Event Name", eventName);
-                intent.putExtra("Facility", facilityName);
-                intent.putExtra("Location", location);
-                intent.putExtra("DateTime", dateTime);
-                intent.putExtra("Description", description);
-                intent.putExtra("Max Attendees", maxAttendees);
-                startActivity(intent);
-            }
-        });
     }
 }

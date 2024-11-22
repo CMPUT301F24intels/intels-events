@@ -2,20 +2,26 @@ package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 
 /**
  * Displays detailed information about a specific user profile in the admin view.
@@ -28,10 +34,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
  */
 
 public class ProfileDetailsAdmin extends AppCompatActivity {
-
+    private Profile profile;
     private ImageView profile_pic;
-    private EditText name, email, phone_number;
+    private TextView name, email, phone_number;
     private ImageButton back_button;
+    private Button delete_pfp_button;
     private FirebaseFirestore db;
     private String profileId;
     @Override
@@ -47,12 +54,57 @@ public class ProfileDetailsAdmin extends AppCompatActivity {
             return;
         }
 
+        FirebaseFirestore.getInstance().collection("profiles").document(profileId).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        profile = documentSnapshot.toObject(Profile.class);
+                    }
+                });
+
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ProfileDetailsAdmin.this, AdminProfiles.class);
                 startActivity(intent);
+            }
+        });
+
+        delete_pfp_button = findViewById(R.id.remove_pfp_button);
+        delete_pfp_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new AlertDialog.Builder(ProfileDetailsAdmin.this)
+                    .setTitle("Confirm Deletion")
+                    .setMessage("Are you sure you want to delete this profile picture?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        // Remove image from storage
+                        FirebaseStorage.getInstance().getReferenceFromUrl(profile.getImageUrl()).delete()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+
+                                        // Remove pfp URL from profile details
+                                        FirebaseFirestore.getInstance().collection("profiles").document(profileId)
+                                                .update("imageUrl", null)
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        Log.d(TAG, "Profile picture URL removed successfully");
+                                                        profile_pic.setImageResource(R.drawable.person_image);
+                                                        delete_pfp_button.setVisibility(View.INVISIBLE);
+                                                    }
+                                                });
+
+                                    }
+                                });
+                    })
+                    .setNegativeButton("No", (dialog, which) -> {
+                        // Dismiss the dialog if the user cancels
+                        dialog.dismiss();
+                    })
+                    .show();
             }
         });
 
@@ -86,6 +138,7 @@ public class ProfileDetailsAdmin extends AppCompatActivity {
                     } else {
                         Log.w(TAG, "No poster URL found in the document");
                         profile_pic.setImageResource(R.drawable.person_image);
+                        delete_pfp_button.setVisibility(View.INVISIBLE);
                     }
                 }
             } else {

@@ -37,7 +37,7 @@
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:layout_marginTop="28dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginEnd="35dp"
         android:scaleType="centerCrop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/eventDetailsTextview"
@@ -47,7 +47,7 @@
         android:id="@+id/qrImageView"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:layout_marginStart="40dp"
+        android:layout_marginStart="35dp"
         android:layout_marginTop="28dp"
         android:layout_marginEnd="71dp"
         android:scaleType="centerCrop"
@@ -71,7 +71,7 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/posterImageView" />
+        app:layout_constraintTop_toBottomOf="@+id/remove_poster_button" />
 
     <TextView
         android:id="@+id/facilityEditText"
@@ -185,45 +185,27 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageButton
-        android:id="@+id/navigationButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="114dp"
-        android:layout_marginBottom="15dp"
-        android:background="@drawable/circular_button"
-        android:backgroundTint="#FFD700"
-        android:contentDescription="Navigation"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <Button
+        android:id="@+id/remove_qr_button"
+        android:layout_width="162dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="4dp"
+        android:backgroundTint="#90FF3535"
+        android:text="Remove QR Code"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/map_pin" />
+        app:layout_constraintTop_toBottomOf="@+id/qrImageView" />
 
-    <ImageButton
-        android:id="@+id/editButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="15dp"
-        android:background="@drawable/circular_button"
-        android:backgroundTint="#32CD32"
-        android:contentDescription="Edit"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/drawButton"
-        app:layout_constraintStart_toEndOf="@+id/navigationButton"
-        app:srcCompat="@drawable/edit_icon" />
-
-    <ImageButton
-        android:id="@+id/drawButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginEnd="114dp"
-        android:layout_marginBottom="15dp"
-        android:background="@drawable/circular_button"
-        android:backgroundTint="#FF8C00"
-        android:contentDescription="Draw"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <Button
+        android:id="@+id/remove_poster_button"
+        android:layout_width="162dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="30dp"
+        android:backgroundTint="#90FF3535"
+        android:text="Remove Poster"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/draw_text" />
+        app:layout_constraintTop_toBottomOf="@+id/posterImageView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

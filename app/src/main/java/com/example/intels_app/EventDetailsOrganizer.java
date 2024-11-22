@@ -42,24 +42,24 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
     private static final String TAG = "EventDetailsOrganizer";
 
-    private ImageButton backButton, drawButton;
-    private ImageView posterImageView;
+    private ImageButton backButton, drawButton, editButton;
+    private ImageView posterImageView, qrImageView;
     private TextView eventNameEditText, facilityEditText, locationEditText, dateTimeEditText,
             descriptionEditText, maxAttendeesTextView, geolocationRequirementTextView, notificationPreferenceTextView;
 
     private FirebaseFirestore db;
-    private String eventId;
+    private String eventName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_details);
 
-        // Get the event ID from the intent
-        eventId = getIntent().getStringExtra("eventId");
+        // Get the event name from the intent
+        eventName = getIntent().getStringExtra("Event Name");
 
-        if (eventId == null) {
-            Log.e(TAG, "Event ID is missing");
+        if (eventName == null) {
+            Log.e(TAG, "Event Name is missing");
             finish();
             return;
         }
@@ -74,6 +74,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         geolocationRequirementTextView = findViewById(R.id.geolocationRequirementTextView);
         notificationPreferenceTextView = findViewById(R.id.notificationPreferenceTextView);
         posterImageView = findViewById(R.id.posterImageView);
+        qrImageView = findViewById(R.id.qrImageView);
         drawButton = findViewById(R.id.drawButton);
 
         // Initialize Firestore
@@ -91,10 +92,17 @@ public class EventDetailsOrganizer extends AppCompatActivity {
             Intent intent = new Intent(EventDetailsOrganizer.this, ManageEventsActivity.class);
             startActivity(intent);
         });
+
+        editButton = findViewById(R.id.editButton);
+        editButton.setOnClickListener(view -> {
+            Intent intent = new Intent(EventDetailsOrganizer.this, EditEventActivity.class);
+            intent.putExtra("Event Name", eventName);
+            startActivity(intent);
+        });
     }
 
     private void loadEventDetails() {
-        DocumentReference documentRef = db.collection("events").document(eventId);
+        DocumentReference documentRef = db.collection("events").document(eventName);
         documentRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 Event event = documentSnapshot.toObject(Event.class);
@@ -120,6 +128,18 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                         Log.w(TAG, "No poster URL found in the document");
                         posterImageView.setImageResource(R.drawable.person_image);
                     }
+
+                    // Load qr code image using Glide
+                    if (event.getQrCodeUrl() != null && !event.getQrCodeUrl().isEmpty()) {
+                        Glide.with(getApplicationContext())
+                                .load(event.getQrCodeUrl())
+                                .placeholder(R.drawable.pfp_placeholder_image)
+                                .error(R.drawable.person_image)
+                                .into(qrImageView);
+                    } else {
+                        Log.w(TAG, "No poster URL found in the document");
+                        qrImageView.setImageResource(R.drawable.pfp_placeholder_image);
+                    }
                 }
             } else {
                 Log.e(TAG, "No such document exists");
@@ -132,7 +152,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         CollectionReference selectedEntrantsRef = db.collection("selected_entrants");
 
         // Clear previous selected entries for selected event
-        selectedEntrantsRef.whereEqualTo("eventId", eventId)
+        selectedEntrantsRef.whereEqualTo("eventName", eventName)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     WriteBatch batch = db.batch();
@@ -143,7 +163,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                     // Commit batch delete
                     batch.commit().addOnSuccessListener(aVoid -> {
                         // Query waitlisted entrants for selected event
-                        waitlistedEntrantsRef.whereEqualTo("eventName", eventId)
+                        waitlistedEntrantsRef.whereEqualTo("eventName", eventName)
                                 .get()
                                 .addOnSuccessListener(waitlistQuery -> {
                                     List<DocumentSnapshot> waitlist = waitlistQuery.getDocuments();
@@ -164,7 +184,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
                                     // After the draw, redirect to the DrawCompleteActivity
                                     Intent intent = new Intent(EventDetailsOrganizer.this, DrawCompleteActivity.class);
-                                    intent.putExtra("eventId", eventId);
+                                    intent.putExtra("eventName", eventName);
                                     startActivity(intent);
                                 }).addOnFailureListener(e -> {
                                     Log.e(TAG, "Error fetching waitlisted entrants", e);
@@ -174,32 +194,43 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                 }).addOnFailureListener(e -> Log.e(TAG, "Error loading previous selected entrants", e));
     }
 
-
     private void sendNotificationsToProfiles(List<DocumentSnapshot> allProfiles, List<DocumentSnapshot> selectedProfiles) {
         List<DocumentSnapshot> unselectedProfiles = new ArrayList<>(allProfiles);
         unselectedProfiles.removeAll(selectedProfiles);
 
         for (DocumentSnapshot selectedProfile : selectedProfiles) {
             String profileId = selectedProfile.getId();
+            String deviceId = selectedProfile.getString("deviceId");
+            Log.d(TAG, "Selected Profile ID: " + profileId + ", Device ID: " + deviceId);
+
             String message = "Congratulations! You have been selected for the event!";
-            sendNotificationToProfile(profileId, eventId, message, "selected");
+            sendNotificationToProfile(deviceId, profileId, eventName, message, "selected");
         }
 
         for (DocumentSnapshot unselectedProfile : unselectedProfiles) {
             String profileId = unselectedProfile.getId();
+            String deviceId = unselectedProfile.getString("deviceId");
+            Log.d(TAG, "Unselected Profile ID: " + profileId + ", Device ID: " + deviceId);
+
             String message = "Sorry, you were not selected this time. Please stay tuned for more events.";
-            sendNotificationToProfile(profileId, eventId, message, "not_selected");
+            sendNotificationToProfile(deviceId, profileId, eventName, message, "not_selected");
         }
 
         Toast.makeText(this, "Lottery draw complete. Notifications sent.", Toast.LENGTH_SHORT).show();
     }
 
-    private void sendNotificationToProfile(String profileId, String eventId, String message, String type) {
+    private void sendNotificationToProfile(String deviceId, String profileId, String eventName, String message, String type) {
+        if (deviceId == null || deviceId.isEmpty()) {
+            Log.w(TAG, "Device ID is missing for profile: " + profileId);
+            return;
+        }
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         Map<String, Object> notificationData = new HashMap<>();
+        notificationData.put("deviceId", deviceId);
         notificationData.put("profileId", profileId);
-        notificationData.put("eventId", eventId);
+        notificationData.put("eventName", eventName);
         notificationData.put("message", message);
         notificationData.put("timestamp", FieldValue.serverTimestamp());
         notificationData.put("type", type);
@@ -216,7 +247,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         for (DocumentSnapshot profile : selectedProfiles) {
             Map<String, Object> entrantData = new HashMap<>();
             entrantData.put("profileId", profile.getId());
-            entrantData.put("eventId", eventId);
+            entrantData.put("eventName", eventName);
             entrantData.put("timestamp", FieldValue.serverTimestamp());
 
             selectedEntrantsRef.add(entrantData)

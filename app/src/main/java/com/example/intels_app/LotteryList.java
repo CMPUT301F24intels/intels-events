@@ -28,17 +28,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LotteryList extends AppCompatActivity {
     private RecyclerView recyclerView;
     private SelectedEntrantAdapter adapter;
     private List<Profile> selectedEntrants;
     private FirebaseFirestore db;
-    private String eventId;
+    private String eventName;
     private CheckBox sendNotifications;
 
     @Override
@@ -47,9 +51,9 @@ public class LotteryList extends AppCompatActivity {
         setContentView(R.layout.lottery_list);
 
         // Get the event ID from the intent
-        eventId = getIntent().getStringExtra("eventId");
+        eventName = getIntent().getStringExtra("eventName");
 
-        if (eventId == null) {
+        if (eventName == null) {
             Toast.makeText(this, "Event ID is missing.", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -73,7 +77,7 @@ public class LotteryList extends AppCompatActivity {
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(view -> {
             Intent intent = new Intent(LotteryList.this, EntrantInWaitlist.class);
-            intent.putExtra("eventId", eventId); // Pass the eventId back if needed
+            intent.putExtra("eventName", eventName); // Pass the eventName back if needed
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startActivity(intent);
             finish();
@@ -109,39 +113,54 @@ public class LotteryList extends AppCompatActivity {
 
     private void loadSelectedEntrants() {
         db.collection("selected_entrants")
-                .whereEqualTo("eventId", eventId)
+                .whereEqualTo("eventName", eventName)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     selectedEntrants.clear();
-                    List<Task<DocumentSnapshot>> tasks = new ArrayList<>();
+                    List<String> profileIds = new ArrayList<>();
 
+                    // Step 1: Extract all profileIds from selected_entrants
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         String profileId = doc.getString("profileId");
-
-                        // Retrieve profile data based on profileId
-                        Task<DocumentSnapshot> task = db.collection("profiles").document(profileId).get()
-                                .addOnSuccessListener(profileDoc -> {
-                                    if (profileDoc.exists()) {
-                                        Profile profile = profileDoc.toObject(Profile.class);
-                                        if (profile != null) {
-                                            selectedEntrants.add(profile);
-                                        }
-                                    } else {
-                                        Log.w("LotteryList", "Profile not found for ID: " + profileId);
-                                    }
-                                })
-                                .addOnFailureListener(e -> Log.w("LotteryList", "Error loading profile for ID: " + profileId, e));
-
-                        tasks.add(task);
+                        if (profileId != null) {
+                            profileIds.add(profileId);
+                        }
                     }
 
-                    // Wait for all tasks to complete, then update the adapter
-                    Tasks.whenAllComplete(tasks).addOnCompleteListener(task -> {
+                    if (profileIds.isEmpty()) {
+                        Toast.makeText(this, "No entrants selected for this event.", Toast.LENGTH_SHORT).show();
                         adapter.notifyDataSetChanged();
-                        if (!task.isSuccessful()) {
-                            Log.e("LotteryList", "One or more profile load operations failed.");
-                        }
-                    });
+                        return;
+                    }
+
+                    // Step 2: Query waitlisted_entrants for all profileIds
+                    db.collection("waitlisted_entrants")
+                            .whereIn(FieldPath.documentId(), profileIds)
+                            .get()
+                            .addOnSuccessListener(waitlistedDocs -> {
+                                for (DocumentSnapshot doc : waitlistedDocs) {
+                                    // Extract profile details from waitlisted_entrants
+                                    Map<String, Object> profileData = (Map<String, Object>) doc.get("profile");
+
+                                    if (profileData != null) {
+                                        String name = (String) profileData.get("name");
+                                        String status = (String) profileData.get("status"); // e.g., "accepted" or "pending"
+
+                                        // Create a Profile object or similar representation
+                                        Profile profile = new Profile(name, status);
+                                        selectedEntrants.add(profile);
+                                    } else {
+                                        Log.w("LotteryList", "Profile missing in waitlisted_entrants for ID: " + doc.getId());
+                                    }
+                                }
+
+                                // Notify the adapter after loading all profiles
+                                adapter.notifyDataSetChanged();
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.w("LotteryList", "Error fetching profile details from waitlisted_entrants", e);
+                                Toast.makeText(this, "Failed to load entrant details.", Toast.LENGTH_SHORT).show();
+                            });
                 })
                 .addOnFailureListener(e -> {
                     Log.w("LotteryList", "Error fetching selected entrants", e);
@@ -181,8 +200,66 @@ public class LotteryList extends AppCompatActivity {
      * @param message Notification message to be sent.
      */
     private void sendNotificationToEntrants(String message) {
-        Toast.makeText(this, "Notification sent: " + message, Toast.LENGTH_LONG).show();
-        // This is where you could add code to send notifications to each profile in selectedEntrants if needed.
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Validate the message
+        if (message == null || message.isEmpty()) {
+            Toast.makeText(this, "Message cannot be empty.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (selectedEntrants.isEmpty()) {
+            Toast.makeText(this, "No selected entrants found.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        for (Profile entrant : selectedEntrants) {
+            String profileId = entrant.getName();
+
+            if (profileId == null || profileId.isEmpty()) {
+                Log.w("Notification", "Profile ID missing for entrant.");
+                continue;
+            }
+
+            // Fetch deviceId from waitlisted_entrants collection
+            db.collection("waitlisted_entrants")
+                    .document(profileId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String deviceId = documentSnapshot.getString("deviceId");
+                            if (deviceId != null && !deviceId.isEmpty()) {
+                                sendNotificationToProfile(deviceId, profileId, message);
+                            } else {
+                                Log.w("Notification", "Device ID is missing for profile: " + profileId);
+                            }
+                        } else {
+                            Log.w("Notification", "No document found for profileId: " + profileId);
+                        }
+                    })
+                    .addOnFailureListener(e -> Log.e("Notification", "Error fetching deviceId for profileId: " + profileId, e));
+        }
+
+        Toast.makeText(this, "Notifications are being sent to selected entrants.", Toast.LENGTH_SHORT).show();
     }
+
+    private void sendNotificationToProfile(String deviceId, String profileId, String message) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Create notification data
+        Map<String, Object> notificationData = new HashMap<>();
+        notificationData.put("deviceId", deviceId);
+        notificationData.put("profileId", profileId);
+        notificationData.put("eventName", eventName);
+        notificationData.put("message", message);
+        notificationData.put("timestamp", FieldValue.serverTimestamp());
+
+        // Add the notification to the Firestore collection
+        db.collection("notifications")
+                .add(notificationData)
+                .addOnSuccessListener(documentReference -> Log.d("Notification", "Notification sent with ID: " + documentReference.getId()))
+                .addOnFailureListener(e -> Log.e("Notification", "Error sending notification", e));
+    }
+
 }
 

@@ -53,7 +53,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.waitlist_with_entrants);
 
-        eventName = getIntent().getStringExtra("eventId");
+        eventName = getIntent().getStringExtra("eventName");
 
         if (eventName == null || eventName.isEmpty()) {
             Toast.makeText(this, "Event ID is missing. Cannot proceed.", Toast.LENGTH_SHORT).show();
@@ -124,7 +124,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(EntrantInWaitlist.this, FinalList.class);
                 intent.putExtra("eventName", eventName);
-                intent.putExtra("eventId", eventName);
+                intent.putExtra("eventName", eventName);
                 startActivity(intent);
                 finish();
             }
@@ -134,7 +134,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(EntrantInWaitlist.this, LotteryList.class);
-                intent.putExtra("eventId", eventName); // Pass eventId to LotteryList
+                intent.putExtra("eventName", eventName); // Pass eventName to LotteryList
                 startActivity(intent);
                 finish();
             }
@@ -182,33 +182,61 @@ public class EntrantInWaitlist extends AppCompatActivity {
     }
 
     private void sendNotificationToEntrants(String message) {
-
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference waitlistRef = db.collection("waitlisted_entrants");
 
-        // Validate eventId
         if (eventName == null || eventName.isEmpty()) {
-            Log.e("Firestore", "eventId is null or empty");
-            Toast.makeText(this, "Event ID is missing. Cannot send notification.", Toast.LENGTH_SHORT).show();
+            Log.e("Firestore", "eventName is null or empty");
+            Toast.makeText(this, "Event Name is missing. Cannot send notification.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Create notification data to save in Firestore
-        Map<String, Object> notificationData = new HashMap<>();
-        notificationData.put("message", message); // Custom message
-        notificationData.put("timestamp", FieldValue.serverTimestamp()); // Server timestamp
-        notificationData.put("eventName", eventName); // Tag to associate with the event
+        waitlistRef.whereEqualTo("eventName", eventName)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        List<DocumentSnapshot> entrants = task.getResult().getDocuments();
 
-        // Add the notification to the top-level notifications collection
+                        if (entrants.isEmpty()) {
+                            Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        for (DocumentSnapshot entrant : entrants) {
+                            String deviceId = entrant.getString("deviceId");
+                            String profileId = entrant.getId(); // Get the entrant's document ID
+
+                            if (deviceId != null && !deviceId.isEmpty()) {
+                                sendNotificationToProfile(deviceId, profileId, eventName, message);
+                            } else {
+                                Log.w("Notification", "Device ID missing for profile: " + profileId);
+                            }
+                        }
+
+                        Toast.makeText(this, "Notifications sent successfully to all entrants.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Log.e("Firestore", "Error fetching entrants", task.getException());
+                        Toast.makeText(this, "Failed to send notifications.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void sendNotificationToProfile(String deviceId, String profileId, String eventName, String message) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Create notification data
+        Map<String, Object> notificationData = new HashMap<>();
+        notificationData.put("deviceId", deviceId);
+        notificationData.put("profileId", profileId);
+        notificationData.put("eventName", eventName);
+        notificationData.put("message", message);
+        notificationData.put("timestamp", FieldValue.serverTimestamp());
+
+        // Add the notification to the Firestore collection
         db.collection("notifications")
                 .add(notificationData)
-                .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(this, "Notification saved successfully!", Toast.LENGTH_LONG).show();
-                    Log.d("Firestore", "Notification saved with ID: " + documentReference.getId());
-                })
-                .addOnFailureListener(e -> {
-                    Log.w("Firestore", "Error saving notification", e);
-                    Toast.makeText(this, "Failed to save notification", Toast.LENGTH_SHORT).show();
-                });
+                .addOnSuccessListener(documentReference -> Log.d("Notification", "Notification sent with ID: " + documentReference.getId()))
+                .addOnFailureListener(e -> Log.e("Notification", "Error sending notification", e));
     }
 
     private void fetchEntrants() {

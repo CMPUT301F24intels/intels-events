@@ -271,7 +271,8 @@ public class SignUp extends AppCompatActivity {
                 Bitmap bitmap = (Bitmap) data.getExtras().get("data");  // Get thumbnail from camera
                 if (bitmap != null) {
                     profile_pic.setImageBitmap(bitmap); // Display the image in ImageView
-                    imageData = bitmapToByteArray(bitmap); // Convert to byte array if needed
+                    imageData = bitmapToByteArray(bitmap);// Convert to byte array if needed
+                    imageHash = hashImage(imageData);
                 }
             } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
                 Uri selectedImageUri = data.getData();  // Get URI of selected image

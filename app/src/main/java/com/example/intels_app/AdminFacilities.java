@@ -1,8 +1,9 @@
 /**
- * Displays a list of all events for the admin view.
+ * Displays a list of all facilities for the admin view.
  * @author Janan Panchal
  * @see com.example.intels_app.MainPageActivity Back button leads to main page
  * @see com.example.intels_app.AdminProfiles Clicking the profiles tab leads to the admin profiles page
+ * @see com.example.intels_app.AdminEvents Clicking the events tab leads to the admin Events page
  * @see com.example.intels_app.CustomAdapterOrganizer Custom adapter for the grid view
  */
 package com.example.intels_app;
@@ -28,11 +29,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdminEvents extends AppCompatActivity {
+public class AdminFacilities extends AppCompatActivity {
     private Button profile_button;
     private Button events_button;
     private Button facilities_button;
-    private ArrayList<Event> list_event;
+    private ArrayList<Facility> list_facility;
 
     /**
      * Displays a list of all events for the admin view.
@@ -44,40 +45,36 @@ public class AdminEvents extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.events_view);
+        setContentView(R.layout.facility_view);
 
         // Go back to main page if back button clicked
         ImageButton back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(AdminEvents.this, MainPageActivity.class);
+                Intent intent = new Intent(AdminFacilities.this, MainPageActivity.class);
                 startActivity(intent);
             }
         });
 
-        // Find the grid view and initialize a list of events
-        GridView events_gridview = findViewById(R.id.events_gridview);
+        // Find the grid view and initialize a list of facilities
+        GridView facilities_gridview = findViewById(R.id.events_gridview);
 
-        list_event = new ArrayList<>();
+        list_facility = new ArrayList<>();
 
         // Inflate the custom adapter with the list of events
-        CustomAdapterManageEvents adapter = new CustomAdapterManageEvents(this, list_event, position -> {
-            Intent intent = new Intent(AdminEvents.this, EventDetailsAdmin.class);
-            intent.putExtra("Event Name", list_event.get(position).getEventName());
-            startActivity(intent);
-        });
-        events_gridview.setAdapter(adapter);
+        CustomAdapterManageEvents adapter = new CustomAdapterManageEvents(this, list_facility);
+        facilities_gridview.setAdapter(adapter);
 
         // Get all events from FireStore "events" collection and add them to the list
-        FirebaseFirestore.getInstance().collection("events").get()
+        FirebaseFirestore.getInstance().collection("facilities").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
                         for (DocumentSnapshot document : queryDocumentSnapshots) {
 
-                            // Convert document to Event object and add to eventData list
-                            Event event = document.toObject(Event.class);
-                            list_event.add(event);
+                            // Convert document to Facility object and add to facility Data list
+                            Facility facility = document.toObject(Facility.class);
+                            list_facility.add(facility);
                             adapter.notifyDataSetChanged();
                         }
                     } else {
@@ -92,9 +89,9 @@ public class AdminEvents extends AppCompatActivity {
         facilities_button = findViewById(R.id.facilities_button);
 
         // Set button colors
-        events_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
+        facilities_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
+        events_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
         profile_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-        facilities_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
 
         // If profile button clicked, switch to profile page
         profile_button.setOnClickListener(new View.OnClickListener() {
@@ -106,22 +103,22 @@ public class AdminEvents extends AppCompatActivity {
                 profile_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
                 facilities_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
 
-                Intent intent = new Intent(AdminEvents.this, AdminProfiles.class);
+                Intent intent = new Intent(AdminFacilities.this, AdminProfiles.class);
                 startActivity(intent);
             }
         });
 
-        // If facilities button clicked, switch to facilities page
-        facilities_button.setOnClickListener(new View.OnClickListener() {
+        // If event button clicked, switch to events page that shows all events to admin
+        events_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 // Change button colour to mimic switching of tabs
-                events_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
+                events_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
                 profile_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
-                facilities_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
+                facilities_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
 
-                Intent intent = new Intent(AdminEvents.this, AdminFacilities.class);
+                Intent intent = new Intent(AdminFacilities.this, AdminEvents.class);
                 startActivity(intent);
             }
         });

@@ -65,8 +65,10 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         listView = findViewById(R.id.profile_list);
 
         profileList = new ArrayList<>();
-        ProfileAdapter adapter = new ProfileAdapter(this, profileList);
+        CancelledProfileAdapter adapter = new CancelledProfileAdapter(this, profileList);
         listView.setAdapter(adapter);
+
+
 
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(view -> {
@@ -101,7 +103,7 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         cancelled_button.setOnClickListener(v -> {
             Intent intent = new Intent(EntrantInCancelledWaitlist.this, EntrantInCancelledWaitlist.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            intent.putExtra("eventId", eventName);
+            intent.putExtra("eventName", eventName);
             startActivity(intent);
         });
 
@@ -133,7 +135,7 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         // Fetch notifications where the type is "declined" and the event matches
         notificationsRef
                 .whereEqualTo("type", "declined")
-                .whereEqualTo("eventId", eventName)
+                .whereEqualTo("eventName", eventName)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -159,16 +161,22 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                                             if (profileDoc.exists()) {
                                                 String name = profileDoc.getString("profile.name");
                                                 String imageUrl = profileDoc.getString("profile.imageUrl");
-                                                Profile profile = new Profile(name, imageUrl);
-                                                profileList.add(profile);
-                                                Log.d("CancelledEntrants", "Added profile: " + name);
-                                            }
 
-                                            // Update the adapter after adding profiles
-                                            adapter.updateData(new ArrayList<>(profileList));
-                                            adapter.notifyDataSetChanged();
+                                                // Create the profile with deviceId
+                                                Profile profile = new Profile(profileId, name, null, 0, imageUrl);
+                                                profileList.add(profile);
+                                                Log.d("CancelledEntrants", "Added profile: " + name + ", ID: " + profileId);
+
+                                                // Notify adapter
+                                                adapter.updateData(profileList);
+                                                adapter.notifyDataSetChanged();
+                                            } else {
+                                                Log.e("CancelledEntrants", "Profile document does not exist for ID: " + profileId);
+                                            }
                                         })
                                         .addOnFailureListener(e -> Log.w("Firestore", "Error fetching profile for ID: " + profileId, e));
+                            } else {
+                                Log.e("CancelledEntrants", "profileId is null or empty in notifications collection.");
                             }
                         }
                     } else {
@@ -178,15 +186,13 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                 });
     }
 
-
-
     private void showCustomNotificationDialog() {
         EditText input = new EditText(this);
         input.setHint("Enter custom notification message");
 
         new AlertDialog.Builder(this)
                 .setTitle("Custom Notification")
-                .setMessage("Enter the message to send to all waitlisted entrants:")
+                .setMessage("Enter the message to send to all cancelled entrants:")
                 .setView(input)
                 .setPositiveButton("Send", (dialog, which) -> {
                     String message = input.getText().toString().trim();
@@ -205,32 +211,39 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
     }
 
     private void sendNotificationToEntrants(String message) {
-
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // Validate eventId
-        if (eventName == null || eventName.isEmpty()) {
-            Log.e("Firestore", "eventId is null or empty");
-            Toast.makeText(this, "Event ID is missing. Cannot send notification.", Toast.LENGTH_SHORT).show();
+        if (profileList.isEmpty()) {
+            Toast.makeText(this, "No cancelled entrants to notify.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Create notification data to save in Firestore
-        Map<String, Object> notificationData = new HashMap<>();
-        notificationData.put("message", message); // Custom message
-        notificationData.put("timestamp", FieldValue.serverTimestamp()); // Server timestamp
-        notificationData.put("eventName", eventName); // Tag to associate with the event
+        for (Profile profile : profileList) {
+            String deviceId = profile.getDeviceId(); // Get the deviceId for each profile
 
-        // Add the notification to the top-level notifications collection
-        db.collection("notifications")
-                .add(notificationData)
-                .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(this, "Notification saved successfully!", Toast.LENGTH_LONG).show();
-                    Log.d("Firestore", "Notification saved with ID: " + documentReference.getId());
-                })
-                .addOnFailureListener(e -> {
-                    Log.w("Firestore", "Error saving notification", e);
-                    Toast.makeText(this, "Failed to save notification", Toast.LENGTH_SHORT).show();
-                });
+            if (deviceId == null || deviceId.isEmpty()) {
+                Log.e("Firestore", "Device ID is null or empty for profile: " + profile.getName());
+                continue;
+            }
+
+            // Create notification data for each entrant
+            Map<String, Object> notificationData = new HashMap<>();
+            notificationData.put("message", message);
+            notificationData.put("timestamp", FieldValue.serverTimestamp());
+            notificationData.put("eventName", eventName);
+            notificationData.put("profileId", deviceId);
+
+            // Add the notification to the Firestore database
+            db.collection("notifications")
+                    .add(notificationData)
+                    .addOnSuccessListener(documentReference -> {
+                        Log.d("Firestore", "Notification sent to: " + profile.getName());
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.w("Firestore", "Failed to send notification to: " + profile.getName(), e);
+                    });
+        }
+
+        Toast.makeText(this, "Notifications sent to all cancelled entrants.", Toast.LENGTH_LONG).show();
     }
 }

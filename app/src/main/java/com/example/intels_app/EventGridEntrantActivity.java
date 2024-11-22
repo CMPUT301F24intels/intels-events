@@ -49,7 +49,7 @@ public class EventGridEntrantActivity extends AppCompatActivity {
         // Initialize the GridView and set the adapter
         GridView gridView = findViewById(R.id.grid_view);
         eventData = new ArrayList<>();
-        adapter = new CustomAdapterEntrant(this, eventData);
+        adapter = new CustomAdapterEntrant(this, eventData, null);
         gridView.setAdapter(adapter);
 
         FirebaseInstallations.getInstance().getId()
@@ -57,17 +57,12 @@ public class EventGridEntrantActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         String currentDeviceId = task.getResult();
                         fetchSignedUpEvents(currentDeviceId);
+                        adapter = new CustomAdapterEntrant(this, eventData, currentDeviceId);
+                        gridView.setAdapter(adapter);
                     } else {
                         Log.e("FirebaseInstallations", "Unable to get device ID", task.getException());
                     }
                 });
-
-       /* List<String> eventData = new ArrayList<>();
-        eventData.add("Event 1");
-        eventData.add("Event 2");
-        eventData.add("Event 3");
-        eventData.add("Event 4");
-        eventData.add("Event 5");*/
 
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {

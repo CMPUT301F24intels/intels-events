@@ -62,7 +62,11 @@ public class ManageEventsActivity extends AppCompatActivity {
         GridView gridview = findViewById(R.id.gridViewEvents);
         eventData = new ArrayList<>();
 
-        adapter = new CustomAdapterManageEvents(this, eventData);
+        adapter = new CustomAdapterManageEvents(this, eventData, position -> {
+            Intent intent = new Intent(ManageEventsActivity.this, EventDetailsOrganizer.class);
+            intent.putExtra("Event Name", eventData.get(position).getEventName());
+            startActivity(intent);
+        });
         gridview.setAdapter(adapter);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -83,17 +87,6 @@ public class ManageEventsActivity extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(e -> Log.w("Firestore", "Error fetching documents", e));
-
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Event selectedEvent = (Event) parent.getItemAtPosition(position);
-
-                Intent intent = new Intent(ManageEventsActivity.this, EventDetailsOrganizer.class);
-                intent.putExtra("eventId", selectedEvent.getId()); // Use appropriate method to get ID
-                startActivity(intent);
-            }
-        });
 
         ImageButton backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {
