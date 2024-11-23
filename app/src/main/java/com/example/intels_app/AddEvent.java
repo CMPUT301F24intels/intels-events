@@ -1,7 +1,7 @@
 /**
  * An organizer can enter details to create a new event including a poster.
  * The event gets created by the system and FireStore is updated with the information.
- * @author Janan Panchal
+ * @author Janan Panchal, Dhanshri Patel
  * @see com.example.intels_app.ManageEventsActivity Back button leads to main page
  * @see com.example.intels_app.CreateQR Adding an even generates a QR code
  * @see com.example.intels_app.Event Event object
@@ -11,9 +11,11 @@ package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
 
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -37,8 +39,11 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -65,11 +70,12 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import java.util.UUID;
 
 public class AddEvent extends AppCompatActivity {
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_IMAGE_PICK = 2;
+    private static final int PERMISSION_REQUEST_CODE = 100;
+    private boolean isCameraOption = false;
     private StorageReference storageReference;
-    private ImageView posterImageView;
     private ImageView cameraImage;
-    private Uri image;
-    private Bitmap bitmap;
     private byte[] imageData;
     private String imageHash;
     private ImageButton backButton;
@@ -93,7 +99,7 @@ public class AddEvent extends AppCompatActivity {
         setContentView(R.layout.add_event);
 
         // Where the event poster will be uploaded
-        posterImageView = findViewById(R.id.pfpPlaceholder);
+        cameraImage = findViewById(R.id.camera_image);
 
         // Go back to Manage Events if back button clicked
         backButton = findViewById(R.id.back_button);
@@ -104,11 +110,7 @@ public class AddEvent extends AppCompatActivity {
 
         // Select image from gallery if Add Poster Button is clicked
         addPosterButton = findViewById(R.id.edit_poster_button);
-        addPosterButton.setOnClickListener(view -> {
-            Intent intent = new Intent(Intent.ACTION_PICK);
-            intent.setType("image/*");
-            openGallery.launch(intent);
-        });
+        addPosterButton.setOnClickListener(view -> showImagePickerDialog());
 
         // Create a new event with entered details if Add Event button clicked
         addEvent = findViewById(R.id.add_event_button);
@@ -171,55 +173,93 @@ public class AddEvent extends AppCompatActivity {
         });
     }
 
-    /**
-     * When the organizer wants to upload an image, it opens gallery, converts the Bitmap of the selected image
-     * to a byte array and hashes it
-     */
-    ActivityResultLauncher<Intent> openGallery = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    if (result.getData() != null) {
-                        image = result.getData().getData();
-                        Glide.with(getApplicationContext()).load(image).into(posterImageView); // Put uploaded image into imageView
-
-                        // Hide the camera image once an image has been uploaded
-                        cameraImage = findViewById(R.id.camera_image);
-                        cameraImage.setVisibility(View.INVISIBLE);
-
-                        try {
-                            //Get Bitmap from Uri
-                            bitmap = getBitmapFromUri(image, getContentResolver());
-
-                            // Convert Bitmap to byte array
-                            imageData = bitmapToByteArray(bitmap);
-
-                            // Hash the byte array
-                            imageHash = hashImage(imageData);
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            Toast.makeText(AddEvent.this, "Error processing image", Toast.LENGTH_SHORT).show();
-                        }
+    private void showImagePickerDialog() {
+        String[] options = {"Take Photo", "Choose from Gallery"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Profile Picture");
+        builder.setItems(options, (dialog, which) -> {
+            switch (which) {
+                case 0: // Take Photo
+                    isCameraOption = true;
+                    if (checkAndRequestPermissions()) {
+                        openCamera();
                     }
-                } else {
-                    Toast.makeText(AddEvent.this, "Please select an image", Toast.LENGTH_LONG).show();
-                }
+                    break;
+                case 1: // Choose from Gallery
+                    isCameraOption = false;
+                    if (checkAndRequestPermissions()) {
+                        openGallery();
+                    }
+                    break;
             }
-    );
-
-    /**
-     * Converts the image Uri to a Bitmap
-     * @param uri The uri of the image selected from gallery
-     * @param contentResolver Provide access to the content model
-     * @return The Bitmap of the image
-     * @throws IOException If there is an error processing the image
-     */
-    public Bitmap getBitmapFromUri(Uri uri, ContentResolver contentResolver) throws IOException {
-        InputStream inputStream = contentResolver.openInputStream(uri);
-        return BitmapFactory.decodeStream(inputStream);
+        });
+        builder.show();
     }
 
+    private boolean checkAndRequestPermissions() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+            return false;
+        }
+        return true;
+    }
+
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (isCameraOption) {
+                    openCamera();
+                } else {
+                    openGallery();
+                }
+            } else {
+                Toast.makeText(this, "Permissions denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void openCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivity(intent);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+        }
+    }
+
+    private void openGallery() {
+        Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_IMAGE_CAPTURE && data != null && data.getExtras() != null) {
+                Bitmap bitmap = (Bitmap) data.getExtras().get("data");  // Get thumbnail from camera
+                if (bitmap != null) {
+                    cameraImage.setImageBitmap(bitmap); // Display the image in ImageView
+                    imageData = bitmapToByteArray(bitmap);// Convert to byte array if needed
+                    imageHash = hashImage(imageData);
+                }
+            } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
+                Uri selectedImageUri = data.getData();  // Get URI of selected image
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
+                    cameraImage.setImageBitmap(bitmap); // Display the image in ImageView
+                    imageData = bitmapToByteArray(bitmap); // Convert to byte array if needed
+                    imageHash = hashImage(imageData);
+                    Log.d(TAG, "Gallery Image Set - imageHash: " + imageHash);  // Log for verification
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
     /**
      * Converts the Bitmap to a byte array
      * @param bitmap The bitmap of the image
