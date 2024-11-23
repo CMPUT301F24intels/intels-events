@@ -88,14 +88,15 @@
         android:layout_marginTop="10dp"
         android:layout_marginEnd="17dp"
         android:background="@drawable/rounded_button"
-        android:hint="Enter your Phone Number(Optional)"
+        android:fontFamily="@font/poppins_semibold"
+        android:hint="Enter your Phone Number (Optional)"
         android:inputType="number"
         android:padding="10dp"
         android:textColor="@color/white"
         android:textColorHint="@color/white"
-        android:fontFamily="@font/poppins_semibold"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/enter_email" />
 
