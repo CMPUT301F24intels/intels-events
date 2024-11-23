@@ -7,6 +7,7 @@ package com.example.intels_app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.GridView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,8 +15,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.intels_app.CreateFacility;
 import com.example.intels_app.MainPageActivity;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
+
+import java.util.ArrayList;
 
 /**
  * Main activity that initializes the app and determines if a user profile exists.
@@ -34,9 +42,13 @@ public class MainActivity extends AppCompatActivity {
      * @param savedInstanceState If the activity is being re-initialized after
      *                           previously being shut down, this Bundle contains the most recent data.
      */
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 
         // Get Firebase Device ID
         FirebaseMessaging.getInstance().getToken()
@@ -49,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(this, "Error retrieving device ID. Please try again.", Toast.LENGTH_LONG).show();
                     }
                 });
+
     }
 
     /**
