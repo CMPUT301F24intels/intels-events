@@ -81,8 +81,17 @@ public class CreateQR extends AppCompatActivity {
                         .addOnSuccessListener(uri -> {
                             String QRUrl = uri.toString();
 
-                            // Update the QR code URL in FireStore under the events collection
-                            FirebaseFirestore.getInstance().collection("events").document(eventName).update("qrCodeUrl", QRUrl);
+                            // Update the QR code URL and hash in Firestore under the events collection
+                            FirebaseFirestore.getInstance().collection("events").document(eventName)
+                                    .update("qrCodeUrl", QRUrl, "qrCodeHash", imageHash)
+                                    .addOnSuccessListener(aVoid -> {
+                                        // Success callback
+                                        System.out.println("QR code URL and hash successfully updated!");
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        // Failure callback
+                                        System.err.println("Error updating QR code info: " + e.getMessage());
+                                    });
         }));
 
         // Button to open the event details page that can show the details about the event
