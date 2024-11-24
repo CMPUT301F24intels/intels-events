@@ -70,5 +70,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/events_button" />
+    <Button
+        android:id="@+id/image_browser_button"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginBottom="24dp"
+        android:text="Image Browser"
+        android:textColor="@android:color/white"
+        android:drawableLeft="@android:drawable/ic_menu_search"
+        android:drawablePadding="8dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center"
+        android:scaleType="centerInside"
+        android:textSize="16sp"
+        android:contentDescription="Image Browser Button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
