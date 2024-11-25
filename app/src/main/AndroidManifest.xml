@@ -9,8 +9,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -22,7 +22,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Intelsapp"
         tools:targetApi="31">
-
+        <activity
+            android:name=".ImageFacilityBrowserActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ImageEventBrowserActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ImageBrowserActivity"
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -33,23 +41,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ScanQRActivity">
-
-        </activity>
+        <activity android:name=".ScanQRActivity" />
         <activity android:name=".EventGridOrganizerActivity" />
         <activity android:name=".EventGridEntrantActivity" />
         <activity android:name=".ManageEventsActivity" />
         <activity android:name=".AddEvent" />
         <activity android:name=".CreateQR" />
         <activity android:name=".EventDetailsOrganizer" />
-        <activity android:name=".AdminLogin"/>
+        <activity android:name=".AdminLogin" />
         <activity android:name=".EntrantInWaitlist" />
         <activity android:name=".EntrantInCancelledWaitlist" />
-        <activity android:name=".FinalList"/>
-        <activity android:name=".LotteryList"/>
-        <activity android:name=".AdminProfiles"/>
-        <activity android:name=".AdminEvents"/>
+        <activity android:name=".FinalList" />
+        <activity android:name=".LotteryList" />
+        <activity android:name=".AdminProfiles" />
+        <activity android:name=".AdminEvents" />
         <activity android:name=".JoinWaitlistActivity" />
         <activity android:name=".SelectRoleActivity" />
         <activity android:name=".ManageFacility" />
@@ -57,20 +62,19 @@
         <activity android:name=".MainPageActivity" />
         <activity android:name=".SignUp" />
         <activity android:name=".SuccessWaitlistJoin" />
-        <activity android:name=".DrawCompleteActivity"/>
-        <activity android:name=".SelectedEntrantActivity"/>
-        <activity android:name=".ProfileDetailsAdmin"/>
-        <activity android:name=".EditEventActivity"/>
-        <activity android:name=".EventDetailsAdmin"/>
+        <activity android:name=".DrawCompleteActivity" />
+        <activity android:name=".SelectedEntrantActivity" />
+        <activity android:name=".ProfileDetailsAdmin" />
+        <activity android:name=".EditEventActivity" />
+        <activity android:name=".EventDetailsAdmin" />
         <activity android:name=".AdminFacilities" />
         <activity android:name=".FacilityDetailsAdmin" />
-
         <activity
             android:name=".NotificationActivity"
             android:exported="false"
             android:theme="@style/Theme.Intelsapp" />
-        <activity
-            android:name=".EditProfileActivity"/>
+        <activity android:name=".EditProfileActivity" />
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

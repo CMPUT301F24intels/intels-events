@@ -70,6 +70,7 @@ dependencies {
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.installations)
     implementation(libs.espresso.intents)
+    implementation(libs.activity)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

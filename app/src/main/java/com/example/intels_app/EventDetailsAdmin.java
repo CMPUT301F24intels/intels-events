@@ -19,10 +19,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -96,7 +98,6 @@ public class EventDetailsAdmin extends AppCompatActivity {
         deleteQRButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 new AlertDialog.Builder(EventDetailsAdmin.this)
                         .setTitle("Confirm Deletion")
                         .setMessage("Are you sure you want to delete this QR code?")
@@ -106,19 +107,33 @@ public class EventDetailsAdmin extends AppCompatActivity {
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {
+                                            // Remove QR Code URL and hash from event details
+                                            Map<String, Object> updates = new HashMap<>();
+                                            updates.put("qrCodeUrl", null);
+                                            updates.put("qrCodeHash", null);
 
-                                            // Remove QR Code URL from event details
                                             FirebaseFirestore.getInstance().collection("events").document(eventName)
-                                                    .update("qrCodeUrl", null)
+                                                    .update(updates)
                                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                         @Override
                                                         public void onSuccess(Void unused) {
-                                                            Log.d(TAG, "QR code URL removed successfully");
+                                                            Log.d(TAG, "QR code URL and hash removed successfully");
                                                             qrImageView.setImageResource(R.drawable.pfp_placeholder_image);
                                                             deleteQRButton.setVisibility(View.INVISIBLE);
-
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Log.e(TAG, "Failed to remove QR code details: " + e.getMessage());
                                                         }
                                                     });
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.e(TAG, "Failed to delete QR code image from storage: " + e.getMessage());
                                         }
                                     });
                         })
@@ -126,9 +141,9 @@ public class EventDetailsAdmin extends AppCompatActivity {
                             dialog.dismiss();
                         })
                         .show();
-
             }
         });
+
 
         deletePosterButton = findViewById(R.id.remove_poster_button);
         deletePosterButton.setOnClickListener(new View.OnClickListener() {
