@@ -12,7 +12,7 @@ public class ProfileCreationUnitTest {
 
         assertNull(profile.getName());
         assertNull(profile.getEmail());
-        assertEquals(0, profile.getPhone_number());
+        assertEquals("0", profile.getPhone_number());
         assertNull(profile.getImageUrl());
         assertEquals(0, profile.getImageResId());
         assertNull(profile.getDeviceId());
@@ -49,7 +49,7 @@ public class ProfileCreationUnitTest {
         // Given
         String name = "Janan Panchal";
         String email = "shah@example.com";
-        int phoneNumber = 123456789;
+        String phoneNumber = "123456789";
         String imageUrl = "http://example.com/image.jpg";
 
         Profile profile = new Profile(name, email, phoneNumber, imageUrl);
@@ -65,7 +65,7 @@ public class ProfileCreationUnitTest {
     public void testProfileWithNameEmailAndPhoneNumber() {
         String name = "Dhanshri";
         String email = "dhanshri@example.com";
-        int phoneNumber = 987654321;
+        String phoneNumber = "987654321";
 
         Profile profile = new Profile(name, email, phoneNumber);
 
@@ -80,7 +80,7 @@ public class ProfileCreationUnitTest {
         String deviceId = "device123";
         String name = "Het Patel";
         String email = "hetttt@example.com";
-        int phoneNumber = 123123123;
+        String phoneNumber = "123123123";
 
         Profile profile = new Profile(deviceId, name, email, phoneNumber);
 
@@ -96,7 +96,7 @@ public class ProfileCreationUnitTest {
         String deviceId = "device123";
         String name = "Kanishkaaaa";
         String email = "aswami@example.com";
-        int phoneNumber = 555666777;
+        String phoneNumber = "555666777";
         String imageUrl = "http://example.com/aswami.jpg";
 
         Profile profile = new Profile(deviceId, name, email, phoneNumber, imageUrl);
@@ -124,14 +124,14 @@ public class ProfileCreationUnitTest {
 
         profile.setName("Aayushi Shah");
         profile.setEmail("shah@example.com");
-        profile.setPhone_number(1234567890);
+        profile.setPhone_number("1234567890");
         profile.setImageUrl("http://example.com/shahahaha.jpg");
         profile.setDeviceId("device123");
         profile.setImageResId(54321);
 
         assertEquals("Aayushi Shah", profile.getName());
         assertEquals("shah@example.com", profile.getEmail());
-        assertEquals(1234567890, profile.getPhone_number());
+        assertEquals("1234567890", profile.getPhone_number());
         assertEquals("http://example.com/shahahaha.jpg", profile.getImageUrl());
         assertEquals("device123", profile.getDeviceId());
         assertEquals(54321, profile.getImageResId());

@@ -13,7 +13,7 @@ public class FacilityCreationUnitTest {
         assertNull(facility.getFacilityName());
         assertNull(facility.getLocation());
         assertNull(facility.getEmail());
-        assertEquals(0, facility.getTelephone());
+        assertEquals("0", facility.getTelephone());
         assertNull(facility.getFacilityImageUrl());
         assertNull(facility.getDeviceId());
     }
@@ -24,7 +24,7 @@ public class FacilityCreationUnitTest {
         String facilityName = "Aayushi's Facility";
         String location = "Downtown Edmonton";
         String email = "shah@gmail.com";
-        int telephone = 1234567890;
+        String telephone = "1234567890";
         String deviceID = "device123";
 
         Facility facility = new Facility(facilityName, location, email, telephone, deviceID);
@@ -43,7 +43,7 @@ public class FacilityCreationUnitTest {
         String facilityName = "Aayushi's Facility";
         String location = "Downtown Edmonton";
         String email = "shah@gmail.com";
-        int telephone = 1234567890;
+        String telephone = "1234567890";
         String imageUrl = "http://example.com/image.jpg";
         String deviceID = "device123";
 

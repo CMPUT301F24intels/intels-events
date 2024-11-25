@@ -55,7 +55,7 @@ public class FacilityDetailsAdmin extends AppCompatActivity {
                         name.setText(facility.getFacilityName());
                         location.setText(facility.getLocation());
                         email.setText(facility.getEmail());
-                        telephone.setText(String.valueOf(facility.getTelephone()));
+                        telephone.setText(facility.getTelephone());
 
                         if (facility.getFacilityImageUrl() != null && !facility.getFacilityImageUrl().isEmpty()) {
                             Glide.with(getApplicationContext())
