@@ -138,6 +138,7 @@ public class CustomAdapterManageEvents extends BaseAdapter {
                         .setMessage("Are you sure you want to delete this event?")
                         .setPositiveButton("Yes", (dialog, which) -> {
                             // Delete event-related operations
+                            Log.d(TAG, "Deleting event at position: " + position);
                             deleteEvent(position);
                         })
                         .setNegativeButton("No", (dialog, which) -> {
@@ -189,17 +190,26 @@ public class CustomAdapterManageEvents extends BaseAdapter {
 
     // Method to delete event data from Firestore and Storage
     private void deleteEvent(int position) {
+        Log.d(TAG, "Deleting event: " + eventData.get(position).getEventName());
+        String eventToDelete = eventData.get(position).getEventName();
+
         FirebaseFirestore.getInstance().collection("events")
-                .document(eventData.get(position).getEventName())
+                .document(eventToDelete)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     event = documentSnapshot.toObject(Event.class);
+                    Log.d(TAG, "Event data retrieved: " + event.getEventName());
 
                     if (event != null) {
+                        Log.d(TAG, "Event data is not null.");
+
                         // Delete poster and QR code from Firebase Storage
                         FirebaseStorage.getInstance().getReferenceFromUrl(event.getPosterUrl()).delete()
                                 .addOnSuccessListener(unused -> Log.d(TAG, "Poster successfully deleted."))
                                 .addOnFailureListener(e -> Log.w(TAG, "Failed to delete poster.", e));
+
+                        // Delete QR code from Firebase Storage
+                        Log.d(TAG, "QR code URL: " + event.getQrCodeUrl());
 
                         FirebaseStorage.getInstance().getReferenceFromUrl(event.getQrCodeUrl()).delete()
                                 .addOnSuccessListener(unused -> Log.d(TAG, "QR successfully deleted."))
