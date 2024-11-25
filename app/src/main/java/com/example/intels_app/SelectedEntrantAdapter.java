@@ -33,26 +33,30 @@ import java.util.List;
 public class SelectedEntrantAdapter extends RecyclerView.Adapter<SelectedEntrantAdapter.EntrantViewHolder> implements Filterable {
     private Context context;
     private List<Profile> entrants;
-    private List<Profile> entrantsFull; // For keeping the full, unfiltered list
+    private List<Profile> entrantsFull; // Original full list for filtering
+    private Filter entrantFilter;
 
     public SelectedEntrantAdapter(Context context, List<Profile> entrants) {
         this.context = context;
         this.entrants = entrants;
-        this.entrantsFull = new ArrayList<>(entrants); // Make a copy of the full list
+        this.entrantsFull = new ArrayList<>(entrants); // Copy of the full list for filtering
     }
 
     @NonNull
     @Override
     public EntrantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_entrant, parent, false);
+        // Inflate layout, match with profile_list_view_entrant if needed
+        View view = LayoutInflater.from(context).inflate(R.layout.profile_list_view_entrant, parent, false);
         return new EntrantViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull EntrantViewHolder holder, int position) {
         Profile profile = entrants.get(position);
+
+        // Bind data to views
         holder.nameTextView.setText(profile.getName());
-        holder.emailTextView.setText(profile.getEmail());
+        // Add other fields as needed
     }
 
     @Override
@@ -62,23 +66,40 @@ public class SelectedEntrantAdapter extends RecyclerView.Adapter<SelectedEntrant
 
     @Override
     public Filter getFilter() {
+        if (entrantFilter == null) {
+            entrantFilter = new EntrantFilter();
+        }
         return entrantFilter;
     }
 
-    private final Filter entrantFilter = new Filter() {
+    /**
+     * ViewHolder for RecyclerView items.
+     */
+    public static class EntrantViewHolder extends RecyclerView.ViewHolder {
+        TextView nameTextView;
+
+        public EntrantViewHolder(@NonNull View itemView) {
+            super(itemView);
+            nameTextView = itemView.findViewById(R.id.profile_name);
+        }
+    }
+
+    /**
+     * Custom Filter for RecyclerView items.
+     */
+    private class EntrantFilter extends Filter {
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             List<Profile> filteredList = new ArrayList<>();
 
             if (constraint == null || constraint.length() == 0) {
-                filteredList.addAll(entrantsFull); // Show all if no filter is applied
+                filteredList.addAll(entrantsFull); // No filter, show all
             } else {
                 String filterPattern = constraint.toString().toLowerCase().trim();
 
-                for (Profile item : entrantsFull) {
-                    if (item.getName().toLowerCase().contains(filterPattern) ||
-                            item.getEmail().toLowerCase().contains(filterPattern)) {
-                        filteredList.add(item);
+                for (Profile profile : entrantsFull) {
+                    if (profile.getName().toLowerCase().contains(filterPattern)) {
+                        filteredList.add(profile);
                     }
                 }
             }
@@ -94,15 +115,14 @@ public class SelectedEntrantAdapter extends RecyclerView.Adapter<SelectedEntrant
             entrants.addAll((List) results.values);
             notifyDataSetChanged();
         }
-    };
+    }
 
-    public static class EntrantViewHolder extends RecyclerView.ViewHolder {
-        TextView nameTextView, emailTextView;
-
-        public EntrantViewHolder(@NonNull View itemView) {
-            super(itemView);
-            nameTextView = itemView.findViewById(R.id.nameTextView);
-            emailTextView = itemView.findViewById(R.id.emailTextView);
-        }
+    /**
+     * Method to update the data dynamically.
+     */
+    public void updateData(List<Profile> newProfiles) {
+        this.entrants = newProfiles;
+        this.entrantsFull = new ArrayList<>(newProfiles);
+        notifyDataSetChanged();
     }
 }

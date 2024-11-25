@@ -76,6 +76,7 @@
         android:layout_height="50dp"
         android:layout_marginBottom="24dp"
         android:text="Image Browser"
+        android:fontFamily="@font/poppins_semibold"
         android:textColor="@android:color/white"
         android:drawableLeft="@android:drawable/ic_menu_search"
         android:drawablePadding="8dp"
