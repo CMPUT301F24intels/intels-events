@@ -97,7 +97,7 @@ public class CreateFacility extends AppCompatActivity {
             String facilityNameStr = facilityName.getText().toString();
             String locationStr = location.getText().toString();
             String emailStr = email.getText().toString();
-            Integer telephoneNum = Integer.parseInt(telephone.getText().toString());
+            String telephoneNum = telephone.getText().toString();
 
             // If an image was uploaded, add it to Firebase Storage and then create the facility
             if (imageUploaded && imageData != null) {
@@ -117,7 +117,7 @@ public class CreateFacility extends AppCompatActivity {
      * @param email Email of the facility
      * @param telephone Telephone number of the facility
      */
-    private void uploadImageAndSaveFacility(String facilityName, String location, String email, int telephone) {
+    private void uploadImageAndSaveFacility(String facilityName, String location, String email, String telephone) {
         if (imageHash == null) {
             Toast.makeText(this, "Image hash is null, cannot proceed.", Toast.LENGTH_SHORT).show();
             return;
@@ -152,7 +152,7 @@ public class CreateFacility extends AppCompatActivity {
      * @param imageUrl URL of the facility's image
      * @param deviceID Device ID of the user
      */
-    private void saveFacilityToFirestore(String facilityName, String location, String email, int telephone, String imageUrl, String deviceID) {
+    private void saveFacilityToFirestore(String facilityName, String location, String email, String telephone, String imageUrl, String deviceID) {
 
         // Create new facility object
         Facility facility = new Facility(facilityName, location, email, telephone, imageUrl, deviceID);

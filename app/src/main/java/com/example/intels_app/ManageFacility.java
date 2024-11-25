@@ -90,9 +90,7 @@ public class ManageFacility extends AppCompatActivity {
                             facilityName.setHint(documentSnapshot.getString("facilityName"));
                             location.setHint(documentSnapshot.getString("location"));
                             email.setHint(documentSnapshot.getString("email"));
-
-                            Long telephoneLong = documentSnapshot.getLong("telephone");
-                            telephone.setHint(String.valueOf(telephoneLong.intValue()));
+                            telephone.setHint(documentSnapshot.getString("telephone"));
 
                             String imageUrl = documentSnapshot.getString("imageUrl");
                             if (imageUrl != null) {
@@ -145,7 +143,7 @@ public class ManageFacility extends AppCompatActivity {
                                                             facilityName.getText().toString(),
                                                             location.getText().toString(),
                                                             email.getText().toString(),
-                                                            Integer.parseInt(telephone.getText().toString()),
+                                                            telephone.getText().toString(),
                                                             posterUrl,
                                                             deviceId
                                                     );
@@ -155,7 +153,7 @@ public class ManageFacility extends AppCompatActivity {
                                         facilityName.getText().toString(),
                                         location.getText().toString(),
                                         email.getText().toString(),
-                                        Integer.parseInt(telephone.getText().toString()),
+                                        telephone.getText().toString(),
                                         deviceId
                                 );
                             }

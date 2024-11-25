@@ -9,7 +9,7 @@ public class Facility {
     private String location;
     private String organizerName;
     private String email;
-    private int telephone;
+    private String telephone;
     private String imageUrl;
     private String deviceID;
 
@@ -26,7 +26,7 @@ public class Facility {
      * @param telephone Telephone number of the facility
      * @param deviceID Device ID of the facility
      */
-    public Facility(String facilityName, String location, String email, int telephone, String deviceID) {
+    public Facility(String facilityName, String location, String email, String telephone, String deviceID) {
         this.facilityName = facilityName;
         this.location = location;
         this.email = email;
@@ -43,7 +43,7 @@ public class Facility {
      * @param deviceID Device ID of the facility
      * @param imageUrl Image URL of the facility
      */
-    public Facility(String facilityName, String location, String email, int telephone, String imageUrl, String deviceID) {
+    public Facility(String facilityName, String location, String email, String telephone, String imageUrl, String deviceID) {
         this.facilityName = facilityName;
         this.location = location;
         this.email = email;
@@ -85,11 +85,11 @@ public class Facility {
         this.email = email;
     }
 
-    public int getTelephone() {
+    public String getTelephone() {
         return telephone;
     }
 
-    public void setTelephone(int telephone) {
+    public void setTelephone(String telephone) {
         this.telephone = telephone;
     }
 
