@@ -35,7 +35,7 @@ public class DrawCompleteActivity extends AppCompatActivity {
         entrantsSelectedButton = findViewById(R.id.entrants_selected_button);
 
         entrantsSelectedButton.setOnClickListener(v -> {
-            Intent intent = new Intent(DrawCompleteActivity.this, SelectedEntrantActivity.class);
+            Intent intent = new Intent(DrawCompleteActivity.this, LotteryList.class);
             intent.putExtra("eventName", eventName);
             startActivity(intent);
         });

@@ -20,7 +20,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * FinalList activity displays a list of accepted event entrants and provides functionality to search the list
@@ -94,6 +96,9 @@ public class FinalList extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference notificationsRef = db.collection("notifications");
 
+        // Use a Set to ensure unique profile IDs
+        Set<String> processedProfileIds = new HashSet<>();
+
         // Fetch notifications where the type is "accepted" and eventName matches eventName
         notificationsRef
                 .whereEqualTo("type", "accepted")
@@ -115,7 +120,10 @@ public class FinalList extends AppCompatActivity {
                         for (DocumentSnapshot notification : notifications) {
                             String profileId = notification.getString("profileId");
 
-                            if (profileId != null) {
+                            if (profileId != null && !processedProfileIds.contains(profileId)) {
+                                // Add to the Set to ensure uniqueness
+                                processedProfileIds.add(profileId);
+
                                 db.collection("waitlisted_entrants")
                                         .document(profileId)
                                         .get()
@@ -126,14 +134,14 @@ public class FinalList extends AppCompatActivity {
                                                 Profile profile = new Profile(name, imageUrl);
                                                 profileList.add(profile);
                                                 Log.d("AcceptedEntrants", "Added profile: Name = " + name + ", ImageUrl = " + imageUrl);
-                                            }
 
-                                            // Update the adapter after adding profiles
-                                            adapter.updateData(new ArrayList<>(profileList));
-                                            adapter.notifyDataSetChanged();
+                                                // Update the adapter after adding profiles
+                                                adapter.updateData(new ArrayList<>(profileList));
+                                                adapter.notifyDataSetChanged();
+                                            }
                                         })
                                         .addOnFailureListener(e -> Log.w("Firestore", "Error fetching profile for ID: " + profileId, e));
-                            } else {
+                            } else if (profileId == null) {
                                 Log.w("AcceptedEntrants", "Missing profileId in notification.");
                             }
                         }

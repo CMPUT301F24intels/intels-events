@@ -32,7 +32,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         setContentView(R.layout.join_waitlist);
 
 //        //This hardcoded data is only to TEST, REMOVE AFTER TO REAL CODE
-        String eventName = "Dancing Party";
+        String eventName = "Christmas Party";
         String facilityName = "Tech Auditorium";
         String location = "Whyte Ave, Edmonton";
         String dateTime = "2024-12-01 10:00 AM";
