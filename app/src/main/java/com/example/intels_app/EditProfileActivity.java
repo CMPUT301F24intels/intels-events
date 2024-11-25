@@ -4,14 +4,13 @@
  * for capturing or selecting a profile picture, input validation based on set
  * parameters, and saving profile changes.
  * @author Dhanshri Patel
- * @see com.example.intels_app.MainPageActivity Main screen of app
+ * @see com.example.intels_app.MainActivity Main screen of app
  */
 
 package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -21,12 +20,7 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.Settings;
-import android.text.Editable;
-import android.text.InputFilter;
-import android.text.Spanned;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -39,27 +33,19 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.test.services.events.platform.TestRunErrorEvent;
-
-import android.content.SharedPreferences;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.installations.FirebaseInstallations;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 public class EditProfileActivity extends AppCompatActivity {
@@ -102,10 +88,9 @@ public class EditProfileActivity extends AppCompatActivity {
                 });
 
 
-
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(view -> {
-            Intent intent = new Intent(EditProfileActivity.this, MainPageActivity.class);
+            Intent intent = new Intent(EditProfileActivity.this, MainActivity.class);
             startActivity(intent);
         });
 
@@ -123,7 +108,8 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void loadProfileDetails(){
-        db.collection("profiles")
+        FirebaseFirestore.getInstance()
+                .collection("profiles")
                 .whereEqualTo("deviceId", deviceId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -134,7 +120,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     // Populate the UI with event details
                     name.setText(profile.getName());
                     email.setText(profile.getEmail());
-                    phone_number.setText(String.valueOf(profile.getPhone_number()));
+                    phone_number.setText(profile.getPhone_number());
 
                     // Load event poster image using Glide
                     if (profile.getImageUrl() != null && !profile.getImageUrl().isEmpty()) {
@@ -193,7 +179,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                                                                 deviceId,
                                                                                 name.getText().toString(),
                                                                                 email.getText().toString(),
-                                                                                Integer.parseInt(phone_number.getText().toString()),
+                                                                                phone_number.getText().toString(),
                                                                                 finalImageUrl
                                                                         );
 
@@ -234,7 +220,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                 deviceId,
                                 name.getText().toString(),
                                 email.getText().toString(),
-                                Integer.parseInt(phone_number.getText().toString()),
+                                phone_number.getText().toString(),
                                 finalImageUrl
                         );
                         FirebaseFirestore.getInstance().collection("profiles").document(name.getText().toString())

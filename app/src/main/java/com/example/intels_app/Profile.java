@@ -11,12 +11,11 @@ package com.example.intels_app;
  class Profile {
     private String name;
     private String email;
-    private int phone_number;
+    private String phone_number;
     private int imageResId;
     private String imageUrl;
     private String deviceId;
     /*private String eventName;*/
-
 
 
     public Profile(String name, int imageResId) {
@@ -29,34 +28,26 @@ package com.example.intels_app;
         this.email = email;
     }
 
-    public Profile(String name, String email, int phone_number, String imageUrl) {
+    public Profile(String name, String email, String phone_number, String imageUrl) {
         this.name = name;
         this.email = email;
         this.phone_number = phone_number;
         this.imageUrl = imageUrl;
     }
     //Constructor without profile pic
-    public Profile(String name, String email, int phone_number) {
+    public Profile(String name, String email, String phone_number) {
         this.name = name;
         this.email = email;
         this.phone_number = phone_number;
     }
 
-    public Profile(String deviceId, String name, String email, int phone_number) {
-        this.deviceId = deviceId;
-        this.name = name;
-        this.email = email;
-        this.phone_number = phone_number;
-    }
-
-    public Profile(String deviceId, String name, String email, int phone_number, String imageUrl) {
+    public Profile(String deviceId, String name, String email, String phone_number, String imageUrl) {
         this.deviceId = deviceId;
         this.name = name;
         this.email = email;
         this.phone_number = phone_number;
         this.imageUrl = imageUrl;
     }
-
 
     public Profile(String deviceId) {
         this.deviceId = deviceId;
@@ -105,11 +96,11 @@ package com.example.intels_app;
         this.email = email;
     }
 
-    public int getPhone_number() {
+    public String getPhone_number() {
         return phone_number;
     }
 
-    public void setPhone_number(int phone_number) {
+    public void setPhone_number(String phone_number) {
         this.phone_number = phone_number;
     }
 

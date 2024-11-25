@@ -1,7 +1,7 @@
 /**
  * When the user uses the app for the first time (new device ID), prompt them to create a facility profile
  * @author Janan Panchal
- * @see com.example.intels_app.MainPageActivity Creating a profile leads to main page
+ * @see com.example.intels_app.MainActivity Creating a profile leads to main page
  * @see com.example.intels_app.Facility Facility object
  */
 package com.example.intels_app;
@@ -18,7 +18,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -28,10 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.example.intels_app.Facility;
-import com.example.intels_app.MainPageActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.installations.FirebaseInstallations;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -60,6 +56,9 @@ public class CreateFacility extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_facility);
 
+        deviceId = getIntent().getStringExtra("deviceId");
+
+        /*
         // Get the current user's device Id to add as a parameter to their facility profile
         FirebaseMessaging.getInstance().getToken()
                 .addOnCompleteListener(task -> {
@@ -70,7 +69,7 @@ public class CreateFacility extends AppCompatActivity {
                     } else {
                         Log.e("DeviceID", "Failed to get Firebase Instance ID", task.getException());
                     }
-                });
+                });*/
 
         imageView = findViewById(R.id.pfpPlaceholder);
 
@@ -97,7 +96,7 @@ public class CreateFacility extends AppCompatActivity {
             String facilityNameStr = facilityName.getText().toString();
             String locationStr = location.getText().toString();
             String emailStr = email.getText().toString();
-            Integer telephoneNum = Integer.parseInt(telephone.getText().toString());
+            String telephoneNum = telephone.getText().toString();
 
             // If an image was uploaded, add it to Firebase Storage and then create the facility
             if (imageUploaded && imageData != null) {
@@ -117,7 +116,7 @@ public class CreateFacility extends AppCompatActivity {
      * @param email Email of the facility
      * @param telephone Telephone number of the facility
      */
-    private void uploadImageAndSaveFacility(String facilityName, String location, String email, int telephone) {
+    private void uploadImageAndSaveFacility(String facilityName, String location, String email, String telephone) {
         if (imageHash == null) {
             Toast.makeText(this, "Image hash is null, cannot proceed.", Toast.LENGTH_SHORT).show();
             return;
@@ -152,7 +151,7 @@ public class CreateFacility extends AppCompatActivity {
      * @param imageUrl URL of the facility's image
      * @param deviceID Device ID of the user
      */
-    private void saveFacilityToFirestore(String facilityName, String location, String email, int telephone, String imageUrl, String deviceID) {
+    private void saveFacilityToFirestore(String facilityName, String location, String email, String telephone, String imageUrl, String deviceID) {
 
         // Create new facility object
         Facility facility = new Facility(facilityName, location, email, telephone, imageUrl, deviceID);
@@ -161,7 +160,7 @@ public class CreateFacility extends AppCompatActivity {
         FirebaseFirestore.getInstance().collection("facilities").document(facilityName)
                 .set(facility)
                 .addOnSuccessListener(documentReference -> {
-                    Intent intent = new Intent(CreateFacility.this, MainPageActivity.class);
+                    Intent intent = new Intent(CreateFacility.this, ManageEventsActivity.class);
                     startActivity(intent);
                     finish();
                 })

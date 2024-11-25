@@ -138,6 +138,7 @@ public class CustomAdapterManageEvents extends BaseAdapter {
                         .setMessage("Are you sure you want to delete this event?")
                         .setPositiveButton("Yes", (dialog, which) -> {
                             // Delete event-related operations
+                            Log.d(TAG, "User confirmed deletion");
                             deleteEvent(position);
                         })
                         .setNegativeButton("No", (dialog, which) -> {
@@ -189,21 +190,31 @@ public class CustomAdapterManageEvents extends BaseAdapter {
 
     // Method to delete event data from Firestore and Storage
     private void deleteEvent(int position) {
+        Log.d(TAG, "Deleting event: " + eventData.get(position).getEventName());
+        String eventToDelete = eventData.get(position).getEventName();
+
         FirebaseFirestore.getInstance().collection("events")
-                .document(eventData.get(position).getEventName())
+                .document(eventToDelete)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     event = documentSnapshot.toObject(Event.class);
+                    Log.d(TAG, "Event data retrieved: " + event.getEventName());
 
                     if (event != null) {
-                        // Delete poster and QR code from Firebase Storage
-                        FirebaseStorage.getInstance().getReferenceFromUrl(event.getPosterUrl()).delete()
-                                .addOnSuccessListener(unused -> Log.d(TAG, "Poster successfully deleted."))
-                                .addOnFailureListener(e -> Log.w(TAG, "Failed to delete poster.", e));
+                        Log.d(TAG, "Event data is not null.");
 
-                        FirebaseStorage.getInstance().getReferenceFromUrl(event.getQrCodeUrl()).delete()
-                                .addOnSuccessListener(unused -> Log.d(TAG, "QR successfully deleted."))
-                                .addOnFailureListener(e -> Log.w(TAG, "Failed to delete QR code.", e));
+                        if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
+                            // Delete poster and QR code from Firebase Storage
+                            FirebaseStorage.getInstance().getReferenceFromUrl(event.getPosterUrl()).delete()
+                                    .addOnSuccessListener(unused -> Log.d(TAG, "Poster successfully deleted."))
+                                    .addOnFailureListener(e -> Log.w(TAG, "Failed to delete poster.", e));
+                        }
+
+                        if (event.getQrCodeUrl() != null && !event.getQrCodeUrl().isEmpty()) {
+                            FirebaseStorage.getInstance().getReferenceFromUrl(event.getQrCodeUrl()).delete()
+                                    .addOnSuccessListener(unused -> Log.d(TAG, "QR successfully deleted."))
+                                    .addOnFailureListener(e -> Log.w(TAG, "Failed to delete QR code.", e));
+                        }
 
                         // Delete event from Firestore
                         FirebaseFirestore.getInstance().collection("events")
@@ -233,10 +244,13 @@ public class CustomAdapterManageEvents extends BaseAdapter {
                     facility = documentSnapshot.toObject(Facility.class);
 
                     if (facility != null) {
-                        // Delete facility image from Firebase Storage
-                        FirebaseStorage.getInstance().getReferenceFromUrl(facility.getFacilityImageUrl()).delete()
-                                .addOnSuccessListener(unused -> Log.d(TAG, "Image successfully deleted."))
-                                .addOnFailureListener(e -> Log.w(TAG, "Failed to delete image.", e));
+
+                        if (facility.getFacilityImageUrl() != null && !facility.getFacilityImageUrl().isEmpty()) {
+                            // Delete facility image from Firebase Storage
+                            FirebaseStorage.getInstance().getReferenceFromUrl(facility.getFacilityImageUrl()).delete()
+                                    .addOnSuccessListener(unused -> Log.d(TAG, "Image successfully deleted."))
+                                    .addOnFailureListener(e -> Log.w(TAG, "Failed to delete image.", e));
+                        }
 
                         // Delete facility from Firestore
                         FirebaseFirestore.getInstance().collection("facilities")

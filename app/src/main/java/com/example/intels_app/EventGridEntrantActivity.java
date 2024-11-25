@@ -8,7 +8,7 @@
  * @see com.example.intels_app.Event Event object
  * @see com.example.intels_app.CustomAdapterEntrant Adapter for Entrant gridview
  * @see com.example.intels_app.EventGridOrganizerActivity Organizer Event gridview
- * @see com.example.intels_app.MainPageActivity Main screen of app
+ * @see com.example.intels_app.MainActivity Main screen of app
  * @see FirebaseFirestore
  */
 
@@ -24,9 +24,6 @@ import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.intels_app.CustomAdapterEntrant;
-import com.example.intels_app.EventGridOrganizerActivity;
-import com.example.intels_app.MainPageActivity;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -68,7 +65,7 @@ public class EventGridEntrantActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(EventGridEntrantActivity.this, MainPageActivity.class); // Replace 'CurrentActivity' with your current activity's name and 'TargetActivity' with the name of the specific activity you want to return to.
+                Intent intent = new Intent(EventGridEntrantActivity.this, MainActivity.class); // Replace 'CurrentActivity' with your current activity's name and 'TargetActivity' with the name of the specific activity you want to return to.
                 startActivity(intent);
             }
         });

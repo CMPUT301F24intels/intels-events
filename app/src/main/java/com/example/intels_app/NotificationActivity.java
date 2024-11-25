@@ -4,7 +4,7 @@
  * retrieves notifications from Firebase Firestore and allows the user to
  * clear all notifications.
  * @author Katrina Alejo
- * @see com.example.intels_app.MainPageActivity Main screen of app
+ * @see com.example.intels_app.MainActivity Main screen of app
  * @see com.google.firebase.firestore.FirebaseFirestore Firebase
  *
  */
@@ -18,7 +18,6 @@ import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -88,7 +87,7 @@ public class NotificationActivity extends AppCompatActivity {
 
         // Set up back button to navigate back to main activity
         backButton.setOnClickListener(view -> {
-            Intent intent = new Intent(NotificationActivity.this, MainPageActivity.class);
+            Intent intent = new Intent(NotificationActivity.this, MainActivity.class);
             startActivity(intent);
         });
 

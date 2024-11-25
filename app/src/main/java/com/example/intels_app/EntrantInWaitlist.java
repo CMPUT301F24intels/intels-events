@@ -68,8 +68,8 @@ public class EntrantInWaitlist extends AppCompatActivity {
         sendNotificationCheckbox = findViewById(R.id.checkbox_notify);
 
         profileList = new ArrayList<>();
-        profileList.add(new Profile("Aayushi", "dshjfd@gmail.com", 7050404));
-        profileList.add(new Profile("Janan", "dshjfd@gmail.com", 7050404));
+        profileList.add(new Profile("Aayushi", "dshjfd@gmail.com", "7050404"));
+        profileList.add(new Profile("Janan", "dshjfd@gmail.com", "7050404"));
         adapter = new ProfileAdapter(this, profileList);
         listView.setAdapter(adapter);
 
