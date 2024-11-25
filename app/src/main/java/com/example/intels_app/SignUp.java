@@ -109,14 +109,6 @@ public class SignUp extends AppCompatActivity {
             email = findViewById(R.id.enter_email);
             phone_number = findViewById(R.id.enter_phone_number);
 
-            int phoneNumber;
-            try {
-                phoneNumber = Integer.parseInt(phone_number.getText().toString());
-            } catch (NumberFormatException e) {
-                Toast.makeText(SignUp.this, "Invalid phone number", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
             if (imageData == null || imageHash == null) {
                 Toast.makeText(SignUp.this, "Please select or generate a profile picture", Toast.LENGTH_SHORT).show();
                 return;
@@ -132,7 +124,7 @@ public class SignUp extends AppCompatActivity {
                                 Log.d("Hello", "Hello");
 
                                 // Create Profile with deviceId
-                                Profile newProfile = new Profile(deviceId, name.getText().toString(), email.getText().toString(), phoneNumber, profilePicUrl);
+                                Profile newProfile = new Profile(deviceId, name.getText().toString(), email.getText().toString(), phone_number.getText().toString(), profilePicUrl);
                                 profilesRef.document(name.getText().toString())
                                         .set(newProfile)
                                         .addOnSuccessListener(aVoid -> Log.d("Firestore", "Profile successfully added to Firestore!"))

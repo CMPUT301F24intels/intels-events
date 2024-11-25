@@ -1,6 +1,6 @@
 /**
  * Allows the organizer to manage their facility profile by editing the details.
- * @author Janan Panchal
+ * @author Janan Panchal, Dhanshri Patel
  * @see com.example.intels_app.Facility Facility object
  * @see com.example.intels_app.ManageEventsActivity Back button leads to manage events page
  */
@@ -52,7 +52,7 @@ public class ManageFacility extends AppCompatActivity {
     EditText location;
     EditText email;
     EditText telephone;
-    ImageView imageView;
+    ImageView poster;
     Facility facility;
 
     @Override
@@ -60,15 +60,14 @@ public class ManageFacility extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.manage_facility);
 
-        FirebaseMessaging.getInstance().getToken()
+        FirebaseInstallations.getInstance().getId()
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
+                    if (task.isSuccessful()) {
                         deviceId = task.getResult();
-                        Log.d("DeviceID", "Device ID (Firebase Token): " + deviceId);
-
-                        // Use of deviceId to track the organizer's device in Firestore
+                        Log.d(TAG, "Retrieved Device ID: " + deviceId);
+                        loadFacilityDetails();
                     } else {
-                        Log.e("DeviceID", "Failed to get Firebase Instance ID", task.getException());
+                        Toast.makeText(this, "Error retrieving Device ID", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -76,31 +75,7 @@ public class ManageFacility extends AppCompatActivity {
         location = findViewById(R.id.locationEditText);
         email = findViewById(R.id.emailEditText);
         telephone = findViewById(R.id.telephoneEditText);
-        imageView = findViewById(R.id.pfpPlaceholder);
-
-        FirebaseFirestore.getInstance().collection("facilities").whereEqualTo("deviceId", deviceId).get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
-
-                            // Populate UI with data from Firestore
-                            facilityName.setHint(documentSnapshot.getString("facilityName"));
-                            location.setHint(documentSnapshot.getString("location"));
-                            email.setHint(documentSnapshot.getString("email"));
-
-                            Long telephoneLong = documentSnapshot.getLong("telephone");
-                            telephone.setHint(String.valueOf(telephoneLong.intValue()));
-
-                            String imageUrl = documentSnapshot.getString("imageUrl");
-                            if (imageUrl != null) {
-                                Glide.with(getApplicationContext()).load(imageUrl).into(imageView);
-                            }
-
-                            Log.d("Firestore", "Document found and data loaded.");
-                    }
-                }});
+        poster = findViewById(R.id.camera_image);
 
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -144,7 +119,7 @@ public class ManageFacility extends AppCompatActivity {
                                                             facilityName.getText().toString(),
                                                             location.getText().toString(),
                                                             email.getText().toString(),
-                                                            Integer.parseInt(telephone.getText().toString()),
+                                                            telephone.getText().toString(),
                                                             posterUrl,
                                                             deviceId
                                                     );
@@ -154,7 +129,7 @@ public class ManageFacility extends AppCompatActivity {
                                         facilityName.getText().toString(),
                                         location.getText().toString(),
                                         email.getText().toString(),
-                                        Integer.parseInt(telephone.getText().toString()),
+                                        telephone.getText().toString(),
                                         deviceId
                                 );
                             }
@@ -177,13 +152,48 @@ public class ManageFacility extends AppCompatActivity {
         });
     }
 
+    private void loadFacilityDetails(){
+        FirebaseFirestore.getInstance()
+                .collection("facilities")
+                .whereEqualTo("deviceId", deviceId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                        Facility facility = documentSnapshot.toObject(Facility.class);
+                        if (facility != null) {
+                            // Populate the UI with event details
+                            facilityName.setText(facility.getFacilityName());
+                            location.setText(facility.getLocation());
+                            email.setText(facility.getEmail());
+                            telephone.setText(facility.getTelephone());
+
+                            // Load event poster image using Glide
+                            if (facility.getFacilityImageUrl() != null && !facility.getFacilityImageUrl().isEmpty()) {
+                                Glide.with(getApplicationContext())
+                                        .load(facility.getFacilityImageUrl())
+                                        .placeholder(R.drawable.pfp_placeholder_image)
+                                        .error(R.drawable.person_image)
+                                        .into(poster);
+                            } else {
+                                Log.w(TAG, "No poster URL found in the document");
+                                poster.setImageResource(R.drawable.person_image);
+                            }
+                        }
+                    }
+                    else {
+                        Log.e(TAG, "No such document exists");
+                    }
+                });
+    }
+
     ActivityResultLauncher<Intent> openGallery = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == RESULT_OK) {
                     if (result.getData() != null) {
                         image = result.getData().getData();
-                        Glide.with(getApplicationContext()).load(image).into(imageView); // Put uploaded image into imageView
+                        Glide.with(getApplicationContext()).load(image).into(poster); // Put uploaded image into imageView
                         ImageView cameraImage = findViewById(R.id.camera_image);
                         cameraImage.setVisibility(View.INVISIBLE);
 

@@ -2,6 +2,9 @@ package com.example.intels_app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.GridView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -12,6 +15,13 @@ import android.view.View;
 //import com.example.intels_app.databinding.ActivityMainBinding;
 import com.google.firebase.FirebaseApp;
 //import com.google.firebase.auth.FirebaseAuth;
+import com.example.intels_app.CreateFacility;
+import com.example.intels_app.MainPageActivity;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -20,6 +30,8 @@ import android.view.MenuItem;
 import android.widget.ImageButton;
 
 import android.widget.PopupMenu;
+
+import java.util.ArrayList;
 
 /**
  * MainActivity serves as the main dashboard of the application, providing navigation to various
@@ -37,6 +49,15 @@ public class MainActivity extends AppCompatActivity {
     private StorageReference storageRef;
     //private ActivityMainBinding binding;
     private QRCodeScanner qrCodeScanner;
+
+    /**
+     * Called when the activity is first created.
+     * Attempts to retrieve the Firebase Device ID, and uses it to
+     * check if the user's profile exists.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down, this Bundle contains the most recent data.
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -130,6 +130,7 @@
         android:fontFamily="@font/poppins_semibold"
         android:hint="Phone Number"
         android:paddingStart="10dp"
+        android:inputType="number"
         android:textColor="@color/white"
         android:textColorHint="#848A94"
         android:textSize="15sp"

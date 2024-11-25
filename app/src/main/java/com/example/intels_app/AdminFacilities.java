@@ -57,6 +57,15 @@ public class AdminFacilities extends AppCompatActivity {
 
         list_facility = new ArrayList<>();
 
+        Button BrowserButton = findViewById(R.id.image_browser_button);
+        BrowserButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AdminFacilities.this, ImageFacilityBrowserActivity.class);
+                startActivity(intent);
+            }
+        });
+
         // Inflate the custom adapter with the list of events
         CustomAdapterManageEvents adapter = new CustomAdapterManageEvents(this, list_facility);
         facilities_gridview.setAdapter(adapter);

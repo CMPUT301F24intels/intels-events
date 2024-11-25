@@ -163,7 +163,7 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                                                 String imageUrl = profileDoc.getString("profile.imageUrl");
 
                                                 // Create the profile with deviceId
-                                                Profile profile = new Profile(profileId, name, null, 0, imageUrl);
+                                                Profile profile = new Profile(profileId, name, null, "0", imageUrl);
                                                 profileList.add(profile);
                                                 Log.d("CancelledEntrants", "Added profile: " + name + ", ID: " + profileId);
 

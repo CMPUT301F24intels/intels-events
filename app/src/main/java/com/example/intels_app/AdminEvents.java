@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -28,6 +29,7 @@ public class AdminEvents extends AppCompatActivity {
     private Button events_button;
     private Button facilities_button;
     private ArrayList<Event> list_event;
+
 
     /**
      * Displays a list of all events for the admin view.
@@ -55,6 +57,16 @@ public class AdminEvents extends AppCompatActivity {
         GridView events_gridview = findViewById(R.id.events_gridview);
 
         list_event = new ArrayList<>();
+
+
+        Button BrowserButton = findViewById(R.id.image_browser_button);
+        BrowserButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AdminEvents.this, ImageEventBrowserActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // Inflate the custom adapter with the list of events
         CustomAdapterManageEvents adapter = new CustomAdapterManageEvents(this, list_event, position -> {

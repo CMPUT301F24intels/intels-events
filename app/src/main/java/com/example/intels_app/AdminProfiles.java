@@ -61,6 +61,16 @@ public class AdminProfiles extends AppCompatActivity {
         ProfileAdapterAdmin adapter = new ProfileAdapterAdmin(this, profileList);
         profile_list.setAdapter(adapter);
 
+
+        Button BrowserButton = findViewById(R.id.image_browser_button);
+        BrowserButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AdminProfiles.this, ImageBrowserActivity.class);
+                startActivity(intent);
+            }
+        });
+
         /*
         // Initialize the imageButton22
         imageButton22 = findViewById(R.id.imageButton22);

@@ -88,7 +88,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 });
 
 
-
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(view -> {
             Intent intent = new Intent(EditProfileActivity.this, MainActivity.class);
@@ -109,7 +108,8 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void loadProfileDetails(){
-        db.collection("profiles")
+        FirebaseFirestore.getInstance()
+                .collection("profiles")
                 .whereEqualTo("deviceId", deviceId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -120,7 +120,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     // Populate the UI with event details
                     name.setText(profile.getName());
                     email.setText(profile.getEmail());
-                    phone_number.setText(String.valueOf(profile.getPhone_number()));
+                    phone_number.setText(profile.getPhone_number());
 
                     // Load event poster image using Glide
                     if (profile.getImageUrl() != null && !profile.getImageUrl().isEmpty()) {
@@ -179,7 +179,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                                                                 deviceId,
                                                                                 name.getText().toString(),
                                                                                 email.getText().toString(),
-                                                                                Integer.parseInt(phone_number.getText().toString()),
+                                                                                phone_number.getText().toString(),
                                                                                 finalImageUrl
                                                                         );
 
@@ -220,7 +220,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                 deviceId,
                                 name.getText().toString(),
                                 email.getText().toString(),
-                                Integer.parseInt(phone_number.getText().toString()),
+                                phone_number.getText().toString(),
                                 finalImageUrl
                         );
                         FirebaseFirestore.getInstance().collection("profiles").document(name.getText().toString())
