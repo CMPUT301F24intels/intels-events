@@ -4,7 +4,7 @@
  * or return to the home page.
  * @author Aayushi Shah
  * @see com.example.intels_app.EventGridEntrantActivity
- * @see com.example.intels_app.MainPageActivity
+ * @see com.example.intels_app.MainActivity
  * @see com.example.intels_app.MainActivity
  */
 
@@ -42,7 +42,7 @@ public class SuccessWaitlistJoin extends AppCompatActivity {
         homePageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(SuccessWaitlistJoin.this, MainPageActivity.class);
+                Intent intent = new Intent(SuccessWaitlistJoin.this, MainActivity.class);
                 startActivity(intent);
                 finish();
             }

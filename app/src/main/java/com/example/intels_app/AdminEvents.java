@@ -1,7 +1,7 @@
 /**
  * Displays a list of all events for the admin view.
  * @author Janan Panchal
- * @see com.example.intels_app.MainPageActivity Back button leads to main page
+ * @see com.example.intels_app.MainActivity Back button leads to main page
  * @see com.example.intels_app.AdminProfiles Clicking the profiles tab leads to the admin profiles page
  * @see com.example.intels_app.CustomAdapterOrganizer Custom adapter for the grid view
  */
@@ -19,15 +19,10 @@ import android.widget.ImageButton;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.intels_app.AdminProfiles;
-import com.example.intels_app.CustomAdapterOrganizer;
-import com.example.intels_app.MainPageActivity;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class AdminEvents extends AppCompatActivity {
     private Button profile_button;
@@ -53,7 +48,7 @@ public class AdminEvents extends AppCompatActivity {
         back_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(AdminEvents.this, MainPageActivity.class);
+                Intent intent = new Intent(AdminEvents.this, MainActivity.class);
                 startActivity(intent);
             }
         });
