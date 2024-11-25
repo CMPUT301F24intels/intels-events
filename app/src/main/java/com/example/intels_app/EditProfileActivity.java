@@ -102,7 +102,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 });
 
 
-
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(view -> {
             Intent intent = new Intent(EditProfileActivity.this, MainPageActivity.class);
@@ -123,7 +122,8 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void loadProfileDetails(){
-        db.collection("profiles")
+        FirebaseFirestore.getInstance()
+                .collection("profiles")
                 .whereEqualTo("deviceId", deviceId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
