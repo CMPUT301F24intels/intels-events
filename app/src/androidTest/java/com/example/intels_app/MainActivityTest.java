@@ -11,35 +11,23 @@ import androidx.test.filters.LargeTest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import android.content.Intent;
 
-import androidx.test.espresso.Espresso;
 import androidx.test.espresso.intent.Intents;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.LargeTest;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import static androidx.test.espresso.Espresso.onData;
-import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static org.hamcrest.Matchers.anything;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class MainPageActivityTest {
+public class MainActivityTest {
     @Rule
-    public ActivityScenarioRule<MainPageActivity> activityRule = new
-            ActivityScenarioRule<MainPageActivity>(MainPageActivity.class);
+    public ActivityScenarioRule<MainActivity> activityRule = new
+            ActivityScenarioRule<MainActivity>(MainActivity.class);
     @Before
     public void setUp() {
         Intents.init();

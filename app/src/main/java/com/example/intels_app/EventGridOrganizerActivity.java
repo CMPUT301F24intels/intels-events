@@ -7,7 +7,7 @@
  * @see com.example.intels_app.Event Event object
  * @see com.example.intels_app.CustomAdapterOrganizer Adapter for Organizer gridview
  * @see com.example.intels_app.EventGridEntrantActivity Entrant Event gridview
- * @see com.example.intels_app.MainPageActivity Main screen of app
+ * @see com.example.intels_app.MainActivity Main screen of app
  * @see FirebaseFirestore
  */
 
@@ -27,7 +27,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.installations.FirebaseInstallations;
 
 import java.util.ArrayList;
@@ -85,7 +84,7 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(EventGridOrganizerActivity.this, MainPageActivity.class);
+                Intent intent = new Intent(EventGridOrganizerActivity.this, MainActivity.class);
                 startActivity(intent);
             }
         });

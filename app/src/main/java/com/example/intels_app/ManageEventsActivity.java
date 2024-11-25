@@ -4,7 +4,7 @@
  * @see com.example.intels_app.EventDetailsOrganizer Event details page for event just created
  * @see com.example.intels_app.AddEvent Add event page
  * @see com.example.intels_app.ManageFacility Manage facility page
- * @see com.example.intels_app.MainPageActivity Main page
+ * @see com.example.intels_app.MainActivity Main page
  * @see com.example.intels_app.Event Event object
  * @see com.example.intels_app.CustomAdapterManageEvents Custom adapter for dispaying events
  */
@@ -13,28 +13,20 @@ package com.example.intels_app;
 import static android.content.ContentValues.TAG;
 
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.installations.FirebaseInstallations;
 
 import java.util.ArrayList;
 
@@ -47,14 +39,15 @@ public class ManageEventsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.manage_events);
 
-        FirebaseMessaging.getInstance().getToken()
+        FirebaseInstallations.getInstance().getId()
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        String deviceId = task.getResult();
-                        fetchEventsForDevice(deviceId);
+                    if (task.isSuccessful()) {
+                        String currentDeviceId = task.getResult();
+                        Log.d(TAG, "Device ID: " + currentDeviceId);
+                        checkIfFacilityExists(currentDeviceId);
+                        fetchEventsForDevice(currentDeviceId);
                     } else {
-                        Log.e("DeviceID", "Failed to get Firebase Instance ID", task.getException());
-                        Toast.makeText(this, "Error retrieving device ID. Please try again.", Toast.LENGTH_LONG).show();
+                        Log.e("FirebaseInstallations", "Unable to get device ID", task.getException());
                     }
                 });
 
@@ -69,30 +62,11 @@ public class ManageEventsActivity extends AppCompatActivity {
         });
         gridview.setAdapter(adapter);
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference collectionRef = db.collection("events");
-
-        collectionRef.get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        for (DocumentSnapshot document : queryDocumentSnapshots) {
-
-                            // Convert document to Event object and add to eventData list
-                            Event event = document.toObject(Event.class);
-                            eventData.add(event);
-                            adapter.notifyDataSetChanged();
-                        }
-                    } else {
-                        Log.d("Firestore", "No documents found in this collection.");
-                    }
-                })
-                .addOnFailureListener(e -> Log.w("Firestore", "Error fetching documents", e));
-
         ImageButton backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ManageEventsActivity.this, MainPageActivity.class);
+                Intent intent = new Intent(ManageEventsActivity.this, MainActivity.class);
                 startActivity(intent);
             }
         });
@@ -116,12 +90,53 @@ public class ManageEventsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Checks whether a user profile exists for the given device ID.
+     * If a user profile exists, proceeds to the main functionality.
+     * If not, redirects the user to the profile creation screen.
+     *
+     * @param deviceId The unique device ID retrieved from Firebase.
+     */
+    private void checkIfFacilityExists(String deviceId) {
+        FirebaseFirestore.getInstance().collection("facilities")
+                .whereEqualTo("deviceId", deviceId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful() || task.getResult().isEmpty() || task.getResult() == null) {
+
+                        // User does not exist, redirect to profile creation
+                        // redirectToCreateEntrantProfile(deviceId); // Uncomment line to implement
+                        redirectToCreateOrganizerProfile(deviceId);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Error checking user existence", e);
+                    Toast.makeText(this, "Error accessing user information. Please try again.", Toast.LENGTH_LONG).show();
+                });
+    }
+
+    /**
+     * Redirects the user to the organizer profile creation activity if they are new.
+     * Passes the device ID to the profile creation activity.
+     *
+     * @param deviceId The unique device ID to be used in {@link CreateFacility}.
+     */
+    // Method to redirect to create profile if user is new
+    private void redirectToCreateOrganizerProfile(String deviceId) {
+        Intent intent = new Intent(ManageEventsActivity.this, CreateFacility.class); //Changed this line make it back to CreateFacility
+        Log.d("Firestore", "Redirecting to CreateProfileActivity with device ID: " + deviceId);
+        intent.putExtra("deviceId", deviceId); // Pass device ID if needed in CreateProfileActivity
+        startActivity(intent);
+        finish(); // Close MainActivity
+    }
+
     private void fetchEventsForDevice(String deviceId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference eventsRef = db.collection("events");
 
+        Log.d("Firestore", "Fetching events for device: " + deviceId);
         eventsRef.whereEqualTo("deviceId", deviceId)
-                .get()  // Use `.get()` to fetch data once
+                .get()  // Use `.get()` to fetch data once instead of listening for changes
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         if (task.getResult() != null && !task.getResult().isEmpty()) {
@@ -134,12 +149,12 @@ public class ManageEventsActivity extends AppCompatActivity {
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
                                 Event event = documentSnapshot.toObject(Event.class);
                                 if (event != null) {
-                                    event.setId(documentSnapshot.getId());  // Set the document ID
+                                    event.setId(documentSnapshot.getId()); // Set the document ID
                                     Log.d("Firestore", "Event added: " + event.getId());
-                                    eventData.add(event);  // Add event to the list
+                                    eventData.add(event); // Add the event to the list
                                 }
                             }
-                            // Notify the adapter of the data change to refresh the ListView
+                            // Notify the adapter of the data change to refresh the UI
                             adapter.notifyDataSetChanged();
                         } else {
                             Log.d("Firestore", "No documents found.");
@@ -148,31 +163,5 @@ public class ManageEventsActivity extends AppCompatActivity {
                         Log.w("Firestore", "Error fetching documents", task.getException());
                     }
                 });
-
-        /*
-        eventsRef.whereEqualTo("deviceId", deviceId)
-                .addSnapshotListener((queryDocumentSnapshots, e) -> {
-                    if (e != null) {
-                        Log.w("Firestore", "Listen failed.", e);
-                        return;
-                    }
-
-                    if (queryDocumentSnapshots != null) {
-                        Log.d("Firestore", "Data received: " + queryDocumentSnapshots.size() + " documents");
-                        eventData.clear(); // Clear list to avoid duplicates
-                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                            Event event = documentSnapshot.toObject(Event.class);
-                            if (event != null) {
-                                event.setId(documentSnapshot.getId()); // Set ID from Firestore document ID
-                                Log.d("Firestore", "Event added: " + event.getId());
-                                eventData.add(event); // Add event to the list
-                            }
-                        }
-                        adapter.notifyDataSetChanged();
-                    } else {
-                        Log.d("Firestore", "No documents found.");
-                    }
-                });
-         */
     }
 }

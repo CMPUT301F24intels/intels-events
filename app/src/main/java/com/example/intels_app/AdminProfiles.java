@@ -1,7 +1,7 @@
 /**
  * Displays a list of all profiles for the admin view.
  * @author Janan Panchal, Dhanshri Patel
- * @see com.example.intels_app.MainPageActivity Back button leads to main page
+ * @see com.example.intels_app.MainActivity Back button leads to main page
  * @see com.example.intels_app.AdminEvents Clicking the events tab leads to the admin events page
  * @see com.example.intels_app.ProfileAdapterAdmin Custom adapter for the list view
  * @see com.example.intels_app.Profile Profile object
@@ -25,9 +25,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -137,7 +135,7 @@ public class AdminProfiles extends AppCompatActivity {
         back_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(AdminProfiles.this, MainPageActivity.class);
+                Intent intent = new Intent(AdminProfiles.this, MainActivity.class);
                 startActivity(intent);
             }
         });

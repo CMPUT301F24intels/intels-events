@@ -34,7 +34,7 @@ public class AdminLogin extends AppCompatActivity {
         back_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(AdminLogin.this, MainPageActivity.class);
+                Intent intent = new Intent(AdminLogin.this, MainActivity.class);
                 startActivity(intent);
             }
         });
