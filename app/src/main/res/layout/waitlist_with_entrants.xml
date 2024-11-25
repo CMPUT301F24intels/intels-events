@@ -52,6 +52,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Search"
+        android:fontFamily="@font/poppins_semibold"
         android:drawableStart="@android:drawable/ic_menu_search"
         android:background="@android:drawable/edit_text"
         android:padding="10dp"
@@ -95,6 +96,7 @@
                 android:layout_marginEnd="8dp"
                 android:backgroundTint="#663580FF"
                 android:text="Lottery List"
+                android:fontFamily="@font/poppins_semibold"
                 android:textColor="@color/white" />
 
             <Button
@@ -105,6 +107,7 @@
                 android:layout_marginStart="8dp"
                 android:backgroundTint="#663580FF"
                 android:text="Final List"
+                android:fontFamily="@font/poppins_semibold"
                 android:textColor="@color/white" />
 
         </LinearLayout>
@@ -115,6 +118,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Send Notification"
+            android:fontFamily="@font/poppins_semibold"
             android:textColor="@color/white"
             app:layout_constraintTop_toBottomOf="@id/button_row"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -17,10 +17,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * FinalList activity displays a list of accepted event entrants and provides functionality to search the list
@@ -88,20 +93,20 @@ public class FinalList extends AppCompatActivity {
     }
 
     private void fetchAcceptedEntrants(ProfileAdapter adapter) {
-        // Log the event name to confirm it's being passed correctly
         Log.d("AcceptedEntrants", "Fetching accepted entrants for event: " + eventName);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference notificationsRef = db.collection("notifications");
 
-        // Fetch notifications where the type is "accepted" and eventName matches eventName
+        Set<String> processedProfileIds = new HashSet<>();
+
         notificationsRef
                 .whereEqualTo("type", "accepted")
                 .whereEqualTo("eventName", eventName)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        profileList.clear(); // Clear the list before populating
+                        profileList.clear();
                         List<DocumentSnapshot> notifications = task.getResult().getDocuments();
 
                         if (notifications.isEmpty()) {
@@ -111,11 +116,12 @@ public class FinalList extends AppCompatActivity {
                             return;
                         }
 
-                        // Fetch profile data for each accepted notification
                         for (DocumentSnapshot notification : notifications) {
                             String profileId = notification.getString("profileId");
 
-                            if (profileId != null) {
+                            if (profileId != null && !processedProfileIds.contains(profileId)) {
+                                processedProfileIds.add(profileId);
+
                                 db.collection("waitlisted_entrants")
                                         .document(profileId)
                                         .get()
@@ -123,17 +129,26 @@ public class FinalList extends AppCompatActivity {
                                             if (profileDoc.exists()) {
                                                 String name = profileDoc.getString("profile.name");
                                                 String imageUrl = profileDoc.getString("profile.imageUrl");
+                                                String deviceId = profileDoc.getString("deviceId");
+
                                                 Profile profile = new Profile(name, imageUrl);
                                                 profileList.add(profile);
-                                                Log.d("AcceptedEntrants", "Added profile: Name = " + name + ", ImageUrl = " + imageUrl);
-                                            }
 
-                                            // Update the adapter after adding profiles
-                                            adapter.updateData(new ArrayList<>(profileList));
-                                            adapter.notifyDataSetChanged();
+                                                Log.d("AcceptedEntrants", "Added profile: Name = " + name + ", DeviceId = " + deviceId);
+
+                                                // Send notification to this profile
+                                                if (deviceId != null && !deviceId.isEmpty()) {
+                                                    sendNotificationToProfile(deviceId, profileId, eventName, "You have been accepted!");
+                                                } else {
+                                                    Log.w("AcceptedEntrants", "Device ID missing for profile: " + profileId);
+                                                }
+
+                                                adapter.updateData(new ArrayList<>(profileList));
+                                                adapter.notifyDataSetChanged();
+                                            }
                                         })
                                         .addOnFailureListener(e -> Log.w("Firestore", "Error fetching profile for ID: " + profileId, e));
-                            } else {
+                            } else if (profileId == null) {
                                 Log.w("AcceptedEntrants", "Missing profileId in notification.");
                             }
                         }
@@ -169,6 +184,70 @@ public class FinalList extends AppCompatActivity {
     }
 
     private void sendNotificationToEntrants(String message) {
-        Toast.makeText(this, "Notification sent: " + message, Toast.LENGTH_LONG).show();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference notificationsRef = db.collection("notifications");
+
+        if (eventName == null || eventName.isEmpty()) {
+            Log.e("Notification", "Event name is missing");
+            Toast.makeText(this, "Event name is missing. Cannot send notification.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        notificationsRef.whereEqualTo("type", "accepted")
+                .whereEqualTo("eventName", eventName)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        List<DocumentSnapshot> notifications = task.getResult().getDocuments();
+
+                        if (notifications.isEmpty()) {
+                            Toast.makeText(this, "No accepted entrants to notify.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        for (DocumentSnapshot notification : notifications) {
+                            String profileId = notification.getString("profileId");
+
+                            if (profileId != null) {
+                                db.collection("waitlisted_entrants")
+                                        .document(profileId)
+                                        .get()
+                                        .addOnSuccessListener(profileDoc -> {
+                                            String deviceId = profileDoc.getString("deviceId");
+
+                                            if (deviceId != null && !deviceId.isEmpty()) {
+                                                sendNotificationToProfile(deviceId, profileId, eventName, message);
+                                            } else {
+                                                Log.w("Notification", "Device ID missing for profile: " + profileId);
+                                            }
+                                        })
+                                        .addOnFailureListener(e -> Log.e("Notification", "Error fetching profile document for ID: " + profileId, e));
+                            }
+                        }
+
+                        Toast.makeText(this, "Notifications sent to all accepted entrants.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Log.e("Notification", "Error fetching accepted entrants", task.getException());
+                        Toast.makeText(this, "Failed to send notifications.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void sendNotificationToProfile(String deviceId, String profileId, String eventName, String message) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Create notification data
+        Map<String, Object> notificationData = new HashMap<>();
+        notificationData.put("deviceId", deviceId);
+        notificationData.put("profileId", profileId);
+        notificationData.put("eventName", eventName);
+        notificationData.put("message", message);
+        notificationData.put("timestamp", FieldValue.serverTimestamp());
+
+        // Add the notification to Firestore
+        db.collection("notifications")
+                .add(notificationData)
+                .addOnSuccessListener(documentReference -> Log.d("Notification", "Notification sent with ID: " + documentReference.getId()))
+                .addOnFailureListener(e -> Log.e("Notification", "Error sending notification", e));
     }
 }

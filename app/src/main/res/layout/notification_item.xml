@@ -28,6 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Event Title"
+            android:fontFamily="@font/poppins_semibold"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -37,6 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Event Notification Message"
+            android:fontFamily="@font/poppins_semibold"
             android:textColor="#FFFFFF"
             android:textSize="14sp" />
 
@@ -52,6 +54,7 @@
                 android:layout_height="32dp"
                 android:backgroundTint="#4CAF50"
                 android:text="Accept"
+                android:fontFamily="@font/poppins_semibold"
                 android:textColor="#FFFFFF"
                 android:textSize="12sp"
                 android:padding="4dp" />
@@ -63,6 +66,7 @@
                 android:layout_marginStart="16dp"
                 android:backgroundTint="#F44336"
                 android:text="Decline"
+                android:fontFamily="@font/poppins_semibold"
                 android:textColor="#FFFFFF"
                 android:textSize="12sp"
                 android:padding="4dp" />
