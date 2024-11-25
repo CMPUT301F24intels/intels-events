@@ -16,7 +16,7 @@ import android.view.View;
 import com.google.firebase.FirebaseApp;
 //import com.google.firebase.auth.FirebaseAuth;
 import com.example.intels_app.CreateFacility;
-import com.example.intels_app.MainPageActivity;
+import com.example.intels_app.MainActivity;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
