@@ -247,7 +247,9 @@ public class EntrantInWaitlist extends AppCompatActivity {
         EntrantAdapter adapter = new EntrantAdapter(this, documentNames);
         listView.setAdapter(adapter);
 
-        waitlistRef.whereEqualTo("eventName", eventName)  // Filter by eventName
+        waitlistRef.whereArrayContains("events", new HashMap<String, Object>() {{
+                    put("eventName", eventName);
+                }})  // Filter by eventName
                 .get()  // Use `.get()` to fetch data once
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
