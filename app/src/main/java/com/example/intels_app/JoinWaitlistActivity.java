@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
@@ -240,28 +241,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         Intent intent = new Intent(JoinWaitlistActivity.this, SignUp.class);
         intent.putExtra("deviceId", deviceId);
         intent.putExtra("eventName", eventName);
-
-        profilesRef.document(deviceId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        Log.d("JoinWaitlist", "Profile exists. Populating fields.");
-                        Profile profile = documentSnapshot.toObject(Profile.class);
-                        intent.putExtra("profileExists", true);
-                        intent.putExtra("profileName", profile.getName());
-                        intent.putExtra("profileEmail", profile.getEmail());
-                        intent.putExtra("profilePhoneNumber", profile.getPhone_number());
-                        intent.putExtra("profilePicUrl", profile.getImageUrl());
-                    } else {
-                        Log.d("JoinWaitlist", "No profile found for device ID.");
-                        intent.putExtra("profileExists", false);
-                    }
-                    startActivity(intent);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("JoinWaitlist", "Error checking profile existence", e);
-                    Toast.makeText(this, "Error accessing profile. Please try again.", Toast.LENGTH_SHORT).show();
-                });
+        startActivityForResult(intent, 1); // Use a unique request code
     }
 
     private void navigateToSuccessScreen() {
@@ -269,9 +249,30 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
+            // Retrieve the created profile details
+            String deviceId = data.getStringExtra("deviceId");
+            String name = data.getStringExtra("name");
+            String email = data.getStringExtra("email");
+            String phoneNumber = data.getStringExtra("phoneNumber");
+            String profilePicUrl = data.getStringExtra("profilePicUrl");
+            String eventName = data.getStringExtra("eventName");
+
+            // Create a Profile object
+            Profile newProfile = new Profile(deviceId, name, email, phoneNumber, profilePicUrl);
+
+            // Call joinWaitlist with the new profile
+            joinWaitlist(newProfile, eventName);
+        } else if (resultCode == RESULT_CANCELED) {
+            Toast.makeText(this, "Profile creation canceled.", Toast.LENGTH_SHORT).show();
+        }
+    }
 }
-
-
         /*if (eventNameTextView != null) {
             eventNameTextView.setText(eventName);
         }
