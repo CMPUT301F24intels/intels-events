@@ -54,7 +54,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         waitlistRef = db.collection("waitlisted_entrants");
 
         //        //This hardcoded data is only to TEST, REMOVE AFTER TO REAL CODE
-        String eventName = "Poster Battle";
+        String eventName = "FoodTruckEvent";
         String facilityName = "Tech Auditorium";
         String location = "Whyte Ave, Edmonton";
         String dateTime = "2024-12-01 10:00 AM";
@@ -192,6 +192,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         profileData.put("phone_number", profile.getPhone_number());
         profileData.put("imageUrl", profile.getImageUrl());
         profileData.put("name", profile.getName());
+        profileData.put("notifPref", profile.isNotifPref());
 
         // Check if the document already exists
         entrantDocRef.get().addOnCompleteListener(task -> {
@@ -216,6 +217,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
 
                     // If document does not exist, create a new one
                     Map<String, Object> waitlistEntry = new HashMap<>();
+                    waitlistEntry.put("deviceId", profile.getDeviceId());
                     waitlistEntry.put("profile", profileData); // Add profile data
                     waitlistEntry.put("events", Collections.singletonList(eventData)); // Initialize with the first event
 
