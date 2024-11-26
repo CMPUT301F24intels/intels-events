@@ -10,10 +10,12 @@ import android.widget.Toast;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,7 +33,14 @@ public class SignUpTest {
     @Rule
     public ActivityScenarioRule<SignUp> activityScenarioRule =
             new ActivityScenarioRule<>(SignUp.class);
-
+    @Before
+    public void setUp() {
+        Intents.init();
+    }
+    @After
+    public void tearDown() {
+        Intents.release();
+    }
     @Test
     public void testBackButton() {
         onView(withId(R.id.back_button)).perform(click());
