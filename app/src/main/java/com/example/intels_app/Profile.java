@@ -111,4 +111,4 @@ package com.example.intels_app;
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
-}
+ }

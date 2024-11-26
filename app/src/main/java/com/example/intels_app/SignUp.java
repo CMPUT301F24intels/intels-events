@@ -85,8 +85,8 @@ public class SignUp extends AppCompatActivity {
         profilesRef = db.collection("profiles");
         waitlistRef = db.collection("waitlisted_entrants");
 
-        deviceId = getIntent().getStringExtra("Device ID");
-        eventName = getIntent().getStringExtra("Event Name");
+        deviceId = getIntent().getStringExtra("deviceId");
+        eventName = getIntent().getStringExtra("eventName");
         Log.d("SignUpActivity", "Received Device ID: " + deviceId); // Log for verification
         Log.d("SignUpActivity", "Received Event ID: " + eventName);
 

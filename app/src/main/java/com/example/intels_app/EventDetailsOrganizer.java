@@ -163,7 +163,9 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                     // Commit batch delete
                     batch.commit().addOnSuccessListener(aVoid -> {
                         // Query waitlisted entrants for selected event
-                        waitlistedEntrantsRef.whereEqualTo("eventName", eventName)
+                        waitlistedEntrantsRef.whereArrayContains("events", new HashMap<String, Object>() {{
+                                    put("eventName", eventName);
+                                }})
                                 .get()
                                 .addOnSuccessListener(waitlistQuery -> {
                                     List<DocumentSnapshot> waitlist = waitlistQuery.getDocuments();
