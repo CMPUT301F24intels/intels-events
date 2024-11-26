@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -37,6 +38,7 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.security.MessageDigest;
@@ -67,6 +69,8 @@ public class SignUp extends AppCompatActivity {
     private EditText name, email, phone_number;
     private Button add_picture, register_button;
     private ImageView profile_pic;
+    private SwitchCompat notificationSwitch;
+    private boolean notificationPreference = false;
 
     private String deviceId;
     private String eventName;
@@ -99,6 +103,7 @@ public class SignUp extends AppCompatActivity {
         add_picture = findViewById(R.id.add_picture);
         register_button = findViewById(R.id.register_button);
         back_button = findViewById(R.id.back_button);
+        notificationSwitch = findViewById(R.id.notification_switch);
 
         // Set up listeners
         add_picture.setOnClickListener(view -> showImagePickerDialog());
@@ -106,6 +111,14 @@ public class SignUp extends AppCompatActivity {
         back_button.setOnClickListener(view -> {
             Intent intent = new Intent(SignUp.this, SelectRoleActivity.class);
             startActivity(intent);
+        });
+
+        notificationPreference = notificationSwitch.isChecked();
+        Log.d("SignUpActivity", "Initial Notification Preference: " + notificationPreference);
+
+        notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            notificationPreference = isChecked;
+            Log.d("SignUpActivity", "Notification Preference: " + notificationPreference);
         });
 
         register_button.setOnClickListener(view -> registerUser());
@@ -132,13 +145,14 @@ public class SignUp extends AppCompatActivity {
                         .addOnSuccessListener(uri -> {
                             String profilePicUrl = uri.toString();
 
-                            Profile newProfile = new Profile(deviceId, userName, userEmail, userPhoneNumber, profilePicUrl);
+                            Profile newProfile = new Profile(deviceId, userName, userEmail, userPhoneNumber, profilePicUrl, notificationPreference);
+                            newProfile.setNotifPref(notificationPreference);
 
                             profilesRef.document(userName)
                                     .set(newProfile)
                                     .addOnSuccessListener(aVoid -> {
                                         Log.d("Firestore", "Profile successfully created!");
-                                        returnCreatedProfile(newProfile, eventName);
+                                        addToWaitlistedEntrants(newProfile, eventName);
                                     })
                                     .addOnFailureListener(e -> {
                                         Log.w("FirestoreError", "Error adding profile", e);
@@ -297,6 +311,35 @@ public class SignUp extends AppCompatActivity {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private void addToWaitlistedEntrants(Profile profile, String eventName) {
+        CollectionReference waitlistRef = db.collection("waitlisted_entrants");
+
+        // Create the event data
+        Map<String, Object> eventData = new HashMap<>();
+        eventData.put("eventName", eventName);
+
+        // Create the waitlist entry
+        Map<String, Object> waitlistEntry = new HashMap<>();
+        waitlistEntry.put("deviceId", profile.getDeviceId());
+        waitlistEntry.put("profile", profile); // Add the full profile object, including notifPref
+        waitlistEntry.put("events", Collections.singletonList(eventData)); // Add the event as a list
+
+        // Save the waitlist entry to Firestore
+        waitlistRef.document(profile.getName())
+                .set(waitlistEntry)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firestore", "Entrant successfully added to waitlisted_entrants!");
+                    Toast.makeText(this, "Successfully joined the waitlist!", Toast.LENGTH_SHORT).show();
+
+                    // Navigate back or perform other actions
+                    returnCreatedProfile(profile, eventName);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FirestoreError", "Error adding entrant to waitlisted_entrants", e);
+                    Toast.makeText(this, "Failed to join waitlist. Please try again.", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void returnCreatedProfile(Profile profile, String eventName) {
