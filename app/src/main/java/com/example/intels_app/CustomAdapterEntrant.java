@@ -29,6 +29,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
+import java.util.Map;
 
 public class CustomAdapterEntrant extends BaseAdapter {
     private Context context;
@@ -76,32 +77,56 @@ public class CustomAdapterEntrant extends BaseAdapter {
                     .setPositiveButton("Confirm", (dialog, which) -> {
                         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-                        // Query Firestore to find the document with the matching deviceId and eventName
+                        // Query Firestore to find the document with the matching deviceId
                         db.collection("waitlisted_entrants")
                                 .whereEqualTo("deviceId", deviceId) // Match the device ID
-                                .whereEqualTo("eventName", event.getEventName()) // Match the event name
                                 .get()
                                 .addOnCompleteListener(task -> {
                                     if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
                                         for (DocumentSnapshot document : task.getResult()) {
-                                            document.getReference().delete()
-                                                    .addOnSuccessListener(aVoid -> {
-                                                        data.remove(position);
-                                                        notifyDataSetChanged();
-                                                        Toast.makeText(context, "Event removed from waitlist", Toast.LENGTH_SHORT).show();
-                                                    })
-                                                    .addOnFailureListener(e -> {
-                                                        Toast.makeText(context, "Failed to delete event", Toast.LENGTH_SHORT).show();
-                                                        Log.e("Firestore", "Error deleting document", e);
-                                                    });
+                                            // Get the events array
+                                            List<Map<String, Object>> events = (List<Map<String, Object>>) document.get("events");
+
+                                            if (events != null) {
+                                                // Find the specific event to remove
+                                                Map<String, Object> eventToRemove = null;
+                                                for (Map<String, Object> eventMap : events) {
+                                                    if (eventMap.containsKey("eventName") && eventMap.get("eventName").equals(event.getEventName())) {
+                                                        eventToRemove = eventMap;
+                                                        break;
+                                                    }
+                                                }
+
+                                                if (eventToRemove != null) {
+                                                    // Remove the event from the array
+                                                    events.remove(eventToRemove);
+
+                                                    // Update the document in Firestore
+                                                    document.getReference().update("events", events)
+                                                            .addOnSuccessListener(aVoid -> {
+                                                                data.remove(position);
+                                                                notifyDataSetChanged();
+                                                                Toast.makeText(context, "Event removed from waitlist", Toast.LENGTH_SHORT).show();
+                                                            })
+                                                            .addOnFailureListener(e -> {
+                                                                Toast.makeText(context, "Failed to update waitlist", Toast.LENGTH_SHORT).show();
+                                                                Log.e("Firestore", "Error updating document", e);
+                                                            });
+                                                } else {
+                                                    Toast.makeText(context, "Event not found in waitlist", Toast.LENGTH_SHORT).show();
+                                                    Log.w("Firestore", "Event not found in events array.");
+                                                }
+                                            } else {
+                                                Log.w("Firestore", "No events array found.");
+                                            }
                                         }
                                     } else {
-                                        Toast.makeText(context, "No matching event found", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(context, "No matching entrant found", Toast.LENGTH_SHORT).show();
                                         Log.w("Firestore", "No matching document found.");
                                     }
                                 })
                                 .addOnFailureListener(e -> {
-                                    Toast.makeText(context, "Error fetching event", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(context, "Error fetching waitlist entry", Toast.LENGTH_SHORT).show();
                                     Log.e("Firestore", "Error fetching document", e);
                                 });
                     })
