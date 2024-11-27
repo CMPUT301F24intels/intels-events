@@ -31,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -133,6 +134,11 @@ public class EditProfileActivity extends AppCompatActivity {
                         Log.w(TAG, "No poster URL found in the document");
                         profile_pic.setImageResource(R.drawable.person_image);
                     }
+
+                    boolean notifPref = profile.isNotifPref();
+                    SwitchCompat notificationSwitch = findViewById(R.id.notification_switch);
+                    notificationSwitch.setChecked(notifPref);
+                    Log.d("EditProfile", "Notification Preference Loaded: " + notifPref);
                 }
             } else {
                 Log.e(TAG, "No such document exists");
@@ -142,6 +148,9 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void saveProfileChanges() {
+        SwitchCompat notificationSwitch = findViewById(R.id.notification_switch);
+        boolean updatedNotifPref = notificationSwitch.isChecked();
+
         if (imageUploaded) {
             db.collection("profiles")
                     .whereEqualTo("deviceId", deviceId)
@@ -154,57 +163,40 @@ public class EditProfileActivity extends AppCompatActivity {
                                 oldImageUrl = oldProfile.getImageUrl();
                             }
                         }
-                        FirebaseStorage.getInstance().getReferenceFromUrl(oldImageUrl).delete()
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void unused) {
+
+                        // Delete the old profile picture from Firebase Storage
+                        if (oldImageUrl != null && !oldImageUrl.isEmpty()) {
+                            FirebaseStorage.getInstance().getReferenceFromUrl(oldImageUrl).delete()
+                                    .addOnSuccessListener(unused -> {
                                         Log.d(TAG, "Old profile picture deleted successfully");
 
+                                        // Upload the new profile picture
                                         FirebaseStorage.getInstance().getReference().child("profile_pics")
                                                 .child(imageHash)
                                                 .putBytes(imageData)
-                                                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                                    @Override
-                                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                        Log.d(TAG, "New profile picture uploaded successfully");
+                                                .addOnSuccessListener(taskSnapshot -> {
+                                                    Log.d(TAG, "New profile picture uploaded successfully");
 
-                                                        FirebaseStorage.getInstance().getReference().child("profile_pics").child(imageHash).getDownloadUrl()
-                                                                .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                                                    @Override
-                                                                    public void onSuccess(Uri uri) {
-                                                                        finalImageUrl = uri.toString();
-                                                                        Log.d(TAG, "New Profile URL: " + finalImageUrl);
+                                                    // Get the new profile picture URL
+                                                    FirebaseStorage.getInstance().getReference()
+                                                            .child("profile_pics")
+                                                            .child(imageHash)
+                                                            .getDownloadUrl()
+                                                            .addOnSuccessListener(uri -> {
+                                                                finalImageUrl = uri.toString();
+                                                                Log.d(TAG, "New Profile URL: " + finalImageUrl);
 
-                                                                        profile = new Profile(
-                                                                                deviceId,
-                                                                                name.getText().toString(),
-                                                                                email.getText().toString(),
-                                                                                phone_number.getText().toString(),
-                                                                                finalImageUrl
-                                                                        );
-
-                                                                        db.collection("profiles")
-                                                                                .document(name.getText().toString())
-                                                                                .set(profile)
-                                                                                .addOnSuccessListener(documentReference -> {
-                                                                                    Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
-                                                                                    finish();
-                                                                                })
-                                                                                .addOnFailureListener(e -> {
-                                                                                    Log.w(TAG, "Image upload failed", e);
-                                                                                    Toast.makeText(EditProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
-                                                                                });
-
-                                                                    }
-                                                                });
-
-                                                    }
+                                                                saveProfileToFirestore(updatedNotifPref, finalImageUrl);
+                                                            });
                                                 });
-                                    }
-                                });
+                                    });
+                        } else {
+                            // If no old image exists, directly save the new profile
+                            saveProfileToFirestore(updatedNotifPref, null);
+                        }
                     });
-        }
-        else {
+        } else {
+            // Save profile without changing the profile picture
             db.collection("profiles")
                     .whereEqualTo("deviceId", deviceId)
                     .get()
@@ -212,29 +204,36 @@ public class EditProfileActivity extends AppCompatActivity {
                         if (!queryDocumentSnapshots.isEmpty()) {
                             DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
                             oldProfile = documentSnapshot.toObject(Profile.class);
-                            if (oldProfile != null){
+                            if (oldProfile != null) {
                                 finalImageUrl = oldProfile.getImageUrl();
                             }
                         }
-                        profile = new Profile(
-                                deviceId,
-                                name.getText().toString(),
-                                email.getText().toString(),
-                                phone_number.getText().toString(),
-                                finalImageUrl
-                        );
-                        FirebaseFirestore.getInstance().collection("profiles").document(name.getText().toString())
-                                .set(profile)
-                                .addOnSuccessListener(documentReference -> {
-                                    Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
-                                    finish();
-                                })
-                                .addOnFailureListener(e -> {
-                                    Log.w(TAG, "Image upload failed", e);
-                                    Toast.makeText(EditProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
-                                });
+                        saveProfileToFirestore(updatedNotifPref, finalImageUrl);
                     });
         }
+    }
+
+    private void saveProfileToFirestore(boolean notifPref, String imageUrl) {
+        Profile updatedProfile = new Profile(
+                deviceId,
+                name.getText().toString(),
+                email.getText().toString(),
+                phone_number.getText().toString(),
+                imageUrl,
+                notifPref // Pass the updated notification preference
+        );
+
+        db.collection("profiles")
+                .document(name.getText().toString())
+                .set(updatedProfile)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(EditProfileActivity.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error updating profile", e);
+                    Toast.makeText(EditProfileActivity.this, "Failed to update profile", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void showImagePickerDialog() {

@@ -201,46 +201,50 @@ public class LotteryList extends AppCompatActivity {
      */
     private void sendNotificationToEntrants(String message) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
         // Validate the message
         if (message == null || message.isEmpty()) {
             Toast.makeText(this, "Message cannot be empty.", Toast.LENGTH_SHORT).show();
             return;
         }
-
         if (selectedEntrants.isEmpty()) {
             Toast.makeText(this, "No selected entrants found.", Toast.LENGTH_SHORT).show();
             return;
         }
-
         for (Profile entrant : selectedEntrants) {
             String profileId = entrant.getName();
-
             if (profileId == null || profileId.isEmpty()) {
                 Log.w("Notification", "Profile ID missing for entrant.");
                 continue;
             }
-
-            // Fetch deviceId from waitlisted_entrants collection
+            // Fetch deviceId and notifPref from waitlisted_entrants collection
             db.collection("waitlisted_entrants")
                     .document(profileId)
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
-                            String deviceId = documentSnapshot.getString("deviceId");
-                            if (deviceId != null && !deviceId.isEmpty()) {
-                                sendNotificationToProfile(deviceId, profileId, message);
+                            Map<String, Object> profile = (Map<String, Object>) documentSnapshot.get("profile");
+                            if (profile != null) {
+                                Boolean notifPref = (Boolean) profile.get("notifPref"); // Retrieve notifPref
+                                String deviceId = (String) profile.get("deviceId"); // Retrieve deviceId
+                                if (notifPref != null && notifPref) {
+                                    if (deviceId != null && !deviceId.isEmpty()) {
+                                        sendNotificationToProfile(deviceId, profileId, message);
+                                    } else {
+                                        Log.w("Notification", "Device ID is missing for profile: " + profileId);
+                                    }
+                                } else {
+                                    Log.d("Notification", "Skipping profile with notifPref set to false: " + profileId);
+                                }
                             } else {
-                                Log.w("Notification", "Device ID is missing for profile: " + profileId);
+                                Log.w("Notification", "Profile data is missing for profileId: " + profileId);
                             }
                         } else {
                             Log.w("Notification", "No document found for profileId: " + profileId);
                         }
                     })
-                    .addOnFailureListener(e -> Log.e("Notification", "Error fetching deviceId for profileId: " + profileId, e));
+                    .addOnFailureListener(e -> Log.e("Notification", "Error fetching profile data for profileId: " + profileId, e));
         }
-
-        Toast.makeText(this, "Notifications are being sent to selected entrants.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Notifications sent to draw entrants.", Toast.LENGTH_SHORT).show();
     }
 
     private void sendNotificationToProfile(String deviceId, String profileId, String message) {
