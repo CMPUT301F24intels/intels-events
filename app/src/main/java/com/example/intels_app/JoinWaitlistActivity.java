@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +33,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -141,33 +143,29 @@ public class JoinWaitlistActivity extends AppCompatActivity {
     private void joinWaitlistWithLocation(Location location) {
         Map<String, Object> waitlistEntry = new HashMap<>();
         waitlistEntry.put("eventName", eventName);
-        waitlistEntry.put("latitude", location.getLatitude());
-        waitlistEntry.put("longitude", location.getLongitude());
         waitlistEntry.put("facilityName", facilityName);
-        waitlistEntry.put("location", this.location);
+        waitlistEntry.put("location", location);
         waitlistEntry.put("dateTime", dateTime);
         waitlistEntry.put("description", description);
         waitlistEntry.put("maxAttendees", maxAttendees);
+        waitlistEntry.put("coordinates", new GeoPoint(location.getLatitude(), location.getLongitude()));
 
+        // Using eventName as the document ID instead of auto-generated ID
         db.collection("waitlist")
-                .add(waitlistEntry)
-                .addOnSuccessListener(documentReference -> {
+                .document(eventName)  // This sets the document name to the event name
+                .set(waitlistEntry)
+                .addOnSuccessListener(aVoid -> {
                     Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
                     intent.putExtra("Event Name", eventName);
                     intent.putExtra("Facility", facilityName);
-                    intent.putExtra("Location", this.location);
+                    intent.putExtra("Location", location);
                     intent.putExtra("DateTime", dateTime);
                     intent.putExtra("Description", description);
                     intent.putExtra("Max Attendees", maxAttendees);
                     startActivity(intent);
                 })
                 .addOnFailureListener(e -> {
-                    // Handle failure
-                    new AlertDialog.Builder(this)
-                            .setTitle("Error")
-                            .setMessage("Failed to join waitlist. Please try again.")
-                            .setPositiveButton("OK", null)
-                            .show();
+                    Toast.makeText(this, "Error adding to waitlist", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -181,8 +179,9 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         waitlistEntry.put("maxAttendees", maxAttendees);
 
         db.collection("waitlist")
-                .add(waitlistEntry)
-                .addOnSuccessListener(documentReference -> {
+                .document(eventName)  // This sets the document name to the event name
+                .set(waitlistEntry)
+                .addOnSuccessListener(aVoid -> {
                     Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
                     intent.putExtra("Event Name", eventName);
                     intent.putExtra("Facility", facilityName);
@@ -193,12 +192,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
                     startActivity(intent);
                 })
                 .addOnFailureListener(e -> {
-                    // Handle failure
-                    new AlertDialog.Builder(this)
-                            .setTitle("Error")
-                            .setMessage("Failed to join waitlist. Please try again.")
-                            .setPositiveButton("OK", null)
-                            .show();
+                    Toast.makeText(this, "Error adding to waitlist", Toast.LENGTH_SHORT).show();
                 });
     }
 

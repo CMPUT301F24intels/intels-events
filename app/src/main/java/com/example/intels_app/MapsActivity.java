@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
@@ -72,30 +74,42 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         db.collection("waitlist")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+                    boolean hasLocations = false;
+
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        GeoPoint geoPoint = document.getGeoPoint("coordinates");
+                        String eventName = document.getId(); // The document ID is the event name
+                        String location = document.getString("location"); // Fetch the location field
+
+                        GeoPoint geoPoint = document.getGeoPoint("coordinates"); // Use GeoPoint for precise coordinates
                         if (geoPoint != null) {
                             LatLng position = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
-                            String eventName = document.getString("eventName");
 
-                            // Add a marker for the event location
+                            // Add marker with event name and location
                             mMap.addMarker(new MarkerOptions()
                                     .position(position)
-                                    .title(eventName != null ? eventName : "Event Location"));
+                                    .title(eventName)
+                                    .snippet(location)); // Display location in the marker's snippet
+
+                            boundsBuilder.include(position);
+                            hasLocations = true;
                         }
                     }
-                    // Optional: Zoom to the first marker
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        QueryDocumentSnapshot firstDoc = (QueryDocumentSnapshot) queryDocumentSnapshots.getDocuments().get(0);
-                        GeoPoint firstPoint = firstDoc.getGeoPoint("coordinates");
-                        if (firstPoint != null) {
-                            LatLng firstPosition = new LatLng(firstPoint.getLatitude(), firstPoint.getLongitude());
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(firstPosition, 10));
-                        }
+
+                    // Adjust camera to show all markers
+                    if (hasLocations) {
+                        LatLngBounds bounds = boundsBuilder.build();
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100)); // Adjust padding
+                    } else {
+                        Toast.makeText(this, "No locations available", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "Error fetching locations", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error fetching locations", Toast.LENGTH_SHORT).show();
+                    Log.e("MapsActivity", "Firestore error", e);
+                });
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
