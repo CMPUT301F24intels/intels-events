@@ -91,12 +91,6 @@ public class CustomAdapterEntrant extends BaseAdapter {
                                 continue; // Skip invalid documents
                             }
 
-                            // Log valid profiles
-                            Log.d("CustomAdapterEntrant", "Fetched not_selected profile: " +
-                                    "Profile ID: " + profileId +
-                                    ", Event Name: " + document.getString("eventName") +
-                                    ", Reconsider for Draw: " + reconsiderState);
-
                             // Set switch state and visibility
                             reconsiderSwitch.setVisibility(View.VISIBLE);
                             reconsiderSwitch.setChecked(reconsiderState);
@@ -105,8 +99,6 @@ public class CustomAdapterEntrant extends BaseAdapter {
                             reconsiderSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
                                 Log.d("CustomAdapterEntrant", "Reconsider toggled for profile ID: " +
                                         profileId + " | New State: " + isChecked);
-
-                                // Display a toast message
                                 if (isChecked) {
                                     Toast.makeText(context, "Reconsider for draw enabled", Toast.LENGTH_SHORT).show();
                                 } else {

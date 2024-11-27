@@ -152,7 +152,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         CollectionReference selectedEntrantsRef = db.collection("selected_entrants");
         CollectionReference notSelectedEntrantsRef = db.collection("not_selected_entrants");
 
-        // Step 1: Clear previous `selected_entrants` and `not_selected_entrants`
+        // Clear previous selected_entrants and not_selected_entrants
         selectedEntrantsRef.whereEqualTo("eventName", eventName)
                 .get()
                 .addOnSuccessListener(selectedSnapshot -> {
@@ -191,7 +191,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                                                     int numberOfSpots = Integer.parseInt(maxAttendeesTextView.getText().toString().split(": ")[1]);
                                                     Collections.shuffle(waitlist);
 
-                                                    // Select only up to `maxAttendees` entrants
+                                                    // Select only up to maxAttendees entrants
                                                     List<DocumentSnapshot> selectedProfiles = waitlist.subList(0, Math.min(numberOfSpots, waitlist.size()));
                                                     List<DocumentSnapshot> notSelectedProfiles = waitlist.subList(Math.min(numberOfSpots, waitlist.size()), waitlist.size());
 
