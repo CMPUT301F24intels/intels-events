@@ -11,6 +11,8 @@
 
 package com.example.intels_app;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,6 +35,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -70,6 +73,10 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         CancelledProfileAdapter adapter = new CancelledProfileAdapter(this, profileList);
         listView.setAdapter(adapter);
 
+        Button redrawButton = findViewById(R.id.replacement_draw_button);
+        redrawButton.setOnClickListener(v -> {
+            redrawReplacementEntrant(); // Call the existing redraw logic
+        });
 
 
         ImageButton backButton = findViewById(R.id.back_button);
@@ -283,5 +290,114 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                 .add(notificationData)
                 .addOnSuccessListener(documentReference -> Log.d("Notification", "Notification sent with ID: " + documentReference.getId()))
                 .addOnFailureListener(e -> Log.e("Notification", "Error sending notification", e));
+    }
+
+    private void redrawReplacementEntrant() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference selectedEntrantsRef = db.collection("selected_entrants");
+        CollectionReference notSelectedRef = db.collection("not_selected_entrants");
+        CollectionReference notificationsRef = db.collection("notifications");
+
+        notificationsRef.whereEqualTo("type", "declined")
+                .whereEqualTo("eventName", eventName)
+                .get()
+                .addOnSuccessListener(declinedQuerySnapshot -> {
+                    int declinedCount = declinedQuerySnapshot.size();
+
+                    if (declinedCount == 0) {
+                        Toast.makeText(this, "No declined entrants to replace.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    notSelectedRef.whereEqualTo("eventName", eventName)
+                            .whereEqualTo("reconsiderForDraw", true)
+                            .get()
+                            .addOnSuccessListener(notSelectedQuerySnapshot -> {
+                                List<DocumentSnapshot> notSelectedList = notSelectedQuerySnapshot.getDocuments();
+
+                                if (notSelectedList.isEmpty()) {
+                                    Toast.makeText(this, "No eligible entrants for redraw.", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+
+                                // Shuffle and pick `declinedCount` profiles for redraw
+                                Collections.shuffle(notSelectedList);
+                                List<DocumentSnapshot> newSelectedProfiles = notSelectedList.subList(0, Math.min(declinedCount, notSelectedList.size()));
+
+                                // Notify selected profiles
+                                for (DocumentSnapshot profile : newSelectedProfiles) {
+                                    String profileId = profile.getId();
+                                    String deviceId = profile.getString("deviceId");
+
+                                    if (profileId != null && deviceId != null) {
+                                        // Add to selected entrants collection
+                                        Map<String, Object> selectedData = new HashMap<>();
+                                        selectedData.put("profileId", profileId);
+                                        selectedData.put("eventName", eventName);
+                                        selectedData.put("timestamp", FieldValue.serverTimestamp());
+
+                                        selectedEntrantsRef.add(selectedData)
+                                                .addOnSuccessListener(docRef -> {
+                                                    Log.d("Redraw", "Selected replacement entrant: " + profileId);
+                                                    // Remove from not_selected_entrants in firebase
+                                                    profile.getReference().delete();
+
+                                                    // Send notification
+                                                    sendNotificationToProfile(deviceId, profileId, eventName, "Congratulations! You have been selected for the event!", "selected");
+                                                })
+                                                .addOnFailureListener(e -> Log.e("Redraw", "Error adding replacement entrant", e));
+                                    }
+                                }
+
+                                // Notify remaining profiles that were not selected
+                                List<DocumentSnapshot> remainingProfiles = notSelectedList.subList(Math.min(declinedCount, notSelectedList.size()), notSelectedList.size());
+                                for (DocumentSnapshot profile : remainingProfiles) {
+                                    String profileId = profile.getId();
+                                    String deviceId = profile.getString("deviceId");
+
+                                    if (profileId != null && deviceId != null) {
+                                        sendNotificationToProfile(deviceId, profileId, eventName, "You were not selected in the redraw.", "not_selected");
+                                    }
+                                }
+
+                                Toast.makeText(this, "Redraw complete. Notifications sent.", Toast.LENGTH_SHORT).show();
+
+                                // Redirect to DrawCompleteActivity
+                                Intent intent = new Intent(EntrantInCancelledWaitlist.this, DrawCompleteActivity.class);
+                                intent.putExtra("eventName", eventName); // Pass the event name to the DrawCompleteActivity
+                                startActivity(intent);
+                                finish(); // Close the current activity
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e("Redraw", "Error fetching not_selected entrants", e);
+                                Toast.makeText(this, "Failed to fetch not_selected entrants.", Toast.LENGTH_SHORT).show();
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Redraw", "Error fetching declined notifications", e);
+                    Toast.makeText(this, "Failed to fetch declined entrants.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void sendNotificationToProfile(String deviceId, String profileId, String eventName, String message, String type) {
+        if (deviceId == null || deviceId.isEmpty()) {
+            Log.w(TAG, "Device ID is missing for profile: " + profileId);
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Map<String, Object> notificationData = new HashMap<>();
+        notificationData.put("deviceId", deviceId);
+        notificationData.put("profileId", profileId);
+        notificationData.put("eventName", eventName);
+        notificationData.put("message", message);
+        notificationData.put("timestamp", FieldValue.serverTimestamp());
+        notificationData.put("type", type);
+
+        db.collection("notifications")
+                .add(notificationData)
+                .addOnSuccessListener(documentReference -> Log.d(TAG, "Notification sent with ID: " + documentReference.getId()))
+                .addOnFailureListener(e -> Log.w(TAG, "Error sending notification", e));
     }
 }
