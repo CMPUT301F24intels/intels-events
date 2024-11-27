@@ -12,15 +12,12 @@ import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -30,9 +27,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final int FINE_PERMISSION_CODE = 1;
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationProviderClient;
-    private Location currentLocation;
     private FirebaseFirestore db;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,67 +40,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Initialize FusedLocationProviderClient
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Check permissions and get the last known location
+        // Check permissions and initialize the map
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_PERMISSION_CODE);
         } else {
-            getLastLocation();
+            loadMap();
         }
     }
 
-
-
-    private void getLastLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-                @Override
-                public void onSuccess(Location location) {
-                    if (location != null) {
-                        currentLocation = location;
-
-                        // Load the map fragment
-                        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-                        if (mapFragment != null) {
-                            mapFragment.getMapAsync(MapsActivity.this);
-                        }
-                    } else {
-                        Toast.makeText(MapsActivity.this, "Location not available", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        }
-    }
-
-    // Request location updates
-    private void requestLocationUpdates() {
-        LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(10000); // 10 seconds
-        locationRequest.setFastestInterval(5000); // 5 seconds
-
-        LocationCallback locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(@NonNull com.google.android.gms.location.LocationResult locationResult) {
-                if (locationResult != null && locationResult.getLocations().size() > 0) {
-                    Location location = locationResult.getLocations().get(0);
-                    currentLocation = location;
-                    updateMap();
-                }
-            }
-        };
-
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null);
-    }
-
-    private void updateMap() {
-        if (mMap != null && currentLocation != null) {
-            LatLng currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-
-            // Add a marker at the current location
-            mMap.addMarker(new MarkerOptions().position(currentLatLng).title("My Location"));
-
-            // Move and zoom the camera to the current location
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
+    private void loadMap() {
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
         }
     }
 
@@ -113,12 +59,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
 
-        if (currentLocation != null) {
-            updateMap();
+        // Enable My Location layer if permission is granted
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
         }
-        fetchWaitlistEntries();
 
+        // Fetch and display locations from Firestore
+        fetchWaitlistEntries();
     }
+
     private void fetchWaitlistEntries() {
         db.collection("waitlist")
                 .get()
@@ -128,13 +77,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         if (geoPoint != null) {
                             LatLng position = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
                             String eventName = document.getString("eventName");
-                            mMap.addMarker(new MarkerOptions().position(position).title(eventName));
+
+                            // Add a marker for the event location
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(position)
+                                    .title(eventName != null ? eventName : "Event Location"));
+                        }
+                    }
+                    // Optional: Zoom to the first marker
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        QueryDocumentSnapshot firstDoc = (QueryDocumentSnapshot) queryDocumentSnapshots.getDocuments().get(0);
+                        GeoPoint firstPoint = firstDoc.getGeoPoint("coordinates");
+                        if (firstPoint != null) {
+                            LatLng firstPosition = new LatLng(firstPoint.getLatitude(), firstPoint.getLongitude());
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(firstPosition, 10));
                         }
                     }
                 })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Error fetching waitlist entries", Toast.LENGTH_SHORT).show();
-                });
+                .addOnFailureListener(e -> Toast.makeText(this, "Error fetching locations", Toast.LENGTH_SHORT).show());
     }
 
     @Override
@@ -143,9 +103,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if (requestCode == FINE_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getLastLocation();
+                loadMap();
             } else {
-                Toast.makeText(this, "Location permission is denied, please allow the permission", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Permission denied, unable to show map", Toast.LENGTH_SHORT).show();
             }
         }
     }
