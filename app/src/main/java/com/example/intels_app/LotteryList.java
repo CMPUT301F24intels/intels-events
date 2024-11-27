@@ -109,8 +109,6 @@ public class LotteryList extends AppCompatActivity {
         });
     }
 
-
-
     private void loadSelectedEntrants() {
         db.collection("notifications")
                 .whereEqualTo("type", "declined")
