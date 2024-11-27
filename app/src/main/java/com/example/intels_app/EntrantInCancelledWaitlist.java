@@ -75,7 +75,7 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
 
         Button redrawButton = findViewById(R.id.replacement_draw_button);
         redrawButton.setOnClickListener(v -> {
-            redrawReplacementEntrant(); // Call the existing redraw logic
+            redrawReplacementEntrant();
         });
 
 
@@ -143,7 +143,7 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         EntrantAdapter adapter = new EntrantAdapter(this, profileNames); // Update the adapter to display names
         listView.setAdapter(adapter);
 
-        // Fetch documents where the type is "declined" and matches the event name
+        // Fetch documents where the type is declined and matches the event name
         notificationsRef.whereEqualTo("type", "declined")
                 .whereEqualTo("eventName", eventName)
                 .get()
@@ -320,11 +320,11 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                                     return;
                                 }
 
-                                // Shuffle and pick `declinedCount` profiles for redraw
+                                // Shuffle and pick not_selected entrant for redraw
                                 Collections.shuffle(notSelectedList);
                                 List<DocumentSnapshot> newSelectedProfiles = notSelectedList.subList(0, Math.min(declinedCount, notSelectedList.size()));
 
-                                // Notify selected profiles
+                                // Notify selected entrant
                                 for (DocumentSnapshot profile : newSelectedProfiles) {
                                     String profileId = profile.getId();
                                     String deviceId = profile.getString("deviceId");
