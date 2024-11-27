@@ -163,40 +163,58 @@ public class EditProfileActivity extends AppCompatActivity {
                                 oldImageUrl = oldProfile.getImageUrl();
                             }
                         }
-
-                        // Delete the old profile picture from Firebase Storage
-                        if (oldImageUrl != null && !oldImageUrl.isEmpty()) {
-                            FirebaseStorage.getInstance().getReferenceFromUrl(oldImageUrl).delete()
-                                    .addOnSuccessListener(unused -> {
+                        FirebaseStorage.getInstance().getReferenceFromUrl(oldImageUrl).delete()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
                                         Log.d(TAG, "Old profile picture deleted successfully");
 
-                                        // Upload the new profile picture
                                         FirebaseStorage.getInstance().getReference().child("profile_pics")
                                                 .child(imageHash)
                                                 .putBytes(imageData)
-                                                .addOnSuccessListener(taskSnapshot -> {
-                                                    Log.d(TAG, "New profile picture uploaded successfully");
+                                                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                        Log.d(TAG, "New profile picture uploaded successfully");
 
-                                                    // Get the new profile picture URL
-                                                    FirebaseStorage.getInstance().getReference()
-                                                            .child("profile_pics")
-                                                            .child(imageHash)
-                                                            .getDownloadUrl()
-                                                            .addOnSuccessListener(uri -> {
-                                                                finalImageUrl = uri.toString();
-                                                                Log.d(TAG, "New Profile URL: " + finalImageUrl);
+                                                        FirebaseStorage.getInstance().getReference().child("profile_pics").child(imageHash).getDownloadUrl()
+                                                                .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                                    @Override
+                                                                    public void onSuccess(Uri uri) {
+                                                                        finalImageUrl = uri.toString();
+                                                                        Log.d(TAG, "New Profile URL: " + finalImageUrl);
 
-                                                                saveProfileToFirestore(updatedNotifPref, finalImageUrl);
-                                                            });
+                                                                        profile = new Profile(
+                                                                                deviceId,
+                                                                                name.getText().toString(),
+                                                                                email.getText().toString(),
+                                                                                phone_number.getText().toString(),
+                                                                                finalImageUrl,
+                                                                                updatedNotifPref
+                                                                        );
+
+                                                                        db.collection("profiles")
+                                                                                .document(deviceId)
+                                                                                .set(profile)
+                                                                                .addOnSuccessListener(documentReference -> {
+                                                                                    Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
+                                                                                    finish();
+                                                                                })
+                                                                                .addOnFailureListener(e -> {
+                                                                                    Log.w(TAG, "Image upload failed", e);
+                                                                                    Toast.makeText(EditProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                                                                                });
+
+                                                                    }
+                                                                });
+
+                                                    }
                                                 });
-                                    });
-                        } else {
-                            // If no old image exists, directly save the new profile
-                            saveProfileToFirestore(updatedNotifPref, null);
-                        }
+                                    }
+                                });
                     });
-        } else {
-            // Save profile without changing the profile picture
+        }
+        else {
             db.collection("profiles")
                     .whereEqualTo("deviceId", deviceId)
                     .get()
@@ -204,36 +222,30 @@ public class EditProfileActivity extends AppCompatActivity {
                         if (!queryDocumentSnapshots.isEmpty()) {
                             DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
                             oldProfile = documentSnapshot.toObject(Profile.class);
-                            if (oldProfile != null) {
+                            if (oldProfile != null){
                                 finalImageUrl = oldProfile.getImageUrl();
                             }
                         }
-                        saveProfileToFirestore(updatedNotifPref, finalImageUrl);
+                        profile = new Profile(
+                                deviceId,
+                                name.getText().toString(),
+                                email.getText().toString(),
+                                phone_number.getText().toString(),
+                                finalImageUrl,
+                                updatedNotifPref
+                        );
+                        FirebaseFirestore.getInstance().collection("profiles").document(deviceId)
+                                .set(profile)
+                                .addOnSuccessListener(documentReference -> {
+                                    Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.w(TAG, "Image upload failed", e);
+                                    Toast.makeText(EditProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                                });
                     });
         }
-    }
-
-    private void saveProfileToFirestore(boolean notifPref, String imageUrl) {
-        Profile updatedProfile = new Profile(
-                deviceId,
-                name.getText().toString(),
-                email.getText().toString(),
-                phone_number.getText().toString(),
-                imageUrl,
-                notifPref // Pass the updated notification preference
-        );
-
-        db.collection("profiles")
-                .document(name.getText().toString())
-                .set(updatedProfile)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(EditProfileActivity.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    Log.w(TAG, "Error updating profile", e);
-                    Toast.makeText(EditProfileActivity.this, "Failed to update profile", Toast.LENGTH_SHORT).show();
-                });
     }
 
     private void showImagePickerDialog() {
