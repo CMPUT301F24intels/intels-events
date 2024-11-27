@@ -10,8 +10,11 @@
 
 package com.example.intels_app;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -19,37 +22,47 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class JoinWaitlistActivity extends AppCompatActivity {
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private FusedLocationProviderClient fusedLocationClient;
+    private FirebaseFirestore db;
+
+    private String eventName, facilityName, location, dateTime, description;
+    private int maxAttendees;
+    private boolean geolocationRequirement;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.join_waitlist);
 
-//        //This hardcoded data is only to TEST, REMOVE AFTER TO REAL CODE
-        String eventName = "Christmas Party";
-        String facilityName = "Tech Auditorium";
-        String location = "Whyte Ave, Edmonton";
-        String dateTime = "2024-12-01 10:00 AM";
-        String description = "A conference bringing together the brightest minds in tech.";
-        int maxAttendees = 5;
-        boolean geolocationRequirement = true;
-        String posterUrl = "https://testingexample.com/poster.jpg";
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        db = FirebaseFirestore.getInstance();
 
-        // Retrieve event details from the intent REAL CODE
-        /*String eventName = getIntent().getStringExtra("eventName");
-        String facilityName = getIntent().getStringExtra("facilityName");
-        String location = getIntent().getStringExtra("location");
-        String dateTime = getIntent().getStringExtra("dateTime");
-        String description = getIntent().getStringExtra("description");
-        int maxAttendees = getIntent().getIntExtra("maxAttendees", 0);
-        boolean geolocationRequirement = getIntent().getBooleanExtra("geolocationRequirement", false);
-        String posterUrl = getIntent().getStringExtra("posterUrl");*/
+        // Retrieve event details from the intent
+        eventName = getIntent().getStringExtra("eventName");
+        facilityName = getIntent().getStringExtra("facilityName");
+        location = getIntent().getStringExtra("location");
+        dateTime = getIntent().getStringExtra("dateTime");
+        description = getIntent().getStringExtra("description");
+        maxAttendees = getIntent().getIntExtra("maxAttendees", 0);
+        geolocationRequirement = getIntent().getBooleanExtra("geolocationRequirement", false);
+        String posterUrl = getIntent().getStringExtra("posterUrl");
 
         // Set the retrieved data to the UI elements
         TextView eventNameTextView = findViewById(R.id.eventNameEdit);
@@ -60,7 +73,6 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         TextView maxAttendeesTextView = findViewById(R.id.max_attendees);
         SwitchCompat geolocationSwitch = findViewById(R.id.geolocationRequirementText);
 
-
         eventNameTextView.setText(String.format("Name: %s", eventName));
         facilityTextView.setText(String.format("Facility: %s", facilityName));
         locationTextView.setText(String.format("Location: %s", location));
@@ -69,7 +81,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         maxAttendeesTextView.setText(String.format("Max Attendees: %d", maxAttendees));
         geolocationSwitch.setText(String.format("Geolocation Requirement: %s", geolocationRequirement ? "Yes" : "No"));
         geolocationSwitch.setChecked(geolocationRequirement);
-        geolocationSwitch.setClickable(false);  // Make the switch non-interactive
+        geolocationSwitch.setClickable(false);
 
         // Load the poster image
         ImageView posterImageView = findViewById(R.id.qrCodeImage_2);
@@ -79,39 +91,14 @@ public class JoinWaitlistActivity extends AppCompatActivity {
                     .into(posterImageView);
         }
 
-
         Button joinWaitlistButton = findViewById(R.id.join_waitlist_button);
         joinWaitlistButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (geolocationRequirement) {
-                    new AlertDialog.Builder(JoinWaitlistActivity.this)
-                            .setTitle("Confirm Join")
-                            .setMessage("This event tracks your geolocation. Are you sure you want to join this event?")
-                            .setPositiveButton("Yes", (dialog, which) -> {
-                                Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
-                                intent.putExtra("Event Name", eventName);
-                                intent.putExtra("Facility", facilityName);
-                                intent.putExtra("Location", location);
-                                intent.putExtra("DateTime", dateTime);
-                                intent.putExtra("Description", description);
-                                intent.putExtra("Max Attendees", maxAttendees);
-                                startActivity(intent);
-                            })
-                            .setNegativeButton("No", (dialog, which) -> {
-                                // Dismiss the dialog if the user cancels
-                                dialog.dismiss();
-                            })
-                            .show();
+                    checkLocationPermissionAndJoinWaitlist();
                 } else {
-                    Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
-                    intent.putExtra("Event Name", eventName);
-                    intent.putExtra("Facility", facilityName);
-                    intent.putExtra("Location", location);
-                    intent.putExtra("DateTime", dateTime);
-                    intent.putExtra("Description", description);
-                    intent.putExtra("Max Attendees", maxAttendees);
-                    startActivity(intent);
+                    joinWaitlistWithoutLocation();
                 }
             }
         });
@@ -124,24 +111,106 @@ public class JoinWaitlistActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
 
-        if (eventNameTextView != null) {
-            eventNameTextView.setText(eventName);
+    private void checkLocationPermissionAndJoinWaitlist() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            getLocationAndJoinWaitlist();
         }
-        if (facilityTextView != null) {
-            facilityTextView.setText(facilityName);
+    }
+
+    private void getLocationAndJoinWaitlist() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
         }
-        if (locationTextView != null) {
-            locationTextView.setText(location);
-        }
-        if (dateTimeTextView != null) {
-            dateTimeTextView.setText(dateTime);
-        }
-        if (descriptionTextView != null) {
-            descriptionTextView.setText(description);
-        }
-        if (maxAttendeesTextView != null) {
-            maxAttendeesTextView.setText(String.valueOf(maxAttendees));
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, location -> {
+                    if (location != null) {
+                        joinWaitlistWithLocation(location);
+                    } else {
+                        joinWaitlistWithoutLocation();
+                    }
+                });
+    }
+
+    private void joinWaitlistWithLocation(Location location) {
+        Map<String, Object> waitlistEntry = new HashMap<>();
+        waitlistEntry.put("eventName", eventName);
+        waitlistEntry.put("latitude", location.getLatitude());
+        waitlistEntry.put("longitude", location.getLongitude());
+        waitlistEntry.put("facilityName", facilityName);
+        waitlistEntry.put("location", this.location);
+        waitlistEntry.put("dateTime", dateTime);
+        waitlistEntry.put("description", description);
+        waitlistEntry.put("maxAttendees", maxAttendees);
+
+        db.collection("waitlist")
+                .add(waitlistEntry)
+                .addOnSuccessListener(documentReference -> {
+                    Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
+                    intent.putExtra("Event Name", eventName);
+                    intent.putExtra("Facility", facilityName);
+                    intent.putExtra("Location", this.location);
+                    intent.putExtra("DateTime", dateTime);
+                    intent.putExtra("Description", description);
+                    intent.putExtra("Max Attendees", maxAttendees);
+                    startActivity(intent);
+                })
+                .addOnFailureListener(e -> {
+                    // Handle failure
+                    new AlertDialog.Builder(this)
+                            .setTitle("Error")
+                            .setMessage("Failed to join waitlist. Please try again.")
+                            .setPositiveButton("OK", null)
+                            .show();
+                });
+    }
+
+    private void joinWaitlistWithoutLocation() {
+        Map<String, Object> waitlistEntry = new HashMap<>();
+        waitlistEntry.put("eventName", eventName);
+        waitlistEntry.put("facilityName", facilityName);
+        waitlistEntry.put("location", location);
+        waitlistEntry.put("dateTime", dateTime);
+        waitlistEntry.put("description", description);
+        waitlistEntry.put("maxAttendees", maxAttendees);
+
+        db.collection("waitlist")
+                .add(waitlistEntry)
+                .addOnSuccessListener(documentReference -> {
+                    Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
+                    intent.putExtra("Event Name", eventName);
+                    intent.putExtra("Facility", facilityName);
+                    intent.putExtra("Location", location);
+                    intent.putExtra("DateTime", dateTime);
+                    intent.putExtra("Description", description);
+                    intent.putExtra("Max Attendees", maxAttendees);
+                    startActivity(intent);
+                })
+                .addOnFailureListener(e -> {
+                    // Handle failure
+                    new AlertDialog.Builder(this)
+                            .setTitle("Error")
+                            .setMessage("Failed to join waitlist. Please try again.")
+                            .setPositiveButton("OK", null)
+                            .show();
+                });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getLocationAndJoinWaitlist();
+            } else {
+                joinWaitlistWithoutLocation();
+            }
         }
     }
 }

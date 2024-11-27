@@ -21,6 +21,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -28,11 +31,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private Location currentLocation;
+    private FirebaseFirestore db;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
 
         // Initialize FusedLocationProviderClient
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -44,6 +52,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             getLastLocation();
         }
     }
+
+
 
     private void getLastLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -105,12 +115,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if (currentLocation != null) {
             updateMap();
-        } else {
-            // Default to a fallback location (Sydney) if no location available
-            LatLng sydney = new LatLng(-34, 151);
-            mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 10));
         }
+        fetchWaitlistEntries();
+
+    }
+    private void fetchWaitlistEntries() {
+        db.collection("waitlist")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        GeoPoint geoPoint = document.getGeoPoint("coordinates");
+                        if (geoPoint != null) {
+                            LatLng position = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
+                            String eventName = document.getString("eventName");
+                            mMap.addMarker(new MarkerOptions().position(position).title(eventName));
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error fetching waitlist entries", Toast.LENGTH_SHORT).show();
+                });
     }
 
     @Override
