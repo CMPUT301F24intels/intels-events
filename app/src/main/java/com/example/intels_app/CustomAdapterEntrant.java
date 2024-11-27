@@ -29,6 +29,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
+import java.util.Map;
 
 public class CustomAdapterEntrant extends BaseAdapter {
     private Context context;
@@ -69,85 +70,80 @@ public class CustomAdapterEntrant extends BaseAdapter {
         Event event = data.get(position);
         eventText.setText(event.getEventName());
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        Log.d("CustomAdapterEntrant", "Querying not_selected_entrants with Device ID: " +
-                deviceId + ", Event Name: " + event.getEventName());
-
-
-
-        db.collection("not_selected_entrants")
-                .whereEqualTo("deviceId", deviceId)
-                .whereEqualTo("eventName", event.getEventName())
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    if (!querySnapshot.isEmpty()) {
-                        for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                            String profileId = document.getString("profileId");
-                            Boolean reconsiderState = document.getBoolean("reconsiderForDraw");
-
-                            if (profileId == null || reconsiderState == null) {
-                                Log.e("CustomAdapterEntrant", "Invalid document: Missing profileId or reconsiderForDraw");
-                                continue; // Skip invalid documents
-                            }
-
-                            // Set switch state and visibility
-                            reconsiderSwitch.setVisibility(View.VISIBLE);
-                            reconsiderSwitch.setChecked(reconsiderState);
-
-                            // Add toggle listener
-                            reconsiderSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                                Log.d("CustomAdapterEntrant", "Reconsider toggled for profile ID: " +
-                                        profileId + " | New State: " + isChecked);
-                                if (isChecked) {
-                                    Toast.makeText(context, "Reconsider for draw enabled", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    Toast.makeText(context, "Reconsider for draw disabled", Toast.LENGTH_SHORT).show();
-                                }
-
-                                // Update Firestore
-                                document.getReference().update("reconsiderForDraw", isChecked)
-                                        .addOnSuccessListener(aVoid -> Log.d("CustomAdapterEntrant", "Updated reconsiderForDraw for document: " + profileId))
-                                        .addOnFailureListener(e -> Log.e("CustomAdapterEntrant", "Error updating reconsiderForDraw: ", e));
-                            });
-                        }
-                    } else {
-                        Log.d("CustomAdapterEntrant", "No matching not_selected_entrant for event: " + event.getEventName());
-                        reconsiderSwitch.setVisibility(View.GONE);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    reconsiderSwitch.setVisibility(View.GONE);
-                    Log.e("CustomAdapterEntrant", "Error fetching not_selected_entrants for event: " + event.getEventName(), e);
-                });
-
         deleteButton.setOnClickListener(v -> {
             new AlertDialog.Builder(context)
                     .setTitle("Confirm Deletion")
                     .setMessage("Are you sure you want to leave the waitlist for this event?")
                     .setPositiveButton("Confirm", (dialog, which) -> {
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                        // Query Firestore to find the document with the matching deviceId
                         db.collection("waitlisted_entrants")
-                                .whereEqualTo("deviceId", deviceId)
-                                .whereEqualTo("eventName", event.getEventName())
+                                .whereEqualTo("deviceId", deviceId) // Match the device ID
                                 .get()
                                 .addOnCompleteListener(task -> {
                                     if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
-                                        for (DocumentSnapshot doc : task.getResult()) {
-                                            doc.getReference().delete()
-                                                    .addOnSuccessListener(aVoid -> {
-                                                        data.remove(position);
-                                                        notifyDataSetChanged();
-                                                        Toast.makeText(context, "Event removed from waitlist", Toast.LENGTH_SHORT).show();
-                                                    })
-                                                    .addOnFailureListener(e -> Log.e("Firestore", "Error deleting document", e));
+                                        for (DocumentSnapshot document : task.getResult()) {
+                                            // Get the events array
+                                            List<Map<String, Object>> events = (List<Map<String, Object>>) document.get("events");
+
+                                            if (events != null) {
+                                                // Find the specific event to remove
+                                                Map<String, Object> eventToRemove = null;
+                                                for (Map<String, Object> eventMap : events) {
+                                                    if (eventMap.containsKey("eventName") && eventMap.get("eventName").equals(event.getEventName())) {
+                                                        eventToRemove = eventMap;
+                                                        break;
+                                                    }
+                                                }
+
+                                                if (eventToRemove != null) {
+                                                    // Remove the event from the array
+                                                    events.remove(eventToRemove);
+
+                                                    // Update the document in Firestore
+                                                    document.getReference().update("events", events)
+                                                            .addOnSuccessListener(aVoid -> {
+                                                                data.remove(position);
+                                                                notifyDataSetChanged();
+                                                                Toast.makeText(context, "Event removed from waitlist", Toast.LENGTH_SHORT).show();
+                                                            })
+                                                            .addOnFailureListener(e -> {
+                                                                Toast.makeText(context, "Failed to update waitlist", Toast.LENGTH_SHORT).show();
+                                                                Log.e("Firestore", "Error updating document", e);
+                                                            });
+                                                } else {
+                                                    Toast.makeText(context, "Event not found in waitlist", Toast.LENGTH_SHORT).show();
+                                                    Log.w("Firestore", "Event not found in events array.");
+                                                }
+                                            } else {
+                                                Log.w("Firestore", "No events array found.");
+                                            }
                                         }
                                     } else {
-                                        Log.d("Firestore", "No matching waitlisted entrant found.");
+                                        Toast.makeText(context, "No matching entrant found", Toast.LENGTH_SHORT).show();
+                                        Log.w("Firestore", "No matching document found.");
                                     }
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(context, "Error fetching waitlist entry", Toast.LENGTH_SHORT).show();
+                                    Log.e("Firestore", "Error fetching document", e);
                                 });
                     })
-                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                    .setNegativeButton("Cancel", (dialog, which) -> {
+                        // Dismiss the dialog if the user cancels
+                        dialog.dismiss();
+                    })
                     .show();
+        });
+
+
+        reconsiderSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                Toast.makeText(context, "Reconsider for draw enabled", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(context, "Reconsider for draw disabled", Toast.LENGTH_SHORT).show();
+            }
         });
 
         return convertView;

@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -37,6 +38,7 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.security.MessageDigest;
@@ -67,6 +69,8 @@ public class SignUp extends AppCompatActivity {
     private EditText name, email, phone_number;
     private Button add_picture, register_button;
     private ImageView profile_pic;
+    private SwitchCompat notificationSwitch;
+    private boolean notificationPreference = false;
 
     private String deviceId;
     private String eventName;
@@ -76,88 +80,89 @@ public class SignUp extends AppCompatActivity {
     private byte[] imageData;
 
 
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_up);
 
+        // Initialize Firestore and Storage
         db = FirebaseFirestore.getInstance();
         profilesRef = db.collection("profiles");
-        waitlistRef = db.collection("waitlisted_entrants");
+        storageReference = FirebaseStorage.getInstance().getReference().child("profile_pics");
 
-        deviceId = getIntent().getStringExtra("Device ID");
-        eventName = getIntent().getStringExtra("Event Name");
-        Log.d("SignUpActivity", "Received Device ID: " + deviceId); // Log for verification
-        Log.d("SignUpActivity", "Received Event ID: " + eventName);
+        // Retrieve intent extras
+        deviceId = getIntent().getStringExtra("deviceId");
+        eventName = getIntent().getStringExtra("eventName");
+        Log.d("SignUpActivity", "Received Device ID: " + deviceId);
+        Log.d("SignUpActivity", "Received Event Name: " + eventName);
 
-        add_picture = findViewById(R.id.add_picture);
-        add_picture.setOnClickListener(view -> showImagePickerDialog());
+        // Initialize UI components
         profile_pic = findViewById(R.id.camera_image);
-
-        back_button = findViewById(R.id.back_button);
-        back_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(SignUp.this, SelectRoleActivity.class);
-                startActivity(intent);
-            }
-        });
-
+        name = findViewById(R.id.enter_name);
+        email = findViewById(R.id.enter_email);
+        phone_number = findViewById(R.id.enter_phone_number);
+        add_picture = findViewById(R.id.add_picture);
         register_button = findViewById(R.id.register_button);
-        register_button.setOnClickListener(view -> {
-            name = findViewById(R.id.enter_name);
-            email = findViewById(R.id.enter_email);
-            phone_number = findViewById(R.id.enter_phone_number);
+        back_button = findViewById(R.id.back_button);
+        notificationSwitch = findViewById(R.id.notification_switch);
 
-            if (imageData == null || imageHash == null) {
-                Toast.makeText(SignUp.this, "Please select or generate a profile picture", Toast.LENGTH_SHORT).show();
-                return;
-            }
+        // Set up listeners
+        add_picture.setOnClickListener(view -> showImagePickerDialog());
 
-            StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("profile_pics")
-                    .child(imageHash);
-            storageRef.putBytes(imageData)
-                    .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl()
-                            .addOnSuccessListener(uri -> {
-                                String profilePicUrl = uri.toString();
-
-                                Log.d("Hello", "Hello");
-
-                                // Create Profile with deviceId
-                                Profile newProfile = new Profile(deviceId, name.getText().toString(), email.getText().toString(), phone_number.getText().toString(), profilePicUrl);
-                                profilesRef.document(name.getText().toString())
-                                        .set(newProfile)
-                                        .addOnSuccessListener(aVoid -> Log.d("Firestore", "Profile successfully added to Firestore!"))
-                                        .addOnFailureListener(e -> Log.w("FirestoreError", "Error adding profile", e));
-
-            Map<String, Object> waitlistEntry = new HashMap<>();
-            waitlistEntry.put("deviceId", deviceId);
-            waitlistEntry.put("eventName", eventName);
-            waitlistEntry.put("profile", newProfile);
-
-            profilesRef.document(name.getText().toString())
-                    .set(newProfile)
-                    .addOnSuccessListener(aVoid -> Log.d("Firestore", "Profile successfully added to Firestore!"))
-                    .addOnFailureListener(e -> Log.w("FirestoreError", "Error adding profile", e));
-
-
-            waitlistRef.document(name.getText().toString())
-                    .set(waitlistEntry)
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(SignUp.this, "Successfully joined event as Entrant!", Toast.LENGTH_SHORT).show();
-                        Log.d("Firestore", "Entrant successfully added to waitlisted_events!");
-
-                        // Navigate after both operations succeed
-                        Intent intent = new Intent(SignUp.this, SuccessWaitlistJoin.class);
-                        startActivity(intent);
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(SignUp.this, "Failed to join event as Entrant.", Toast.LENGTH_SHORT).show();
-                        Log.w("FirestoreError", "Error adding entrant to waitlist", e);
-                    });
-                }));
+        back_button.setOnClickListener(view -> {
+            Intent intent = new Intent(SignUp.this, SelectRoleActivity.class);
+            startActivity(intent);
         });
 
+        notificationPreference = notificationSwitch.isChecked();
+        Log.d("SignUpActivity", "Initial Notification Preference: " + notificationPreference);
+
+        notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            notificationPreference = isChecked;
+            Log.d("SignUpActivity", "Notification Preference: " + notificationPreference);
+        });
+
+        register_button.setOnClickListener(view -> registerUser());
+    }
+
+    private void registerUser() {
+        String userName = name.getText().toString();
+        String userEmail = email.getText().toString();
+        String userPhoneNumber = phone_number.getText().toString();
+
+        // Validate user input
+        if (userName.isEmpty() || userEmail.isEmpty() || userPhoneNumber.isEmpty()) {
+            Toast.makeText(SignUp.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (imageData == null || imageHash == null) {
+            Toast.makeText(SignUp.this, "Please select or generate a profile picture", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        StorageReference profilePicRef = storageReference.child(imageHash);
+        profilePicRef.putBytes(imageData)
+                .addOnSuccessListener(taskSnapshot -> profilePicRef.getDownloadUrl()
+                        .addOnSuccessListener(uri -> {
+                            String profilePicUrl = uri.toString();
+
+                            Profile newProfile = new Profile(deviceId, userName, userEmail, userPhoneNumber, profilePicUrl, notificationPreference);
+                            newProfile.setNotifPref(notificationPreference);
+
+                            profilesRef.document(deviceId)
+                                    .set(newProfile)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d("Firestore", "Profile successfully created!");
+                                        addToWaitlistedEntrants(newProfile, eventName);
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.w("FirestoreError", "Error adding profile", e);
+                                        Toast.makeText(SignUp.this, "Failed to save profile. Please try again.", Toast.LENGTH_SHORT).show();
+                                    });
+                        }))
+                .addOnFailureListener(e -> {
+                    Log.e("StorageError", "Error uploading profile picture", e);
+                    Toast.makeText(SignUp.this, "Error uploading profile picture. Please try again.", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void showImagePickerDialog() {
@@ -307,4 +312,46 @@ public class SignUp extends AppCompatActivity {
             return null;
         }
     }
+
+    private void addToWaitlistedEntrants(Profile profile, String eventName) {
+        CollectionReference waitlistRef = db.collection("waitlisted_entrants");
+
+        // Create the event data
+        Map<String, Object> eventData = new HashMap<>();
+        eventData.put("eventName", eventName);
+
+        // Create the waitlist entry
+        Map<String, Object> waitlistEntry = new HashMap<>();
+        waitlistEntry.put("deviceId", profile.getDeviceId());
+        waitlistEntry.put("profile", profile); // Add the full profile object, including notifPref
+        waitlistEntry.put("events", Collections.singletonList(eventData)); // Add the event as a list
+
+        // Save the waitlist entry to Firestore
+        waitlistRef.document(profile.getName())
+                .set(waitlistEntry)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firestore", "Entrant successfully added to waitlisted_entrants!");
+                    Toast.makeText(this, "Successfully joined the waitlist!", Toast.LENGTH_SHORT).show();
+
+                    // Navigate back or perform other actions
+                    returnCreatedProfile(profile, eventName);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FirestoreError", "Error adding entrant to waitlisted_entrants", e);
+                    Toast.makeText(this, "Failed to join waitlist. Please try again.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void returnCreatedProfile(Profile profile, String eventName) {
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("deviceId", profile.getDeviceId());
+        resultIntent.putExtra("name", profile.getName());
+        resultIntent.putExtra("email", profile.getEmail());
+        resultIntent.putExtra("phoneNumber", profile.getPhone_number());
+        resultIntent.putExtra("profilePicUrl", profile.getImageUrl());
+        resultIntent.putExtra("eventName", eventName);
+        setResult(RESULT_OK, resultIntent);
+        finish(); // Close SignUp activity
+    }
+
 }

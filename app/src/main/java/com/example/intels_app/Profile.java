@@ -15,6 +15,7 @@ package com.example.intels_app;
     private int imageResId;
     private String imageUrl;
     private String deviceId;
+    private boolean notifPref;
     /*private String eventName;*/
 
 
@@ -48,6 +49,15 @@ package com.example.intels_app;
         this.phone_number = phone_number;
         this.imageUrl = imageUrl;
     }
+
+     public Profile(String deviceId, String name, String email, String phone_number, String imageUrl, boolean notifPref) {
+         this.deviceId = deviceId;
+         this.name = name;
+         this.email = email;
+         this.phone_number = phone_number;
+         this.imageUrl = imageUrl;
+         this.notifPref = notifPref;
+     }
 
     public Profile(String deviceId) {
         this.deviceId = deviceId;
@@ -111,4 +121,12 @@ package com.example.intels_app;
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
-}
+
+     public boolean isNotifPref() {
+         return notifPref;
+     }
+
+     public void setNotifPref(boolean notifPref) {
+        this.notifPref = notifPref;
+     }
+ }

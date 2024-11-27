@@ -19,7 +19,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -37,10 +36,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class EntrantInCancelledWaitlist extends AppCompatActivity {
     private Button waitlist_button, cancelled_button;
@@ -242,20 +240,39 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                             return;
                         }
 
+                        AtomicBoolean notificationSent = new AtomicBoolean(false);
+
                         for (DocumentSnapshot entrant : cancelledEntrants) {
                             String profileId = entrant.getString("profileId");
 
                             if (profileId != null && !profileId.isEmpty()) {
-                                // Fetch deviceId from waitlisted_entrants
+                                // Fetch the profile from waitlisted_entrants
                                 db.collection("waitlisted_entrants")
                                         .document(profileId)
                                         .get()
                                         .addOnSuccessListener(profileDoc -> {
-                                            String deviceId = profileDoc.getString("deviceId");
-                                            if (deviceId != null && !deviceId.isEmpty()) {
-                                                sendNotificationToProfile(deviceId, profileId, eventName, message);
+                                            if (profileDoc.exists()) {
+                                                Map<String, Object> profile = (Map<String, Object>) profileDoc.get("profile");
+
+                                                if (profile != null) {
+                                                    // Check if notifPref is true
+                                                    Boolean notifPref = (Boolean) profile.get("notifPref");
+                                                    if (notifPref != null && notifPref) {
+                                                        String deviceId = (String) profile.get("deviceId");
+
+                                                        // Send notification if deviceId exists
+                                                        if (deviceId != null && !deviceId.isEmpty()) {
+                                                            sendNotificationToProfile(deviceId, profileId, eventName, message);
+                                                            notificationSent.set(true);
+                                                        } else {
+                                                            Log.w("Notification", "Device ID missing for profile: " + profileId);
+                                                        }
+                                                    } else {
+                                                        Log.d("Notification", "Skipping profile with notifPref set to false: " + profileId);
+                                                    }
+                                                }
                                             } else {
-                                                Log.w("Notification", "Device ID missing for profile: " + profileId);
+                                                Log.w("Notification", "Profile document does not exist for ID: " + profileId);
                                             }
                                         })
                                         .addOnFailureListener(e -> {
@@ -266,7 +283,11 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                             }
                         }
 
-                        Toast.makeText(this, "Notifications sent successfully to all cancelled entrants.", Toast.LENGTH_SHORT).show();
+                        if (notificationSent.get()) {
+                            Toast.makeText(this, "Notifications sent successfully to all eligible cancelled entrants.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "No eligible cancelled entrants found with notifications enabled.", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
                         Log.e("Firestore", "Error fetching cancelled entrants", task.getException());
                         Toast.makeText(this, "Failed to send notifications.", Toast.LENGTH_SHORT).show();

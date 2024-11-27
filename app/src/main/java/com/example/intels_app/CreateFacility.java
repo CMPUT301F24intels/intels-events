@@ -45,7 +45,6 @@ public class CreateFacility extends AppCompatActivity {
     private byte[] imageData;
     private boolean imageUploaded = false;
     private String deviceId;
-    private Facility facility;
 
     /**
      * Create the facility profile using the user-entered details
@@ -157,7 +156,7 @@ public class CreateFacility extends AppCompatActivity {
         Facility facility = new Facility(facilityName, location, email, telephone, imageUrl, deviceID);
 
         // Add to FireStore
-        FirebaseFirestore.getInstance().collection("facilities").document(facilityName)
+        FirebaseFirestore.getInstance().collection("facilities").document(deviceID)
                 .set(facility)
                 .addOnSuccessListener(documentReference -> {
                     Intent intent = new Intent(CreateFacility.this, ManageEventsActivity.class);

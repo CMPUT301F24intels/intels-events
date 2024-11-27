@@ -16,7 +16,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -77,6 +76,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         posterImageView = findViewById(R.id.posterImageView);
         qrImageView = findViewById(R.id.qrImageView);
         drawButton = findViewById(R.id.drawButton);
+
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
 
@@ -150,92 +150,50 @@ public class EventDetailsOrganizer extends AppCompatActivity {
     private void performLotteryDraw() {
         CollectionReference waitlistedEntrantsRef = db.collection("waitlisted_entrants");
         CollectionReference selectedEntrantsRef = db.collection("selected_entrants");
-        CollectionReference notSelectedEntrantsRef = db.collection("not_selected_entrants");
 
-        // Clear previous selected_entrants and not_selected_entrants
+        // Clear previous selected entries for selected event
         selectedEntrantsRef.whereEqualTo("eventName", eventName)
                 .get()
-                .addOnSuccessListener(selectedSnapshot -> {
+                .addOnSuccessListener(queryDocumentSnapshots -> {
                     WriteBatch batch = db.batch();
-
-                    for (DocumentSnapshot doc : selectedSnapshot) {
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         batch.delete(doc.getReference());
                     }
 
+                    // Commit batch delete
                     batch.commit().addOnSuccessListener(aVoid -> {
-                        Log.d(TAG, "Cleared previous selected entrants for event: " + eventName);
-
-                        notSelectedEntrantsRef.whereEqualTo("eventName", eventName)
+                        // Query waitlisted entrants for selected event
+                        waitlistedEntrantsRef.whereArrayContains("events", new HashMap<String, Object>() {{
+                                    put("eventName", eventName);
+                                }})
                                 .get()
-                                .addOnSuccessListener(notSelectedSnapshot -> {
-                                    WriteBatch notSelectedBatch = db.batch();
+                                .addOnSuccessListener(waitlistQuery -> {
+                                    List<DocumentSnapshot> waitlist = waitlistQuery.getDocuments();
 
-                                    for (DocumentSnapshot doc : notSelectedSnapshot) {
-                                        notSelectedBatch.delete(doc.getReference());
+                                    if (waitlist.isEmpty()) {
+                                        Toast.makeText(this, "No waitlisted profiles for this event.", Toast.LENGTH_SHORT).show();
+                                        return;
                                     }
 
-                                    notSelectedBatch.commit().addOnSuccessListener(clearVoid -> {
-                                        Log.d(TAG, "Cleared previous not_selected entrants for event: " + eventName);
+                                    int numberOfSpots = Integer.parseInt(maxAttendeesTextView.getText().toString().split(": ")[1]);
+                                    Collections.shuffle(waitlist);
 
-                                        // Fetch waitlisted entrants
-                                        waitlistedEntrantsRef.whereEqualTo("eventName", eventName)
-                                                .get()
-                                                .addOnSuccessListener(waitlistQuery -> {
-                                                    List<DocumentSnapshot> waitlist = waitlistQuery.getDocuments();
+                                    // Select only up to maxAttendees entrants
+                                    List<DocumentSnapshot> selectedProfiles = waitlist.subList(0, Math.min(numberOfSpots, waitlist.size()));
 
-                                                    if (waitlist.isEmpty()) {
-                                                        Toast.makeText(this, "No waitlisted profiles for this event.", Toast.LENGTH_SHORT).show();
-                                                        return;
-                                                    }
+                                    sendNotificationsToProfiles(waitlist, selectedProfiles);
+                                    saveSelectedProfiles(selectedProfiles);
 
-                                                    int numberOfSpots = Integer.parseInt(maxAttendeesTextView.getText().toString().split(": ")[1]);
-                                                    Collections.shuffle(waitlist);
-
-                                                    // Select only up to maxAttendees entrants
-                                                    List<DocumentSnapshot> selectedProfiles = waitlist.subList(0, Math.min(numberOfSpots, waitlist.size()));
-                                                    List<DocumentSnapshot> notSelectedProfiles = waitlist.subList(Math.min(numberOfSpots, waitlist.size()), waitlist.size());
-
-                                                    sendNotificationsToProfiles(waitlist, selectedProfiles);
-                                                    saveSelectedProfiles(selectedProfiles);
-                                                    storeNotSelectedEntrants(db, notSelectedProfiles, eventName);
-
-                                                    // After the draw, redirect to the DrawCompleteActivity
-                                                    Intent intent = new Intent(EventDetailsOrganizer.this, DrawCompleteActivity.class);
-                                                    intent.putExtra("eventName", eventName);
-                                                    startActivity(intent);
-                                                }).addOnFailureListener(e -> {
-                                                    Log.e(TAG, "Error fetching waitlisted entrants", e);
-                                                    Toast.makeText(this, "Failed to fetch waitlisted entrants for this event.", Toast.LENGTH_SHORT).show();
-                                                });
-                                    }).addOnFailureListener(e -> Log.e(TAG, "Failed to clear not_selected_entrants", e));
-                                }).addOnFailureListener(e -> Log.e(TAG, "Error fetching not_selected_entrants", e));
+                                    // After the draw, redirect to the DrawCompleteActivity
+                                    Intent intent = new Intent(EventDetailsOrganizer.this, DrawCompleteActivity.class);
+                                    intent.putExtra("eventName", eventName);
+                                    startActivity(intent);
+                                }).addOnFailureListener(e -> {
+                                    Log.e(TAG, "Error fetching waitlisted entrants", e);
+                                    Toast.makeText(this, "Failed to fetch waitlisted entrants for this event.", Toast.LENGTH_SHORT).show();
+                                });
                     }).addOnFailureListener(e -> Log.e(TAG, "Failed to delete old selected entrants", e));
                 }).addOnFailureListener(e -> Log.e(TAG, "Error loading previous selected entrants", e));
-    }
-
-    private void storeNotSelectedEntrants(FirebaseFirestore db, List<DocumentSnapshot> notSelectedProfiles, String eventName) {
-        for (DocumentSnapshot document : notSelectedProfiles) {
-            String deviceId = document.getString("deviceId");
-            String profileId = document.getId();
-
-            if (deviceId != null && profileId != null) {
-                Map<String, Object> notSelectedData = new HashMap<>();
-                notSelectedData.put("eventName", eventName);
-                notSelectedData.put("deviceId", deviceId);
-                notSelectedData.put("profileId", profileId);
-                notSelectedData.put("reconsiderForDraw", false); // Default to false
-                notSelectedData.put("timestamp", FieldValue.serverTimestamp());
-
-                db.collection("not_selected_entrants")
-                        .document(profileId) // Use profile ID as the document ID
-                        .set(notSelectedData)
-                        .addOnSuccessListener(aVoid -> Log.d("storeNotSelectedEntrants", "Stored not_selected entrant: " +
-                                "Profile ID: " + profileId + ", Event Name: " + eventName))
-                        .addOnFailureListener(e -> Log.e("storeNotSelectedEntrants", "Error storing not_selected entrant: ", e));
-            } else {
-                Log.w("storeNotSelectedEntrants", "Missing deviceId or profileId for event: " + eventName);
-            }
-        }
     }
 
     private void sendNotificationsToProfiles(List<DocumentSnapshot> allProfiles, List<DocumentSnapshot> selectedProfiles) {
@@ -299,6 +257,4 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                     .addOnFailureListener(e -> Log.w(TAG, "Error saving selected entrant", e));
         }
     }
-
-
 }
