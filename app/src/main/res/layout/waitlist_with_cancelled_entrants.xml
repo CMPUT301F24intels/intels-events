@@ -82,6 +82,22 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+        <Button
+            android:id="@+id/replacement_draw_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="4dp"
+            android:backgroundTint="#FF8C00"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="Redraw"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toTopOf="@id/checkbox_notify"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.909"
+            app:layout_constraintStart_toStartOf="parent" />
+
         <CheckBox
             android:id="@+id/checkbox_notify"
             android:layout_width="wrap_content"
@@ -98,5 +114,6 @@
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 
