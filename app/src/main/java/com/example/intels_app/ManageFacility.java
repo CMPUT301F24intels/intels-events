@@ -43,6 +43,7 @@ import com.google.firebase.installations.FirebaseInstallations;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -55,20 +56,24 @@ public class ManageFacility extends AppCompatActivity {
     private static final int REQUEST_IMAGE_PICK = 2;
     private static final int PERMISSION_REQUEST_CODE = 100;
     private boolean isCameraOption = false;
-
-    String imageHash;
+    private FirebaseFirestore db;
+    private Facility oldFacility;
+    private String oldPosterUrl;
+    private String finalPosterUrl;
+    private String imageHash;
     byte[] imageData;
     boolean imageUploaded = false;
-    String deviceId;
-    EditText facilityName, location, email, telephone;
-    Button makeChanges;
-    ImageView poster;
-    Facility facility;
+    private String deviceId;
+    private EditText facilityName, location, email, telephone;
+    private Button makeChanges;
+    private ImageView poster;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.manage_facility);
+        db = FirebaseFirestore.getInstance();
+
 
         makeChanges = findViewById(R.id.edit_facility_details_button);
 
@@ -107,7 +112,101 @@ public class ManageFacility extends AppCompatActivity {
     }
 
     private void savePosterChanges() {
+        if (imageUploaded) {
+            db.collection("facilities")
+                    .whereEqualTo("deviceId", deviceId)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                            oldFacility = documentSnapshot.toObject(Facility.class);
+                            if (oldFacility != null) {
+                                oldPosterUrl = oldFacility.getFacilityImageUrl();
+                            }
+                        }
+                        FirebaseStorage.getInstance().getReferenceFromUrl(oldPosterUrl).delete()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        Log.d(TAG, "Old poster deleted successfully");
 
+                                        FirebaseStorage.getInstance().getReference().child("facilities")
+                                                .child(imageHash)
+                                                .putBytes(imageData)
+                                                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                        Log.d(TAG, "New poster uploaded successfully");
+
+                                                        FirebaseStorage.getInstance().getReference().child("profile_pics").child(imageHash).getDownloadUrl()
+                                                                .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                                    @Override
+                                                                    public void onSuccess(Uri uri) {
+                                                                        finalPosterUrl = uri.toString();
+                                                                        Log.d(TAG, "New Profile URL: " + finalPosterUrl);
+
+                                                                        Facility facility = new Facility(
+                                                                                facilityName.getText().toString(),
+                                                                                location.getText().toString(),
+                                                                                email.getText().toString(),
+                                                                                telephone.getText().toString(),
+                                                                                finalPosterUrl,
+                                                                                deviceId
+                                                                        );
+
+                                                                        db.collection("facilities")
+                                                                                .document(deviceId)
+                                                                                .set(facility)
+                                                                                .addOnSuccessListener(documentReference -> {
+                                                                                    Toast.makeText(ManageFacility.this, "Facility updated", Toast.LENGTH_SHORT).show();
+                                                                                    finish();
+                                                                                })
+                                                                                .addOnFailureListener(e -> {
+                                                                                    Log.w(TAG, "Image upload failed", e);
+                                                                                    Toast.makeText(ManageFacility.this, "Failed to upload poster", Toast.LENGTH_SHORT).show();
+                                                                                });
+
+                                                                    }
+                                                                });
+
+                                                    }
+                                                });
+                                    }
+                                });
+                    });
+        }
+        else {
+            db.collection("facilities")
+                    .whereEqualTo("deviceId", deviceId)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                            oldFacility = documentSnapshot.toObject(Facility.class);
+                            if (oldFacility != null){
+                                finalPosterUrl = oldFacility.getFacilityImageUrl();
+                            }
+                        }
+                        Facility facility = new Facility(
+                                facilityName.getText().toString(),
+                                location.getText().toString(),
+                                email.getText().toString(),
+                                telephone.getText().toString(),
+                                finalPosterUrl,
+                                deviceId
+                        );
+                        FirebaseFirestore.getInstance().collection("facilities").document(deviceId)
+                                .set(facility)
+                                .addOnSuccessListener(documentReference -> {
+                                    Toast.makeText( ManageFacility.this, "Facility updated", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.w(TAG, "Poster upload failed", e);
+                                    Toast.makeText(ManageFacility.this, "Failed to upload poster", Toast.LENGTH_SHORT).show();
+                                });
+                    });
+        }
     }
 
     private void loadFacilityDetails(){

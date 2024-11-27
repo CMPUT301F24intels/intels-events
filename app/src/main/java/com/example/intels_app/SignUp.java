@@ -148,7 +148,7 @@ public class SignUp extends AppCompatActivity {
                             Profile newProfile = new Profile(deviceId, userName, userEmail, userPhoneNumber, profilePicUrl, notificationPreference);
                             newProfile.setNotifPref(notificationPreference);
 
-                            profilesRef.document(userName)
+                            profilesRef.document(deviceId)
                                     .set(newProfile)
                                     .addOnSuccessListener(aVoid -> {
                                         Log.d("Firestore", "Profile successfully created!");
