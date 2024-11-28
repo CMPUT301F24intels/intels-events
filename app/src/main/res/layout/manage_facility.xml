@@ -43,6 +43,18 @@
         app:layout_constraintTop_toBottomOf="@+id/back_button"
         app:srcCompat="@drawable/pfp_placeholder_image" />
 
+    <ImageView
+        android:id="@+id/camera_image"
+        android:layout_width="90dp"
+        android:layout_height="98dp"
+        app:layout_constraintBottom_toBottomOf="@+id/pfpPlaceholder"
+        app:layout_constraintEnd_toEndOf="@+id/pfpPlaceholder"
+        app:layout_constraintHorizontal_bias="0.516"
+        app:layout_constraintStart_toStartOf="@+id/pfpPlaceholder"
+        app:layout_constraintTop_toTopOf="@+id/pfpPlaceholder"
+        app:layout_constraintVertical_bias="0.487"
+        app:srcCompat="@drawable/camera_image" />
+
     <Button
         android:id="@+id/edit_poster_button"
         android:layout_width="wrap_content"
