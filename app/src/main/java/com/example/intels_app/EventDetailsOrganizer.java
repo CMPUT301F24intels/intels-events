@@ -54,7 +54,6 @@ public class EventDetailsOrganizer extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_details);
-
         // Get the event name from the intent
         eventName = getIntent().getStringExtra("Event Name");
 
@@ -99,6 +98,19 @@ public class EventDetailsOrganizer extends AppCompatActivity {
             intent.putExtra("Event Name", eventName);
             startActivity(intent);
         });
+
+
+        // Get the navigation button
+        ImageButton navigationButton = findViewById(R.id.navigationButton);
+
+        // Set OnClickListener
+        navigationButton.setOnClickListener(v -> {
+//            String event_page = ""
+            Intent intent = new Intent(EventDetailsOrganizer.this, MapsActivity.class);
+            intent.putExtra("event_name",eventName);
+            startActivity(intent);
+        });
+
     }
 
     private void loadEventDetails() {

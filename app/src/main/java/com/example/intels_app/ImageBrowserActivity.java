@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
@@ -84,10 +86,31 @@ public class ImageBrowserActivity extends AppCompatActivity {
         StorageReference imageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageToDelete.getImageUrl());
 
         imageRef.delete().addOnSuccessListener(aVoid -> {
+            // Remove the image from the local list and update the adapter
             imageUrls.remove(position);
             imageAdapter.notifyDataSetChanged();
-            Toast.makeText(ImageBrowserActivity.this, "Image deleted successfully", Toast.LENGTH_SHORT).show();
-        }).addOnFailureListener(e ->
-                Toast.makeText(ImageBrowserActivity.this, "Failed to delete image: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+
+            // Update Firestore document
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("profiles")
+                    .whereEqualTo("imageUrl", imageToDelete.getImageUrl())
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        for (DocumentSnapshot document : queryDocumentSnapshots) {
+                            document.getReference().update("imageUrl", null)
+                                    .addOnSuccessListener(aVoid1 -> {
+                                        Toast.makeText(ImageBrowserActivity.this, "Image deleted and Firestore updated successfully", Toast.LENGTH_SHORT).show();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(ImageBrowserActivity.this, "Failed to update Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    });
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(ImageBrowserActivity.this, "Failed to find document in Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+        }).addOnFailureListener(e -> {
+            Toast.makeText(ImageBrowserActivity.this, "Failed to delete image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
     }
 }

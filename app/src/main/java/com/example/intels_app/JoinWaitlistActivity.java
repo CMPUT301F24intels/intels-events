@@ -10,8 +10,11 @@
 
 package com.example.intels_app;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,97 +24,50 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.installations.FirebaseInstallations;
+import com.google.firebase.firestore.GeoPoint;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class JoinWaitlistActivity extends AppCompatActivity {
 
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private FusedLocationProviderClient fusedLocationClient;
     private FirebaseFirestore db;
-    private CollectionReference profilesRef;
-    private CollectionReference waitlistRef;
+
+    private String eventName, facilityName, location, dateTime, description;
+    private int maxAttendees;
+    private boolean geolocationRequirement;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.join_waitlist);
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         db = FirebaseFirestore.getInstance();
-        profilesRef = db.collection("profiles");
-        waitlistRef = db.collection("waitlisted_entrants");
 
-        //        //This hardcoded data is only to TEST, REMOVE AFTER TO REAL CODE
-        String eventName = "Dancing Party";
-        String facilityName = "Tech Auditorium";
-        String location = "Whyte Ave, Edmonton";
-        String dateTime = "2024-12-01 10:00 AM";
-        String description = "A conference bringing together the brightest minds in tech.";
-        int maxAttendees = 2;
-        boolean geolocationRequirement = false;
-        String posterUrl = "https://testingexample.com/poster.jpg";
+        // Retrieve event details from the intent
+        eventName = getIntent().getStringExtra("eventName");
+        facilityName = getIntent().getStringExtra("facilityName");
+        location = getIntent().getStringExtra("location");
+        dateTime = getIntent().getStringExtra("dateTime");
+        description = getIntent().getStringExtra("description");
+        maxAttendees = getIntent().getIntExtra("maxAttendees", 0);
+        geolocationRequirement = getIntent().getBooleanExtra("geolocationRequirement", false);
+        String posterUrl = getIntent().getStringExtra("posterUrl");
 
-        /*// Retrieve event details from the intent
-        String eventName = getIntent().getStringExtra("eventName");
-        String facilityName = getIntent().getStringExtra("facilityName");
-        String location = getIntent().getStringExtra("location");
-        String dateTime = getIntent().getStringExtra("dateTime");
-        String description = getIntent().getStringExtra("description");
-        int maxAttendees = getIntent().getIntExtra("maxAttendees", 0);
-        boolean geolocationRequirement = getIntent().getBooleanExtra("geolocationRequirement", false);
-        String posterUrl = getIntent().getStringExtra("posterUrl");*/
-
-        setupEventDetailsUI(eventName, facilityName, location, dateTime, description, maxAttendees, geolocationRequirement, posterUrl);
-
-        Button joinWaitlistButton = findViewById(R.id.join_waitlist_button);
-        joinWaitlistButton.setOnClickListener(view -> {
-            // Fetch the device ID
-            FirebaseInstallations.getInstance().getId()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && task.getResult() != null) {
-                            String deviceId = task.getResult();
-                            Log.d("JoinWaitlist", "Retrieved Device ID: " + deviceId);
-
-                            if (geolocationRequirement) {
-                                new AlertDialog.Builder(JoinWaitlistActivity.this)
-                                        .setTitle("Confirm Join")
-                                        .setMessage("This event tracks your geolocation. Are you sure you want to join this event?")
-                                        .setPositiveButton("Yes", (dialog, which) -> {
-                                            checkIfProfileExists(deviceId, eventName);
-                                        })
-                                        .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
-                                        .show();
-                            } else {
-                                checkIfProfileExists(deviceId, eventName);
-                            }
-                        } else {
-                            Log.e("JoinWaitlist", "Device ID retrieval failed", task.getException());
-                            Toast.makeText(this, "Error retrieving device ID. Please try again.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        });
-
-        ImageButton backButton = findViewById(R.id.back_button_1);
-        backButton.setOnClickListener(view -> {
-            Intent intent = new Intent(JoinWaitlistActivity.this, MainActivity.class);
-            startActivity(intent);
-        });
-    }
-
-    private void setupEventDetailsUI(String eventName, String facilityName, String location, String dateTime,
-                                     String description, int maxAttendees, boolean geolocationRequirement, String posterUrl) {
+        // Set the retrieved data to the UI elements
         TextView eventNameTextView = findViewById(R.id.eventNameEdit);
         TextView facilityTextView = findViewById(R.id.facilityEdit);
         TextView locationTextView = findViewById(R.id.locationEdit);
@@ -130,167 +86,125 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         geolocationSwitch.setChecked(geolocationRequirement);
         geolocationSwitch.setClickable(false);
 
+        // Load the poster image
         ImageView posterImageView = findViewById(R.id.qrCodeImage_2);
         if (posterUrl != null && !posterUrl.isEmpty()) {
-            Glide.with(this).load(posterUrl).into(posterImageView);
+            Glide.with(this)
+                    .load(posterUrl)
+                    .into(posterImageView);
         }
-    }
 
-    private void checkIfProfileExists(String deviceId, String eventName) {
-        // Query Firestore to find a document where the `deviceId` matches
-        profilesRef.whereEqualTo("deviceId", deviceId)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        QuerySnapshot querySnapshot = task.getResult();
-
-                        // Check if any documents were returned
-                        if (!querySnapshot.isEmpty()) {
-                            // Get the first document that matches
-                            Log.d("JoinWaitlist", "Profile exists for device: " + deviceId);
-                            DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
-
-                            // Convert the document into a Profile object
-                            Profile profile = documentSnapshot.toObject(Profile.class);
-                            if (profile != null) {
-                                // Pass the Profile object to joinWaitlist
-                                joinWaitlist(profile, eventName);
-                            } else {
-                                Log.e("JoinWaitlist", "Profile object is null for device: " + deviceId);
-                                Toast.makeText(this, "Error retrieving profile. Please try again.", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            // No profile found for the given deviceId
-                            Log.d("JoinWaitlist", "No profile found for device: " + deviceId);
-                            redirectToCreateProfile(deviceId, eventName);
-                        }
-                    } else {
-                        // Firestore query failed
-                        Log.e("JoinWaitlist", "Error checking profile existence", task.getException());
-                        Toast.makeText(this, "Error accessing profile. Please try again.", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("JoinWaitlist", "Error checking profile existence", e);
-                    Toast.makeText(this, "Error accessing profile. Please try again.", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    private void joinWaitlist(Profile profile, String eventName) {
-        // Use the profile name as the document ID
-        String documentId = profile.getName();
-        DocumentReference entrantDocRef = waitlistRef.document(documentId);
-
-        // Event data to add to the events array
-        Map<String, Object> eventData = new HashMap<>();
-        eventData.put("eventName", eventName);
-
-        // Nested profile data
-        Map<String, Object> profileData = new HashMap<>();
-        profileData.put("deviceId", profile.getDeviceId());
-        profileData.put("email", profile.getEmail());
-        profileData.put("phone_number", profile.getPhone_number());
-        profileData.put("imageUrl", profile.getImageUrl());
-        profileData.put("name", profile.getName());
-        profileData.put("notifPref", profile.isNotifPref());
-
-        // Check if the document already exists
-        entrantDocRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                if (document.exists()) {
-                    Log.d("Waitlist", "Document exists. Updating events list.");
-
-                    // If document exists, update the events array
-                    entrantDocRef.update("events", FieldValue.arrayUnion(eventData))
-                            .addOnSuccessListener(aVoid -> {
-                                Log.d("Waitlist", "Successfully added event to existing document.");
-                                Toast.makeText(this, "Successfully joined the waitlist!", Toast.LENGTH_SHORT).show();
-                                navigateToSuccessScreen();
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e("FirestoreError", "Error updating waitlist", e);
-                                Toast.makeText(this, "Error joining the waitlist. Please try again.", Toast.LENGTH_SHORT).show();
-                            });
+        Button joinWaitlistButton = findViewById(R.id.join_waitlist_button);
+        joinWaitlistButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (geolocationRequirement) {
+                    checkLocationPermissionAndJoinWaitlist();
                 } else {
-                    Log.d("Waitlist", "Document does not exist. Creating a new document.");
-
-                    // If document does not exist, create a new one
-                    Map<String, Object> waitlistEntry = new HashMap<>();
-                    waitlistEntry.put("deviceId", profile.getDeviceId());
-                    waitlistEntry.put("profile", profileData); // Add profile data
-                    waitlistEntry.put("events", Collections.singletonList(eventData)); // Initialize with the first event
-
-                    entrantDocRef.set(waitlistEntry)
-                            .addOnSuccessListener(aVoid -> {
-                                Log.d("Waitlist", "Successfully created new document and joined the waitlist.");
-                                Toast.makeText(this, "Successfully joined the waitlist!", Toast.LENGTH_SHORT).show();
-                                navigateToSuccessScreen();
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e("FirestoreError", "Error creating waitlist entry", e);
-                                Toast.makeText(this, "Error joining the waitlist. Please try again.", Toast.LENGTH_SHORT).show();
-                            });
+                    joinWaitlistWithoutLocation();
                 }
-            } else {
-                Log.e("FirestoreError", "Error checking if document exists", task.getException());
-                Toast.makeText(this, "Error joining the waitlist. Please try again.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        ImageButton backButton = findViewById(R.id.back_button_1);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(JoinWaitlistActivity.this, MainActivity.class);
+                startActivity(intent);
             }
         });
     }
 
-    private void redirectToCreateProfile(String deviceId, String eventName) {
-        Intent intent = new Intent(JoinWaitlistActivity.this, SignUp.class);
-        intent.putExtra("deviceId", deviceId);
-        intent.putExtra("eventName", eventName);
-        startActivityForResult(intent, 1); // Use a unique request code
+    private void checkLocationPermissionAndJoinWaitlist() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            getLocationAndJoinWaitlist();
+        }
     }
 
-    private void navigateToSuccessScreen() {
-        Intent intent = new Intent(JoinWaitlistActivity.this, SuccessWaitlistJoin.class);
-        startActivity(intent);
-        finish();
+    private void getLocationAndJoinWaitlist() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, location -> {
+                    if (location != null) {
+                        joinWaitlistWithLocation(location);
+                    } else {
+                        joinWaitlistWithoutLocation();
+                    }
+                });
+    }
+
+    private void joinWaitlistWithLocation(Location location) {
+        Map<String, Object> entrantData = new HashMap<>();
+//        Log.d("JoinWaitlistActivity", "Location: " + location.getLatitude() + ", " + location.getLongitude());
+//        Toast.makeText(this, "Location: " + location.getLatitude() + ", " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+        entrantData.put("latitude", location.getLatitude());
+        entrantData.put("longitude", location.getLongitude());
+        entrantData.put("dateTime", dateTime);
+
+        db.collection("waitlist")
+                .document(eventName)
+                .collection("entrants")
+                .add(entrantData)
+                .addOnSuccessListener(documentReference -> {
+                    Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
+                    intent.putExtra("Event Name", eventName);
+                    intent.putExtra("Facility", facilityName);
+                    intent.putExtra("Location", location);
+                    intent.putExtra("DateTime", dateTime);
+                    intent.putExtra("Description", description);
+                    intent.putExtra("Max Attendees", maxAttendees);
+                    startActivity(intent);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error adding to waitlist", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+
+    private void joinWaitlistWithoutLocation() {
+        Map<String, Object> waitlistEntry = new HashMap<>();
+        waitlistEntry.put("eventName", eventName);
+        waitlistEntry.put("facilityName", facilityName);
+        waitlistEntry.put("location", location);
+        waitlistEntry.put("dateTime", dateTime);
+        waitlistEntry.put("description", description);
+        waitlistEntry.put("maxAttendees", maxAttendees);
+
+        db.collection("waitlist")
+                .document(eventName)  // This sets the document name to the event name
+                .set(waitlistEntry)
+                .addOnSuccessListener(aVoid -> {
+                    Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
+                    intent.putExtra("Event Name", eventName);
+                    intent.putExtra("Facility", facilityName);
+                    intent.putExtra("Location", location);
+                    intent.putExtra("DateTime", dateTime);
+                    intent.putExtra("Description", description);
+                    intent.putExtra("Max Attendees", maxAttendees);
+                    startActivity(intent);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error adding to waitlist", Toast.LENGTH_SHORT).show();
+                });
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
-            // Retrieve the created profile details
-            String deviceId = data.getStringExtra("deviceId");
-            String name = data.getStringExtra("name");
-            String email = data.getStringExtra("email");
-            String phoneNumber = data.getStringExtra("phoneNumber");
-            String profilePicUrl = data.getStringExtra("profilePicUrl");
-            String eventName = data.getStringExtra("eventName");
-
-            // Create a Profile object
-            Profile newProfile = new Profile(deviceId, name, email, phoneNumber, profilePicUrl);
-
-            // Call joinWaitlist with the new profile
-            joinWaitlist(newProfile, eventName);
-        } else if (resultCode == RESULT_CANCELED) {
-            Toast.makeText(this, "Profile creation canceled.", Toast.LENGTH_SHORT).show();
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getLocationAndJoinWaitlist();
+            } else {
+                joinWaitlistWithoutLocation();
+            }
         }
     }
 }
-        /*if (eventNameTextView != null) {
-            eventNameTextView.setText(eventName);
-        }
-        if (facilityTextView != null) {
-            facilityTextView.setText(facilityName);
-        }
-        if (locationTextView != null) {
-            locationTextView.setText(location);
-        }
-        if (dateTimeTextView != null) {
-            dateTimeTextView.setText(dateTime);
-        }
-        if (descriptionTextView != null) {
-            descriptionTextView.setText(description);
-        }
-        if (maxAttendeesTextView != null) {
-            maxAttendeesTextView.setText(String.valueOf(maxAttendees));
-        }*/
-
