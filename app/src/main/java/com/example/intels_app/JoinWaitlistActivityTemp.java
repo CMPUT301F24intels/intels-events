@@ -42,16 +42,16 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         waitlistRef = db.collection("waitlisted_entrants");
 
         //        //This hardcoded data is only to TEST, REMOVE AFTER TO REAL CODE
-        String eventName = "Dancing Party";
-        String facilityName = "Tech Auditorium";
-        String location = "Whyte Ave, Edmonton";
-        String dateTime = "2024-12-01 10:00 AM";
-        String description = "A conference bringing together the brightest minds in tech.";
-        int maxAttendees = 2;
-        boolean geolocationRequirement = false;
-        String posterUrl = "https://testingexample.com/poster.jpg";
+//        String eventName = "Dancing Party";
+//        String facilityName = "Tech Auditorium";
+//        String location = "Whyte Ave, Edmonton";
+//        String dateTime = "2024-12-01 10:00 AM";
+//        String description = "A conference bringing together the brightest minds in tech.";
+//        int maxAttendees = 2;
+//        boolean geolocationRequirement = false;
+//        String posterUrl = "https://testingexample.com/poster.jpg";
 
-        /*// Retrieve event details from the intent
+        // Retrieve event details from the intent
         String eventName = getIntent().getStringExtra("eventName");
         String facilityName = getIntent().getStringExtra("facilityName");
         String location = getIntent().getStringExtra("location");
@@ -59,7 +59,7 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         String description = getIntent().getStringExtra("description");
         int maxAttendees = getIntent().getIntExtra("maxAttendees", 0);
         boolean geolocationRequirement = getIntent().getBooleanExtra("geolocationRequirement", false);
-        String posterUrl = getIntent().getStringExtra("posterUrl");*/
+        String posterUrl = getIntent().getStringExtra("posterUrl");
 
         setupEventDetailsUI(eventName, facilityName, location, dateTime, description, maxAttendees, geolocationRequirement, posterUrl);
 
