@@ -105,8 +105,9 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
         // Set OnClickListener
         navigationButton.setOnClickListener(v -> {
+//            String event_page = ""
             Intent intent = new Intent(EventDetailsOrganizer.this, MapsActivity.class);
-
+            intent.putExtra("event_name",eventName);
             startActivity(intent);
         });
 

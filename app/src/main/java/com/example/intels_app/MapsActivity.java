@@ -33,11 +33,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationProviderClient fusedLocationProviderClient;
     private FirebaseFirestore db;
 
+    private String event_name ="kat";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        Bundle extras  = getIntent().getExtras();
 
+        if(extras!=null){
+            event_name = extras.getString("event_name");
+        }
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
 
@@ -68,7 +73,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.setMyLocationEnabled(true);
 
             db.collection("waitlist")
-                            .document("kat")
+                            .document(event_name)
                     .collection("entrants")
                     .get()
                             .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -112,7 +117,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         // Fetch and display locations from Firestore
-        fetchWaitlistEntries();
+//        fetchWaitlistEntries();
     }
 
     private void fetchWaitlistEntries() {
