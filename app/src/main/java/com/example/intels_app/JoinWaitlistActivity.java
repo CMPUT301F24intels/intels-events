@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -141,20 +142,18 @@ public class JoinWaitlistActivity extends AppCompatActivity {
     }
 
     private void joinWaitlistWithLocation(Location location) {
-        Map<String, Object> waitlistEntry = new HashMap<>();
-        waitlistEntry.put("eventName", eventName);
-        waitlistEntry.put("facilityName", facilityName);
-        waitlistEntry.put("location", location);
-        waitlistEntry.put("dateTime", dateTime);
-        waitlistEntry.put("description", description);
-        waitlistEntry.put("maxAttendees", maxAttendees);
-        waitlistEntry.put("coordinates", new GeoPoint(location.getLatitude(), location.getLongitude()));
+        Map<String, Object> entrantData = new HashMap<>();
+        Log.d("JoinWaitlistActivity", "Location: " + location.getLatitude() + ", " + location.getLongitude());
+        Toast.makeText(this, "Location: " + location.getLatitude() + ", " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+        entrantData.put("latitude", location.getLatitude());
+        entrantData.put("longitude", location.getLongitude());
+        entrantData.put("dateTime", dateTime);
 
-        // Using eventName as the document ID instead of auto-generated ID
         db.collection("waitlist")
-                .document(eventName)  // This sets the document name to the event name
-                .set(waitlistEntry)
-                .addOnSuccessListener(aVoid -> {
+                .document(eventName)
+                .collection("entrants")
+                .add(entrantData)
+                .addOnSuccessListener(documentReference -> {
                     Intent intent = new Intent(JoinWaitlistActivity.this, SelectRoleActivity.class);
                     intent.putExtra("Event Name", eventName);
                     intent.putExtra("Facility", facilityName);
@@ -168,6 +167,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
                     Toast.makeText(this, "Error adding to waitlist", Toast.LENGTH_SHORT).show();
                 });
     }
+
 
     private void joinWaitlistWithoutLocation() {
         Map<String, Object> waitlistEntry = new HashMap<>();

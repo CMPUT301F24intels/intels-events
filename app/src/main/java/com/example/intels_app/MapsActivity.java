@@ -20,6 +20,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -64,6 +66,49 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Enable My Location layer if permission is granted
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
+
+            db.collection("waitlist")
+                            .document("kat")
+                    .collection("entrants")
+                    .get()
+                            .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                                LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+                                for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+
+                                    String eventName = document.getId(); // The document ID is the event name
+                                    Double latitude = document.getDouble("latitude");
+                                    Double longitude = document.getDouble("longitude");
+
+
+                                    LatLng position = new LatLng(latitude,longitude);
+
+
+                                    // Add marker with event name and location
+                                    mMap.addMarker(new MarkerOptions()
+                                            .position(position)
+                                            .title(eventName)
+                                            .snippet("Entrant")); // Display location in the marker's snippet
+
+                                    boundsBuilder.include(position);
+
+
+                                }
+                                LatLngBounds bounds = boundsBuilder.build();
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+//                                Toast.makeText(MapsActivity.this, "Location:"+latitude+","+longitude, Toast.LENGTH_SHORT).show();
+
+                            }).addOnFailureListener(e -> {
+                        Toast.makeText(this, "Error fetching locations", Toast.LENGTH_SHORT).show();
+                        Log.e("MapsActivity", "Firestore error", e);
+                    });
+
+
+
+
+
+        } else{
+            Toast.makeText(this, "Permission denied, unable to show map. Please change permissions in settings", Toast.LENGTH_SHORT).show();
         }
 
         // Fetch and display locations from Firestore
