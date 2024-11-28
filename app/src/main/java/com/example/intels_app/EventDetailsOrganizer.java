@@ -127,7 +127,6 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                     descriptionEditText.setText("Description: " + event.getDescription());
                     maxAttendeesTextView.setText("Max Attendees: " + event.getMaxAttendees());
                     geolocationRequirementTextView.setText("Geolocation Requirement: " + event.isGeolocationRequirement());
-                    notificationPreferenceTextView.setText("Notification Preference: " + event.isNotifPreference());
 
                     // Load event poster image using Glide
                     if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
