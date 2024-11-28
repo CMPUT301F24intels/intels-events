@@ -83,7 +83,6 @@ public class EventDetailsAdmin extends AppCompatActivity {
         descriptionEditText = findViewById(R.id.descriptionEditText);
         maxAttendeesTextView = findViewById(R.id.max_attendees_textview);
         geolocationRequirementTextView = findViewById(R.id.geolocationRequirementTextView);
-        notificationPreferenceTextView = findViewById(R.id.notificationPreferenceTextView);
         posterImageView = findViewById(R.id.posterImageView);
         qrImageView = findViewById(R.id.qrImageView);
 
