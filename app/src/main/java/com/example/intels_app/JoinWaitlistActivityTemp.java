@@ -42,7 +42,7 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         waitlistRef = db.collection("waitlisted_entrants");
 
         //        //This hardcoded data is only to TEST, REMOVE AFTER TO REAL CODE
-        String eventName = "Dancing Party";
+        String eventName = "Boba Town";
         String facilityName = "Tech Auditorium";
         String location = "Whyte Ave, Edmonton";
         String dateTime = "2024-12-01 10:00 AM";
