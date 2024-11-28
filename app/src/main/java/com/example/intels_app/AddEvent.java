@@ -52,6 +52,7 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.installations.FirebaseInstallations;
@@ -139,27 +140,36 @@ public class AddEvent extends AppCompatActivity {
                                                 .addOnSuccessListener(uri -> {
                                                     String posterUrl = uri.toString();
 
-                                                    // Create a new event with the entered details and device ID
-                                                    Event newEvent = new Event(
-                                                            eventName.getText().toString(),
-                                                            location.getText().toString(),
-                                                            dateTime.getText().toString(),
-                                                            description.getText().toString(),
-                                                            Integer.parseInt(maxAttendees.getText().toString()),
-                                                            geolocationRequirement.isChecked(),
-                                                            posterUrl,
-                                                            deviceId // Add the device ID here
-                                                    );
+                                                    FirebaseFirestore.getInstance().collection("facilities").document(deviceId).get()
+                                                            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                                @Override
+                                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                                    String facilityName = documentSnapshot.getString("facilityName");
 
-                                                    // Save new event to FireStore under the events collection. Name it by the event name
-                                                    FirebaseFirestore.getInstance().collection("events").document(eventName.getText().toString())
-                                                            .set(newEvent)
-                                                            .addOnSuccessListener(documentReference -> {
-                                                                Intent intent = new Intent(AddEvent.this, CreateQR.class);
-                                                                intent.putExtra("Event Name", eventName.getText().toString());
-                                                                startActivity(intent);
-                                                            })
-                                                            .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
+                                                                    // Create a new event with the entered details and device ID
+                                                                    Event newEvent = new Event(
+                                                                            eventName.getText().toString(),
+                                                                            facilityName,
+                                                                            location.getText().toString(),
+                                                                            dateTime.getText().toString(),
+                                                                            description.getText().toString(),
+                                                                            Integer.parseInt(maxAttendees.getText().toString()),
+                                                                            geolocationRequirement.isChecked(),
+                                                                            posterUrl,
+                                                                            deviceId // Add the device ID here
+                                                                    );
+
+                                                                    // Save new event to FireStore under the events collection. Name it by the event name
+                                                                    FirebaseFirestore.getInstance().collection("events").document(eventName.getText().toString())
+                                                                            .set(newEvent)
+                                                                            .addOnSuccessListener(documentReference -> {
+                                                                                Intent intent = new Intent(AddEvent.this, CreateQR.class);
+                                                                                intent.putExtra("Event Name", eventName.getText().toString());
+                                                                                startActivity(intent);
+                                                                            })
+                                                                            .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
+                                                                }
+                                                            });
                                                 })
                                         ).addOnFailureListener(e -> {
                                             Log.w(TAG, "Image upload failed", e);
