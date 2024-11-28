@@ -102,13 +102,15 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
         // Get the navigation button
         ImageButton navigationButton = findViewById(R.id.navigationButton);
-
-        // Set OnClickListener
         navigationButton.setOnClickListener(v -> {
-//            String event_page = ""
-            Intent intent = new Intent(EventDetailsOrganizer.this, MapsActivity.class);
-            intent.putExtra("event_name",eventName);
-            startActivity(intent);
+            if (eventName != null && !eventName.isEmpty()) {
+                Intent intent = new Intent(EventDetailsOrganizer.this, MapsActivity.class);
+                intent.putExtra("eventName", eventName);
+                startActivity(intent);
+            } else {
+                Toast.makeText(EventDetailsOrganizer.this, "Event name is missing. Cannot open map.", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Event name is missing for navigation to MapsActivity.");
+            }
         });
 
     }
