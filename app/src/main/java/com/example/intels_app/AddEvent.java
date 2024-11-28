@@ -279,10 +279,7 @@ public class AddEvent extends AppCompatActivity {
 
     private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivity(intent);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
-        }
+        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
     }
 
     private void openGallery() {
