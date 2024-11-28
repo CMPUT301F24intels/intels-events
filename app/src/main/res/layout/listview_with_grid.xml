@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -31,7 +32,6 @@
         android:text="Entrant"
         android:textSize="15sp"
         app:layout_constraintEnd_toStartOf="@id/organizer_button"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/back_button" />
 
@@ -50,15 +50,17 @@
 
     <GridView
         android:id="@+id/grid_view"
-        android:layout_width="389dp"
-        android:layout_height="516dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
-        android:horizontalSpacing="8dp"
+        android:horizontalSpacing="10dp"
+        android:verticalSpacing="10dp"
         android:numColumns="2"
         android:scrollbars="none"
-        android:verticalSpacing="8dp"
+        android:stretchMode="columnWidth"
+        app:layout_constraintTop_toBottomOf="@id/organizer_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

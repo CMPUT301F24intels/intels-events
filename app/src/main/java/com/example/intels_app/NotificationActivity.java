@@ -15,6 +15,7 @@ import static android.content.ContentValues.TAG;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.bumptech.glide.Glide;
@@ -240,6 +242,7 @@ public class NotificationActivity extends AppCompatActivity {
 
         // Add the notification view to the notification list layout
         notificationListLayout.addView(notificationView);
+        showSystemNotification(title, message);
     }
 
     private void handleAcceptNotification(String profileId) {
@@ -343,6 +346,31 @@ public class NotificationActivity extends AppCompatActivity {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
+    }
+
+    private void showSystemNotification(String title, String message) {
+        // Create an Intent to open NotificationActivity when the notification is clicked
+        Intent intent = new Intent(this, NotificationActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.message) // Use your app's notification icon
+                .setContentTitle(title != null ? title : "New Notification")
+                .setContentText(message != null ? message : "You have a new notification.")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true) // Dismiss notification on tap
+                .setContentIntent(pendingIntent); // Set the PendingIntent
+
+        // Post the notification to the system
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify((int) System.currentTimeMillis(), builder.build());
     }
 
 

@@ -139,4 +139,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_picture" />
 
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/notification_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="20dp"
+        android:text="Enable Notifications  "
+        android:fontFamily="@font/poppins_semibold"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:thumbTint="@color/custom_blue"
+        app:layout_constraintTop_toBottomOf="@id/enter_phone_number"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

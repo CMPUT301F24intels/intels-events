@@ -77,6 +77,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-firestore:25.1.0")
     implementation("com.google.firebase:firebase-storage:21.0.1")
+    //implementation ("com.google.firebase:firebase-messaging:24.3.0")
     implementation ("com.google.android.gms:play-services-base:18.1.0")
     implementation("com.github.bumptech.glide:glide:4.15.1")
     implementation("com.google.zxing:core:3.4.1")

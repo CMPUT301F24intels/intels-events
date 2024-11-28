@@ -67,7 +67,45 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         geolocationRequirement = getIntent().getBooleanExtra("geolocationRequirement", false);
         String posterUrl = getIntent().getStringExtra("posterUrl");
 
-        // Set the retrieved data to the UI elements
+        setupEventDetailsUI(eventName, facilityName, location, dateTime, description, maxAttendees, geolocationRequirement, posterUrl);
+
+        Button joinWaitlistButton = findViewById(R.id.join_waitlist_button);
+        joinWaitlistButton.setOnClickListener(view -> {
+            // Fetch the device ID
+            FirebaseInstallations.getInstance().getId()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            String deviceId = task.getResult();
+                            Log.d("JoinWaitlist", "Retrieved Device ID: " + deviceId);
+
+                            if (geolocationRequirement) {
+                                new AlertDialog.Builder(JoinWaitlistActivity.this)
+                                        .setTitle("Confirm Join")
+                                        .setMessage("This event tracks your geolocation. Are you sure you want to join this event?")
+                                        .setPositiveButton("Yes", (dialog, which) -> {
+                                            checkIfProfileExists(deviceId, eventName);
+                                        })
+                                        .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                                        .show();
+                            } else {
+                                checkIfProfileExists(deviceId, eventName);
+                            }
+                        } else {
+                            Log.e("JoinWaitlist", "Device ID retrieval failed", task.getException());
+                            Toast.makeText(this, "Error retrieving device ID. Please try again.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        });
+
+        ImageButton backButton = findViewById(R.id.back_button_1);
+        backButton.setOnClickListener(view -> {
+            Intent intent = new Intent(JoinWaitlistActivity.this, MainActivity.class);
+            startActivity(intent);
+        });
+    }
+
+    private void setupEventDetailsUI(String eventName, String facilityName, String location, String dateTime,
+                                     String description, int maxAttendees, boolean geolocationRequirement, String posterUrl) {
         TextView eventNameTextView = findViewById(R.id.eventNameEdit);
         TextView facilityTextView = findViewById(R.id.facilityEdit);
         TextView locationTextView = findViewById(R.id.locationEdit);
@@ -86,13 +124,11 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         geolocationSwitch.setChecked(geolocationRequirement);
         geolocationSwitch.setClickable(false);
 
-        // Load the poster image
         ImageView posterImageView = findViewById(R.id.qrCodeImage_2);
         if (posterUrl != null && !posterUrl.isEmpty()) {
-            Glide.with(this)
-                    .load(posterUrl)
-                    .into(posterImageView);
+            Glide.with(this).load(posterUrl).into(posterImageView);
         }
+    }
 
         Button joinWaitlistButton = findViewById(R.id.join_waitlist_button);
         joinWaitlistButton.setOnClickListener(new View.OnClickListener() {
@@ -103,8 +139,12 @@ public class JoinWaitlistActivity extends AppCompatActivity {
                 } else {
                     joinWaitlistWithoutLocation();
                 }
+            } else {
+                Log.e("FirestoreError", "Error checking if document exists", task.getException());
+                Toast.makeText(this, "Error joining the waitlist. Please try again.", Toast.LENGTH_SHORT).show();
             }
         });
+    }
 
         ImageButton backButton = findViewById(R.id.back_button_1);
         backButton.setOnClickListener(new View.OnClickListener() {

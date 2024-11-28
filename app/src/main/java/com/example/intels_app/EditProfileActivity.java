@@ -31,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -133,6 +134,11 @@ public class EditProfileActivity extends AppCompatActivity {
                         Log.w(TAG, "No poster URL found in the document");
                         profile_pic.setImageResource(R.drawable.person_image);
                     }
+
+                    boolean notifPref = profile.isNotifPref();
+                    SwitchCompat notificationSwitch = findViewById(R.id.notification_switch);
+                    notificationSwitch.setChecked(notifPref);
+                    Log.d("EditProfile", "Notification Preference Loaded: " + notifPref);
                 }
             } else {
                 Log.e(TAG, "No such document exists");
@@ -142,6 +148,9 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void saveProfileChanges() {
+        SwitchCompat notificationSwitch = findViewById(R.id.notification_switch);
+        boolean updatedNotifPref = notificationSwitch.isChecked();
+
         if (imageUploaded) {
             db.collection("profiles")
                     .whereEqualTo("deviceId", deviceId)
@@ -180,11 +189,12 @@ public class EditProfileActivity extends AppCompatActivity {
                                                                                 name.getText().toString(),
                                                                                 email.getText().toString(),
                                                                                 phone_number.getText().toString(),
-                                                                                finalImageUrl
+                                                                                finalImageUrl,
+                                                                                updatedNotifPref
                                                                         );
 
                                                                         db.collection("profiles")
-                                                                                .document(name.getText().toString())
+                                                                                .document(deviceId)
                                                                                 .set(profile)
                                                                                 .addOnSuccessListener(documentReference -> {
                                                                                     Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
@@ -221,9 +231,10 @@ public class EditProfileActivity extends AppCompatActivity {
                                 name.getText().toString(),
                                 email.getText().toString(),
                                 phone_number.getText().toString(),
-                                finalImageUrl
+                                finalImageUrl,
+                                updatedNotifPref
                         );
-                        FirebaseFirestore.getInstance().collection("profiles").document(name.getText().toString())
+                        FirebaseFirestore.getInstance().collection("profiles").document(deviceId)
                                 .set(profile)
                                 .addOnSuccessListener(documentReference -> {
                                     Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
