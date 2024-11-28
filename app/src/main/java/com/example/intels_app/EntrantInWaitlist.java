@@ -45,8 +45,9 @@ public class EntrantInWaitlist extends AppCompatActivity {
     private ListView listView;
     private List<Profile> profileList;
     private CheckBox sendNotificationCheckbox;
-    private String eventName;
-    private ProfileAdapter adapter;
+    private String eventName;;
+    private EntrantAdapter adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +71,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
         profileList = new ArrayList<>();
         profileList.add(new Profile("Aayushi", "dshjfd@gmail.com", "7050404"));
         profileList.add(new Profile("Janan", "dshjfd@gmail.com", "7050404"));
-        adapter = new ProfileAdapter(this, profileList);
+        adapter = new EntrantAdapter(this, new ArrayList<>());
         listView.setAdapter(adapter);
 
         fetchEntrants();
@@ -86,17 +87,15 @@ public class EntrantInWaitlist extends AppCompatActivity {
 
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                adapter.getFilter().filter(s); // Filter the adapter based on search input
+                adapter.getFilter().filter(s);
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-            }
+            public void afterTextChanged(Editable s) {}
         });
 
         waitlist_button = findViewById(R.id.btn_waitlist);
@@ -268,14 +267,9 @@ public class EntrantInWaitlist extends AppCompatActivity {
     private void fetchEntrants() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference waitlistRef = db.collection("waitlisted_entrants");
-
         List<Entrant> entrantList = new ArrayList<>();
-        EntrantAdapter adapter = new EntrantAdapter(this, entrantList);
-        listView.setAdapter(adapter);
 
-        waitlistRef.whereArrayContains("events", new HashMap<String, Object>() {{
-                    put("eventName", eventName);
-                }})
+        waitlistRef.whereArrayContains("events", new HashMap<String, Object>() {{ put("eventName", eventName); }})
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -289,6 +283,8 @@ public class EntrantInWaitlist extends AppCompatActivity {
                                     entrantList.add(new Entrant(name, imageUrl)); // Add entrant to the list
                                 }
                             }
+                            adapter.clear();
+                            adapter.addAll(entrantList);
                             adapter.notifyDataSetChanged(); // Refresh the ListView
                         } else {
                             Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();

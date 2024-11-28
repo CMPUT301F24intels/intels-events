@@ -46,11 +46,17 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
     private List<Profile> profileList;
     private String eventName;
     private CheckBox sendNotificationCheckbox;
+    private EntrantAdapter adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.waitlist_with_cancelled_entrants);
+
+        listView = findViewById(R.id.profile_list);
+        adapter = new EntrantAdapter(this, new ArrayList<>());
+        listView.setAdapter(adapter);
 
         // Retrieve eventName from the Intent
         eventName = getIntent().getStringExtra("eventName");
@@ -65,6 +71,18 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         Log.d("CancelledEntrants", "Retrieved eventName: " + eventName);
 
         EditText searchBar = findViewById(R.id.search_bar);
+        searchBar.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.getFilter().filter(s);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
         listView = findViewById(R.id.profile_list);
 
         profileList = new ArrayList<>();
@@ -136,33 +154,23 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
     private void fetchCancelledEntrants() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference notificationsRef = db.collection("notifications");
+        List<Entrant> entrantsList = new ArrayList<>();
 
-        List<Entrant> entrantsList = new ArrayList<>(); // Updated to use Entrant model
-        EntrantAdapter adapter = new EntrantAdapter(this, entrantsList); // Updated adapter
-        listView.setAdapter(adapter);
-
-        // Fetch documents where the type is "declined" and matches the event name
         notificationsRef.whereEqualTo("type", "declined")
                 .whereEqualTo("eventName", eventName)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        entrantsList.clear(); // Clear previous data
-
+                        entrantsList.clear();
                         if (task.getResult() != null && !task.getResult().isEmpty()) {
-                            Log.d("CancelledEntrants", "Documents retrieved for cancelled entrants.");
-
                             List<String> profileIds = new ArrayList<>();
                             for (DocumentSnapshot notification : task.getResult()) {
                                 String profileId = notification.getString("profileId");
                                 if (profileId != null && !profileId.isEmpty()) {
                                     profileIds.add(profileId);
-                                } else {
-                                    Log.w("CancelledEntrants", "Profile ID missing in notification document.");
                                 }
                             }
 
-                            // Fetch all profiles in a single operation
                             if (!profileIds.isEmpty()) {
                                 for (String profileId : profileIds) {
                                     db.collection("waitlisted_entrants")
@@ -174,35 +182,25 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                                                     if (profile != null) {
                                                         String profileName = (String) profile.get("name");
                                                         String imageUrl = (String) profile.get("imageUrl");
-
                                                         if (profileName != null) {
-                                                            entrantsList.add(new Entrant(profileName, imageUrl)); // Add Entrant object
-                                                            Log.d("CancelledEntrants", "Added entrant: " + profileName);
-                                                        } else {
-                                                            Log.w("CancelledEntrants", "Name field is missing for profileId: " + profileId);
+                                                            entrantsList.add(new Entrant(profileName, imageUrl));
                                                         }
                                                     }
-                                                } else {
-                                                    Log.w("CancelledEntrants", "Profile document does not exist for ID: " + profileId);
                                                 }
-
-                                                // Refresh the adapter only after processing all documents
                                                 if (profileIds.indexOf(profileId) == profileIds.size() - 1) {
-                                                    adapter.notifyDataSetChanged(); // Notify adapter once
+                                                    adapter.clear();
+                                                    adapter.addAll(entrantsList);
+                                                    adapter.notifyDataSetChanged();
                                                 }
-                                            })
-                                            .addOnFailureListener(e -> Log.e("Firestore", "Error fetching profile for ID: " + profileId, e));
+                                            });
                                 }
                             } else {
-                                Log.w("CancelledEntrants", "No valid profile IDs found in notifications.");
                                 Toast.makeText(this, "No cancelled entrants found for this event.", Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            Log.w("CancelledEntrants", "No documents found for cancelled entrants.");
                             Toast.makeText(this, "No cancelled entrants found for this event.", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Log.w("Firestore", "Error fetching notifications", task.getException());
                         Toast.makeText(this, "Error retrieving data.", Toast.LENGTH_SHORT).show();
                     }
                 });
