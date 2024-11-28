@@ -178,15 +178,14 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                                         Log.d(TAG, "Cleared previous not_selected entrants for event: " + eventName);
 
                                         // Fetch waitlisted entrants
-                                        waitlistedEntrantsRef.whereEqualTo("eventName", eventName)
-                                                .get()
-                                                .addOnSuccessListener(waitlistQuery -> {
-                                                    List<DocumentSnapshot> waitlist = waitlistQuery.getDocuments();
-
-                                                    if (waitlist.isEmpty()) {
-                                                        Toast.makeText(this, "No waitlisted profiles for this event.", Toast.LENGTH_SHORT).show();
-                                                        return;
-                                                    }
+                                        waitlistedEntrantsRef.whereArrayContains("events", new HashMap<String, Object>() {{
+                                            put("eventName", eventName);
+                                        }}).get().addOnSuccessListener(waitlistQuery -> {
+                                            List<DocumentSnapshot> waitlist = waitlistQuery.getDocuments();
+                                            if (waitlist.isEmpty()) {
+                                                Toast.makeText(this, "No waitlisted profiles for this event.", Toast.LENGTH_SHORT).show();
+                                                return;
+                                            }
 
                                                     int numberOfSpots = Integer.parseInt(maxAttendeesTextView.getText().toString().split(": ")[1]);
                                                     Collections.shuffle(waitlist);
