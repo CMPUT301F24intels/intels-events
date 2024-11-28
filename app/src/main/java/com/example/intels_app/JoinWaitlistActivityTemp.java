@@ -42,6 +42,7 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         waitlistRef = db.collection("waitlisted_entrants");
 
         //        //This hardcoded data is only to TEST, REMOVE AFTER TO REAL CODE
+
 //        String eventName = "Dancing Party";
 //        String facilityName = "Tech Auditorium";
 //        String location = "Whyte Ave, Edmonton";
@@ -50,6 +51,16 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
 //        int maxAttendees = 2;
 //        boolean geolocationRequirement = false;
 //        String posterUrl = "https://testingexample.com/poster.jpg";
+
+        // Retrieve event details from the intent
+ //       String eventName = "Dhanshris Event";
+//        String facilityName = "Tech Auditorium";
+  //      String location = "Whyte Ave, Edmonton";
+    //    String dateTime = "2024-12-01 10:00 AM";
+ //       String description = "A conference bringing together the brightest minds in tech.";
+   //     int maxAttendees = 2;
+     //   boolean geolocationRequirement = true;
+       // String posterUrl = "https://testingexample.com/poster.jpg";
 
         // Retrieve event details from the intent
         String eventName = getIntent().getStringExtra("eventName");

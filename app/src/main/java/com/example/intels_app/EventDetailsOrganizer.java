@@ -45,7 +45,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
     private ImageButton backButton, drawButton, editButton;
     private ImageView posterImageView, qrImageView;
     private TextView eventNameEditText, facilityEditText, locationEditText, dateTimeEditText,
-            descriptionEditText, maxAttendeesTextView, geolocationRequirementTextView, notificationPreferenceTextView;
+            descriptionEditText, maxAttendeesTextView, geolocationRequirementTextView;
 
     private FirebaseFirestore db;
     private String eventName;
@@ -71,7 +71,6 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         descriptionEditText = findViewById(R.id.descriptionEditText);
         maxAttendeesTextView = findViewById(R.id.max_attendees_textview);
         geolocationRequirementTextView = findViewById(R.id.geolocationRequirementTextView);
-        notificationPreferenceTextView = findViewById(R.id.notificationPreferenceTextView);
         posterImageView = findViewById(R.id.posterImageView);
         qrImageView = findViewById(R.id.qrImageView);
         drawButton = findViewById(R.id.drawButton);
@@ -127,7 +126,6 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                     descriptionEditText.setText("Description: " + event.getDescription());
                     maxAttendeesTextView.setText("Max Attendees: " + event.getMaxAttendees());
                     geolocationRequirementTextView.setText("Geolocation Requirement: " + event.isGeolocationRequirement());
-                    notificationPreferenceTextView.setText("Notification Preference: " + event.isNotifPreference());
 
                     // Load event poster image using Glide
                     if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {

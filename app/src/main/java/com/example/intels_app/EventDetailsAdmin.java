@@ -83,7 +83,6 @@ public class EventDetailsAdmin extends AppCompatActivity {
         descriptionEditText = findViewById(R.id.descriptionEditText);
         maxAttendeesTextView = findViewById(R.id.max_attendees_textview);
         geolocationRequirementTextView = findViewById(R.id.geolocationRequirementTextView);
-        notificationPreferenceTextView = findViewById(R.id.notificationPreferenceTextView);
         posterImageView = findViewById(R.id.posterImageView);
         qrImageView = findViewById(R.id.qrImageView);
 
@@ -192,32 +191,33 @@ public class EventDetailsAdmin extends AppCompatActivity {
             descriptionEditText.setText("Description: " + event.getDescription());
             maxAttendeesTextView.setText("Max Attendees: " + event.getMaxAttendees());
             geolocationRequirementTextView.setText("Geolocation Requirement: " + event.isGeolocationRequirement());
-            notificationPreferenceTextView.setText("Notification Preference: " + event.isNotifPreference());
 
             // Load event poster image using Glide
             if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
                 Glide.with(getApplicationContext())
                         .load(event.getPosterUrl())
                         .placeholder(R.drawable.pfp_placeholder_image)
-                        .error(R.drawable.person_image)
+                        .error(R.drawable.pfp_placeholder_image)
                         .into(posterImageView);
+                deletePosterButton.setVisibility(View.VISIBLE); // Make delete button visible
             } else {
                 Log.w(TAG, "No poster URL found in the document");
-                posterImageView.setImageResource(R.drawable.person_image);
-                deletePosterButton.setVisibility(View.INVISIBLE);
+                posterImageView.setImageResource(R.drawable.pfp_placeholder_image);
+                deletePosterButton.setVisibility(View.INVISIBLE); // Hide delete button
             }
 
-            // Load qr code image using Glide
+            // Load QR code image using Glide
             if (event.getQrCodeUrl() != null && !event.getQrCodeUrl().isEmpty()) {
                 Glide.with(getApplicationContext())
                         .load(event.getQrCodeUrl())
                         .placeholder(R.drawable.pfp_placeholder_image)
-                        .error(R.drawable.person_image)
+                        .error(R.drawable.pfp_placeholder_image)
                         .into(qrImageView);
+                deleteQRButton.setVisibility(View.VISIBLE); // Make delete button visible
             } else {
-                Log.w(TAG, "No poster URL found in the document");
+                Log.w(TAG, "No QR Code URL found in the document");
                 qrImageView.setImageResource(R.drawable.pfp_placeholder_image);
-                deleteQRButton.setVisibility(View.INVISIBLE);
+                deleteQRButton.setVisibility(View.INVISIBLE); // Hide delete button
             }
         }
     }
