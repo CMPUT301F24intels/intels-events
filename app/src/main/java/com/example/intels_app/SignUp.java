@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -136,6 +137,10 @@ public class SignUp extends AppCompatActivity {
         }
         if (imageData == null || imageHash == null) {
             Toast.makeText(SignUp.this, "Please select or generate a profile picture", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!Patterns.EMAIL_ADDRESS.matcher(userEmail).matches()) {
+            Toast.makeText(SignUp.this, "Enter a valid email address.", Toast.LENGTH_SHORT).show();
             return;
         }
 
