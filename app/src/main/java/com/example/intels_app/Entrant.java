@@ -11,10 +11,16 @@ package com.example.intels_app;
 public class Entrant {
     private String name;
     private EntrantNotifications notifications;
+    private String imageUrl;
 
     public Entrant(String name) {
         this.name = name;
         this.notifications = new EntrantNotifications();
+    }
+
+    public Entrant(String name, String imageUrl) {
+        this.name = name;
+        this.imageUrl = imageUrl;
     }
 
     public String getName() {
@@ -23,6 +29,10 @@ public class Entrant {
 
     public EntrantNotifications getNotifications() {
         return notifications;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
     }
 }
 
