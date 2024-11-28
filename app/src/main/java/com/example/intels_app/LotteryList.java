@@ -158,10 +158,11 @@ public class LotteryList extends AppCompatActivity {
 
                                                 if (profileData != null) {
                                                     String name = (String) profileData.get("name");
-                                                    String status = (String) profileData.get("status"); // e.g., "accepted" or "pending"
+                                                    /*String status = (String) profileData.get("status");*/ // e.g., "accepted" or "pending"
+                                                    String imageUrl = (String) profileData.get("imageUrl");
 
                                                     // Create a Profile object or similar representation
-                                                    Profile profile = new Profile(name, status);
+                                                    Profile profile = new Profile(name, imageUrl);
                                                     selectedEntrants.add(profile);
                                                 } else {
                                                     Log.w("LotteryList", "Profile missing in waitlisted_entrants for ID: " + doc.getId());

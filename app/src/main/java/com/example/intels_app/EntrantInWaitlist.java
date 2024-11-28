@@ -269,41 +269,36 @@ public class EntrantInWaitlist extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference waitlistRef = db.collection("waitlisted_entrants");
 
-        List<String> documentNames = new ArrayList<>();
-        EntrantAdapter adapter = new EntrantAdapter(this, documentNames);
+        List<Entrant> entrantList = new ArrayList<>();
+        EntrantAdapter adapter = new EntrantAdapter(this, entrantList);
         listView.setAdapter(adapter);
 
         waitlistRef.whereArrayContains("events", new HashMap<String, Object>() {{
                     put("eventName", eventName);
-                }})  // Filter by eventName
-                .get()  // Use `.get()` to fetch data once
+                }})
+                .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        // Clear existing data to avoid duplicates
-                        documentNames.clear();
-
-                        // Check if the task returned any documents
+                        entrantList.clear(); // Clear existing data to avoid duplicates
                         if (task.getResult() != null && !task.getResult().isEmpty()) {
-                            Log.d("EntrantInWaitlist", "Documents retrieved for waitlisted entrants.");
-
-                            // Iterate over documents in the result
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
-                                String documentId = documentSnapshot.getId();  // Or fetch a specific field like "name"
-                                Log.d("EntrantInWaitlist", "Document ID: " + documentId);
-                                documentNames.add(documentId);  // Add document ID (or name) to list
+                                Map<String, Object> profile = (Map<String, Object>) documentSnapshot.get("profile");
+                                if (profile != null) {
+                                    String name = (String) profile.get("name");
+                                    String imageUrl = (String) profile.get("imageUrl");
+                                    entrantList.add(new Entrant(name, imageUrl)); // Add entrant to the list
+                                }
                             }
-
-                            // Notify the adapter to refresh the ListView
-                            adapter.notifyDataSetChanged();
+                            adapter.notifyDataSetChanged(); // Refresh the ListView
                         } else {
-                            Log.w("EntrantInWaitlist", "No documents found for this event.");
                             Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Log.w("Firestore", "Error fetching documents", task.getException());
+                        Log.e("Firestore", "Error fetching entrants", task.getException());
                         Toast.makeText(this, "Error retrieving data.", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
 
         /*
         waitlistRef.whereEqualTo("eventName", eventName)  // Filter by eventName
@@ -337,4 +332,4 @@ public class EntrantInWaitlist extends AppCompatActivity {
 
          */
     }
-}
+

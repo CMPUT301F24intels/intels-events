@@ -13,6 +13,8 @@ import android.widget.TextView;
 import android.content.Context;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 import java.util.List;
 /**
@@ -66,11 +68,19 @@ public class ProfileAdapter extends BaseAdapter implements Filterable {
         Profile profile = filteredProfiles.get(position);
 
         TextView nameTextView = convertView.findViewById(R.id.profile_name);
-        //ImageView profileImageView = convertView.findViewById(R.id.profile_image);
+        ImageView profileImageView = convertView.findViewById(R.id.profile_image);
 
         nameTextView.setText(profile.getName());
-        //profileImageView.setImageResource(profile.getImageResId());
-        //profileImageView.setImageResource(profile.getImageResId() != 0 ? profile.getImageResId() : R.drawable.default_image);
+
+        if (profile.getImageUrl() != null && !profile.getImageUrl().isEmpty()) {
+            Glide.with(context)
+                    .load(profile.getImageUrl())
+                    .placeholder(R.drawable.person_image) // Default placeholder image
+                    .error(R.drawable.person_image) // Fallback image in case of an error
+                    .into(profileImageView);
+        } else {
+            profileImageView.setImageResource(R.drawable.person_image); // Default image if no URL
+        }
 
         return convertView;
     }

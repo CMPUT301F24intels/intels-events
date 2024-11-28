@@ -14,10 +14,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,9 +57,20 @@ public class SelectedEntrantAdapter extends RecyclerView.Adapter<SelectedEntrant
     public void onBindViewHolder(@NonNull EntrantViewHolder holder, int position) {
         Profile profile = entrants.get(position);
 
-        // Bind data to views
+        // Bind name
         holder.nameTextView.setText(profile.getName());
-        // Add other fields as needed
+
+        // Load profile picture using Glide
+        if (profile.getImageUrl() != null && !profile.getImageUrl().isEmpty()) {
+            Glide.with(context)
+                    .load(profile.getImageUrl())
+                    .placeholder(R.drawable.person_image) // Placeholder image while loading
+                    .error(R.drawable.person_image) // Fallback image on error
+                    .into(holder.profileImageView);
+        } else {
+            // If no image URL, set the default profile picture
+            holder.profileImageView.setImageResource(R.drawable.person_image);
+        }
     }
 
     @Override
@@ -77,10 +91,12 @@ public class SelectedEntrantAdapter extends RecyclerView.Adapter<SelectedEntrant
      */
     public static class EntrantViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView;
+        ImageView profileImageView;
 
         public EntrantViewHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.profile_name);
+            profileImageView = itemView.findViewById(R.id.profile_image);
         }
     }
 

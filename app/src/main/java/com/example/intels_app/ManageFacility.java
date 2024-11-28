@@ -138,12 +138,12 @@ public class ManageFacility extends AppCompatActivity {
                                                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                                         Log.d(TAG, "New poster uploaded successfully");
 
-                                                        FirebaseStorage.getInstance().getReference().child("profile_pics").child(imageHash).getDownloadUrl()
+                                                        FirebaseStorage.getInstance().getReference().child("facilities").child(imageHash).getDownloadUrl()
                                                                 .addOnSuccessListener(new OnSuccessListener<Uri>() {
                                                                     @Override
                                                                     public void onSuccess(Uri uri) {
                                                                         finalPosterUrl = uri.toString();
-                                                                        Log.d(TAG, "New Profile URL: " + finalPosterUrl);
+                                                                        Log.d(TAG, "New Poster URL: " + finalPosterUrl);
 
                                                                         Facility facility = new Facility(
                                                                                 facilityName.getText().toString(),

@@ -19,33 +19,49 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
-public class EntrantAdapter extends ArrayAdapter<String> {
+public class EntrantAdapter extends ArrayAdapter<Entrant> {
     private Context context;
-    private List<String> entrantNames;
+    private List<Entrant> entrantList;
 
-    public EntrantAdapter(Context context, List<String> entrantNames) {
-        super(context, 0, entrantNames);
+    public EntrantAdapter(Context context, List<Entrant> entrantList) {
+        super(context, 0, entrantList);
         this.context = context;
-        this.entrantNames = entrantNames;
+        this.entrantList = entrantList;
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.profile_list_view_entrant, parent, false);
         }
 
-        String entrantName = entrantNames.get(position);
+        // Get the current entrant
+        Entrant entrant = entrantList.get(position);
 
+        // Get views
         TextView profileNameTextView = convertView.findViewById(R.id.profile_name);
+        ImageView profileImageView = convertView.findViewById(R.id.profile_image);
 
-        profileNameTextView.setText(entrantName);
+        // Set name
+        profileNameTextView.setText(entrant.getName());
+
+        // Load image using Glide
+        if (entrant.getImageUrl() != null && !entrant.getImageUrl().isEmpty()) {
+            Glide.with(context)
+                    .load(entrant.getImageUrl())
+                    .placeholder(R.drawable.person_image) // Default image while loading
+                    .error(R.drawable.person_image) // Default image if an error occurs
+                    .into(profileImageView);
+        } else {
+            // Set a default image if `imageUrl` is null or empty
+            profileImageView.setImageResource(R.drawable.person_image);
+        }
 
         return convertView;
     }
-
 }

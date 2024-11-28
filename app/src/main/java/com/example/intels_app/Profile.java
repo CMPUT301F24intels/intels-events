@@ -24,11 +24,6 @@ package com.example.intels_app;
         this.imageResId = imageResId;
     }
 
-    public Profile(String name, String email) {
-        this.name = name;
-        this.email = email;
-    }
-
     public Profile(String name, String email, String phone_number, String imageUrl) {
         this.name = name;
         this.email = email;
@@ -57,6 +52,11 @@ package com.example.intels_app;
          this.phone_number = phone_number;
          this.imageUrl = imageUrl;
          this.notifPref = notifPref;
+     }
+
+     public Profile(String name, String imageUrl) {
+         this.name = name;
+         this.imageUrl = imageUrl;
      }
 
     public Profile(String deviceId) {
