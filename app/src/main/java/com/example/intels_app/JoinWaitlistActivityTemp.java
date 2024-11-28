@@ -50,22 +50,32 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.join_waitlist);
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         db = FirebaseFirestore.getInstance();
         profilesRef = db.collection("profiles");
         waitlistRef = db.collection("waitlisted_entrants");
 
         //        //This hardcoded data is only to TEST, REMOVE AFTER TO REAL CODE
-        this.eventName = "yash birthday";
-        this.facilityName = "Tech Auditorium";
-        this.location = "Whyte Ave, Edmonton";
-        this.dateTime = "2024-12-01 10:00 AM";
-        this.description = "A conference bringing together the brightest minds in tech.";
-        this.maxAttendees = 2;
-        this.geolocationRequirement = true;
-        this.posterUrl = "https://testingexample.com/poster.jpg";
 
-        /*// Retrieve event details from the intent
+//        String eventName = "Dancing Party";
+//        String facilityName = "Tech Auditorium";
+//        String location = "Whyte Ave, Edmonton";
+//        String dateTime = "2024-12-01 10:00 AM";
+//        String description = "A conference bringing together the brightest minds in tech.";
+//        int maxAttendees = 2;
+//        boolean geolocationRequirement = false;
+//        String posterUrl = "https://testingexample.com/poster.jpg";
+
+        // Retrieve event details from the intent
+ //       String eventName = "Dhanshris Event";
+//        String facilityName = "Tech Auditorium";
+  //      String location = "Whyte Ave, Edmonton";
+    //    String dateTime = "2024-12-01 10:00 AM";
+ //       String description = "A conference bringing together the brightest minds in tech.";
+   //     int maxAttendees = 2;
+     //   boolean geolocationRequirement = true;
+       // String posterUrl = "https://testingexample.com/poster.jpg";
+
+        // Retrieve event details from the intent
         String eventName = getIntent().getStringExtra("eventName");
         String facilityName = getIntent().getStringExtra("facilityName");
         String location = getIntent().getStringExtra("location");
@@ -73,7 +83,7 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         String description = getIntent().getStringExtra("description");
         int maxAttendees = getIntent().getIntExtra("maxAttendees", 0);
         boolean geolocationRequirement = getIntent().getBooleanExtra("geolocationRequirement", false);
-        String posterUrl = getIntent().getStringExtra("posterUrl");*/
+        String posterUrl = getIntent().getStringExtra("posterUrl");
 
         setupEventDetailsUI(eventName, facilityName, location, dateTime, description, maxAttendees, geolocationRequirement, posterUrl);
 
