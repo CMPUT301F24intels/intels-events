@@ -81,7 +81,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
                                 for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
 
-                                    String eventName = document.getId(); // The document ID is the event name
+//                                    String eventName = document.getId(); // The document ID is the event name
                                     Double latitude = document.getDouble("latitude");
                                     Double longitude = document.getDouble("longitude");
 
@@ -92,16 +92,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     // Add marker with event name and location
                                     mMap.addMarker(new MarkerOptions()
                                             .position(position)
-                                            .title(eventName)
+                                            .title(event_name)
                                             .snippet("Entrant")); // Display location in the marker's snippet
 
                                     boundsBuilder.include(position);
 
 
                                 }
-                                LatLngBounds bounds = boundsBuilder.build();
-                                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
-//                                Toast.makeText(MapsActivity.this, "Location:"+latitude+","+longitude, Toast.LENGTH_SHORT).show();
+                                if(queryDocumentSnapshots.isEmpty()){
+                                    Toast.makeText(this, "No locations to show.", Toast.LENGTH_SHORT).show();
+
+                                }else {
+
+                                    LatLngBounds bounds = boundsBuilder.build();
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+                                }
 
                             }).addOnFailureListener(e -> {
                         Toast.makeText(this, "Error fetching locations", Toast.LENGTH_SHORT).show();

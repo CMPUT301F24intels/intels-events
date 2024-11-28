@@ -143,8 +143,8 @@ public class JoinWaitlistActivity extends AppCompatActivity {
 
     private void joinWaitlistWithLocation(Location location) {
         Map<String, Object> entrantData = new HashMap<>();
-        Log.d("JoinWaitlistActivity", "Location: " + location.getLatitude() + ", " + location.getLongitude());
-        Toast.makeText(this, "Location: " + location.getLatitude() + ", " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+//        Log.d("JoinWaitlistActivity", "Location: " + location.getLatitude() + ", " + location.getLongitude());
+//        Toast.makeText(this, "Location: " + location.getLatitude() + ", " + location.getLongitude(), Toast.LENGTH_SHORT).show();
         entrantData.put("latitude", location.getLatitude());
         entrantData.put("longitude", location.getLongitude());
         entrantData.put("dateTime", dateTime);
