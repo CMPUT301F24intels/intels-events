@@ -131,7 +131,7 @@ public class SignUp extends AppCompatActivity {
         String userPhoneNumber = phone_number.getText().toString();
 
         // Validate user input
-        if (userName.isEmpty() || userEmail.isEmpty() || userPhoneNumber.isEmpty()) {
+        if (userName.isEmpty() || userEmail.isEmpty()) {
             Toast.makeText(SignUp.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
             return;
         }
