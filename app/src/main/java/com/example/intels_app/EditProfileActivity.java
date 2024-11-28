@@ -47,6 +47,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 import java.util.Random;
 
 public class EditProfileActivity extends AppCompatActivity {
@@ -198,6 +199,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                                                                 .set(profile)
                                                                                 .addOnSuccessListener(documentReference -> {
                                                                                     Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
+                                                                                    updateWaitlistedEntrants(updatedNotifPref);
                                                                                     finish();
                                                                                 })
                                                                                 .addOnFailureListener(e -> {
@@ -238,6 +240,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                 .set(profile)
                                 .addOnSuccessListener(documentReference -> {
                                     Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
+                                    updateWaitlistedEntrants(updatedNotifPref);
                                     finish();
                                 })
                                 .addOnFailureListener(e -> {
@@ -392,6 +395,31 @@ public class EditProfileActivity extends AppCompatActivity {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private void updateWaitlistedEntrants(boolean updatedNotifPref) {
+        db.collection("waitlisted_entrants")
+                .whereEqualTo("profile.name", name.getText().toString()) // Assuming "profile.name" matches the profile's name
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments()) {
+                            Map<String, Object> profileMap = (Map<String, Object>) documentSnapshot.get("profile");
+                            if (profileMap != null) {
+                                profileMap.put("notifPref", updatedNotifPref);
+
+                                db.collection("waitlisted_entrants")
+                                        .document(documentSnapshot.getId())
+                                        .update("profile", profileMap)
+                                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Updated notifPref in waitlisted_entrants successfully"))
+                                        .addOnFailureListener(e -> Log.w(TAG, "Failed to update notifPref in waitlisted_entrants", e));
+                            }
+                        }
+                    } else {
+                        Log.d(TAG, "No matching documents found in waitlisted_entrants for profile name: " + name.getText().toString());
+                    }
+                })
+                .addOnFailureListener(e -> Log.w(TAG, "Error fetching waitlisted_entrants", e));
     }
 }
 

@@ -2,6 +2,7 @@ package com.example.intels_app;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -13,8 +14,12 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -26,11 +31,19 @@ import com.google.firebase.installations.FirebaseInstallations;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import android.Manifest;
 
 public class JoinWaitlistActivityTemp extends AppCompatActivity {
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private FusedLocationProviderClient fusedLocationClient;
+
     private FirebaseFirestore db;
     private CollectionReference profilesRef;
     private CollectionReference waitlistRef;
+
+    private boolean geolocationRequirement;
+    private String eventName, facilityName, location, dateTime, description, posterUrl;
+    private int maxAttendees;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +89,6 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
 
         Button joinWaitlistButton = findViewById(R.id.join_waitlist_button);
         joinWaitlistButton.setOnClickListener(view -> {
-            // Fetch the device ID
             FirebaseInstallations.getInstance().getId()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful() && task.getResult() != null) {
@@ -88,12 +100,12 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
                                         .setTitle("Confirm Join")
                                         .setMessage("This event tracks your geolocation. Are you sure you want to join this event?")
                                         .setPositiveButton("Yes", (dialog, which) -> {
-                                            checkIfProfileExists(deviceId, eventName);
+                                            checkLocationPermissionAndFetchLocation(deviceId);
                                         })
                                         .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
                                         .show();
                             } else {
-                                checkIfProfileExists(deviceId, eventName);
+                                checkIfProfileExists(deviceId, null);
                             }
                         } else {
                             Log.e("JoinWaitlist", "Device ID retrieval failed", task.getException());
@@ -135,56 +147,44 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         }
     }
 
-    private void checkIfProfileExists(String deviceId, String eventName) {
-        // Query Firestore to find a document where the `deviceId` matches
-        profilesRef.whereEqualTo("deviceId", deviceId)
+    private void checkIfProfileExists(String deviceId, @Nullable Map<String, Object> geolocationData) {
+        profilesRef.document(deviceId)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
-                        QuerySnapshot querySnapshot = task.getResult();
-
-                        // Check if any documents were returned
-                        if (!querySnapshot.isEmpty()) {
-                            // Get the first document that matches
-                            Log.d("JoinWaitlist", "Profile exists for device: " + deviceId);
-                            DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
-
-                            // Convert the document into a Profile object
+                        DocumentSnapshot documentSnapshot = task.getResult();
+                        if (documentSnapshot.exists()) {
                             Profile profile = documentSnapshot.toObject(Profile.class);
                             if (profile != null) {
-                                // Pass the Profile object to joinWaitlist
-                                joinWaitlist(profile, eventName);
-                            } else {
-                                Log.e("JoinWaitlist", "Profile object is null for device: " + deviceId);
-                                Toast.makeText(this, "Error retrieving profile. Please try again.", Toast.LENGTH_SHORT).show();
+                                // Only call joinWaitlist if the profile exists
+                                joinWaitlist(profile, geolocationData);
                             }
                         } else {
-                            // No profile found for the given deviceId
-                            Log.d("JoinWaitlist", "No profile found for device: " + deviceId);
-                            redirectToCreateProfile(deviceId, eventName);
+                            // Redirect to create a profile, do not call joinWaitlist here
+                            redirectToCreateProfile(deviceId, geolocationData);
                         }
                     } else {
-                        // Firestore query failed
                         Log.e("JoinWaitlist", "Error checking profile existence", task.getException());
                         Toast.makeText(this, "Error accessing profile. Please try again.", Toast.LENGTH_SHORT).show();
                     }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("JoinWaitlist", "Error checking profile existence", e);
-                    Toast.makeText(this, "Error accessing profile. Please try again.", Toast.LENGTH_SHORT).show();
                 });
     }
 
-    private void joinWaitlist(Profile profile, String eventName) {
-        // Use the profile name as the document ID
+    private void joinWaitlist(Profile profile, @Nullable Map<String, Object> geolocationData) {
         String documentId = profile.getName();
         DocumentReference entrantDocRef = waitlistRef.document(documentId);
 
-        // Event data to add to the events array
+        // Construct event data
         Map<String, Object> eventData = new HashMap<>();
-        eventData.put("eventName", eventName);
+        eventData.put("eventName", eventName); // Ensure eventName is included
+        if (geolocationData != null) {
+            eventData.putAll(geolocationData);
+        }
 
-        // Nested profile data
+        Log.d("JoinWaitlist", "Using eventName: " + eventName); // Debug log for eventName
+        Log.d("JoinWaitlist", "Event Data: " + eventData); // Debug log for eventData
+
+        // Construct profile data
         Map<String, Object> profileData = new HashMap<>();
         profileData.put("deviceId", profile.getDeviceId());
         profileData.put("email", profile.getEmail());
@@ -193,56 +193,41 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         profileData.put("name", profile.getName());
         profileData.put("notifPref", profile.isNotifPref());
 
-        // Check if the document already exists
         entrantDocRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if (document.exists()) {
-                    Log.d("Waitlist", "Document exists. Updating events list.");
-
-                    // If document exists, update the events array
+                    // If the document exists, update the events array
                     entrantDocRef.update("events", FieldValue.arrayUnion(eventData))
                             .addOnSuccessListener(aVoid -> {
-                                Log.d("Waitlist", "Successfully added event to existing document.");
                                 Toast.makeText(this, "Successfully joined the waitlist!", Toast.LENGTH_SHORT).show();
                                 navigateToSuccessScreen();
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e("FirestoreError", "Error updating waitlist", e);
-                                Toast.makeText(this, "Error joining the waitlist. Please try again.", Toast.LENGTH_SHORT).show();
                             });
                 } else {
-                    Log.d("Waitlist", "Document does not exist. Creating a new document.");
-
-                    // If document does not exist, create a new one
+                    // Create a new document
                     Map<String, Object> waitlistEntry = new HashMap<>();
-                    waitlistEntry.put("deviceId", profile.getDeviceId());
-                    waitlistEntry.put("profile", profileData); // Add profile data
-                    waitlistEntry.put("events", Collections.singletonList(eventData)); // Initialize with the first event
+                    waitlistEntry.put("profile", profileData);
+                    waitlistEntry.put("events", Collections.singletonList(eventData)); // Add event to the list
 
                     entrantDocRef.set(waitlistEntry)
                             .addOnSuccessListener(aVoid -> {
-                                Log.d("Waitlist", "Successfully created new document and joined the waitlist.");
                                 Toast.makeText(this, "Successfully joined the waitlist!", Toast.LENGTH_SHORT).show();
                                 navigateToSuccessScreen();
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e("FirestoreError", "Error creating waitlist entry", e);
-                                Toast.makeText(this, "Error joining the waitlist. Please try again.", Toast.LENGTH_SHORT).show();
                             });
                 }
-            } else {
-                Log.e("FirestoreError", "Error checking if document exists", task.getException());
-                Toast.makeText(this, "Error joining the waitlist. Please try again.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private void redirectToCreateProfile(String deviceId, String eventName) {
+    private void redirectToCreateProfile(String deviceId, @Nullable Map<String, Object> geolocationData) {
         Intent intent = new Intent(JoinWaitlistActivityTemp.this, SignUp.class);
         intent.putExtra("deviceId", deviceId);
         intent.putExtra("eventName", eventName);
-        startActivityForResult(intent, 1); // Use a unique request code
+        if (geolocationData != null) {
+            intent.putExtra("latitude", (Double) geolocationData.get("latitude"));
+            intent.putExtra("longitude", (Double) geolocationData.get("longitude"));
+        }
+        startActivityForResult(intent, 1);
     }
 
     private void navigateToSuccessScreen() {
@@ -262,17 +247,63 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
             String email = data.getStringExtra("email");
             String phoneNumber = data.getStringExtra("phoneNumber");
             String profilePicUrl = data.getStringExtra("profilePicUrl");
-            String eventName = data.getStringExtra("eventName");
+
+            Double latitude = data.getDoubleExtra("latitude", 0.0);
+            Double longitude = data.getDoubleExtra("longitude", 0.0);
+            Map<String, Object> geolocationData = null;
+            if (latitude != 0.0 && longitude != 0.0) {
+                geolocationData = new HashMap<>();
+                geolocationData.put("latitude", latitude);
+                geolocationData.put("longitude", longitude);
+            }
 
             // Create a Profile object
             Profile newProfile = new Profile(deviceId, name, email, phoneNumber, profilePicUrl);
 
-            // Call joinWaitlist with the new profile
-            joinWaitlist(newProfile, eventName);
-
+            // Call joinWaitlist with the new profile and no geolocation data
+            joinWaitlist(newProfile, geolocationData);
         } else if (resultCode == RESULT_CANCELED) {
             Toast.makeText(this, "Profile creation canceled.", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void checkLocationPermissionAndFetchLocation(String deviceId) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            fetchLocation(deviceId);
+        }
+    }
+
+    private void fetchLocation(String deviceId) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(location -> {
+                    if (location != null) {
+                        // Create a map for geolocation data
+                        Map<String, Object> geolocationData = new HashMap<>();
+                        geolocationData.put("latitude", location.getLatitude());
+                        geolocationData.put("longitude", location.getLongitude());
+                        Log.d("JoinWaitlist", "Fetched Location: " + geolocationData);
+
+                        // Pass geolocation data to checkIfProfileExists
+                        checkIfProfileExists(deviceId, geolocationData);
+                    } else {
+                        // No location available, pass null for geolocation data
+                        Log.d("JoinWaitlist", "No location available");
+                        checkIfProfileExists(deviceId, null);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("JoinWaitlist", "Failed to fetch location", e);
+                    // Pass null for geolocation data in case of failure
+                    checkIfProfileExists(deviceId, null);
+                });
     }
 }
 
