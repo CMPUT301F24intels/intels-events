@@ -97,6 +97,35 @@ public class CreateFacility extends AppCompatActivity {
             String emailStr = email.getText().toString();
             String telephoneNum = telephone.getText().toString();
 
+            boolean isValid = true;
+
+            if (facilityNameStr.isEmpty()) {
+                facilityName.setError("Facility Name is required");
+                isValid = false;
+            }
+            if (locationStr.isEmpty()) {
+                location.setError("Location is required");
+                isValid = false;
+            }
+            if (emailStr.isEmpty()) {
+                email.setError("Email is required");
+                isValid = false;
+            }
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(emailStr).matches()) {
+                Toast.makeText(CreateFacility.this, "Enter a valid email address.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (telephoneNum.isEmpty()) {
+                telephone.setError("Telephone is required");
+                isValid = false;
+            }
+
+            // If validation fails, stop further execution
+            if (!isValid) {
+                Toast.makeText(CreateFacility.this, "Please fill out all mandatory fields correctly", Toast.LENGTH_SHORT).show();
+                return; // Do not proceed further
+            }
+
             // If an image was uploaded, add it to Firebase Storage and then create the facility
             if (imageUploaded && imageData != null) {
                 // Upload the image and then create the facility

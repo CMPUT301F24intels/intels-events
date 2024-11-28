@@ -82,7 +82,7 @@ public class ProfileAdapterAdmin extends BaseAdapter {
                                         .addOnFailureListener(e -> Log.w(TAG, "Failed to delete image.", e));
                             }
 
-                            FirebaseFirestore.getInstance().collection("profiles").document(profile.getName())
+                            FirebaseFirestore.getInstance().collection("profiles").document(profile.getDeviceId())
                                     .delete()
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override

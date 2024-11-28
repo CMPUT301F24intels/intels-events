@@ -115,61 +115,61 @@ public class AddEvent extends AppCompatActivity {
         // Create a new event with entered details if Add Event button clicked
         addEvent = findViewById(R.id.add_event_button);
         addEvent.setOnClickListener(view -> {
-            // Get user's event details text fields and switches
-            EditText maxAttendees = findViewById(R.id.max_attendees_number);
-            EditText eventName = findViewById(R.id.eventNameEditText);
-            EditText location = findViewById(R.id.locationEditText);
-            EditText dateTime = findViewById(R.id.dateTimeEditText);
-            EditText description = findViewById(R.id.descriptionEditText);
-            SwitchCompat geolocationRequirement = findViewById(R.id.geolocationRequirementTextView);
-            SwitchCompat notifPreference = findViewById(R.id.notifPreferenceTextView);
+            if (validateInputs()) {
+                // Get user's event details text fields and switches
+                EditText maxAttendees = findViewById(R.id.max_attendees_number);
+                EditText eventName = findViewById(R.id.eventNameEditText);
+                EditText location = findViewById(R.id.locationEditText);
+                EditText dateTime = findViewById(R.id.dateTimeEditText);
+                EditText description = findViewById(R.id.descriptionEditText);
+                SwitchCompat geolocationRequirement = findViewById(R.id.geolocationRequirementTextView);
 
-            // Get device ID so we know which organizer is adding an event
-            // During creation, the event will be added for the organizer with this device ID
-            FirebaseInstallations.getInstance().getId()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    String deviceId = task.getResult();
+                // Get device ID so we know which organizer is adding an event
+                // During creation, the event will be added for the organizer with this device ID
+                FirebaseInstallations.getInstance().getId()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                String deviceId = task.getResult();
 
-                    // Upload the poster to storage, named with by the imageHash. Get the download Url created by storage
-                    // and save it in posterUrl to be added to the new Event object
-                    storageReference = FirebaseStorage.getInstance().getReference().child("posters").child(imageHash);
-                    storageReference.putBytes(imageData)
-                            .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
-                                    .addOnSuccessListener(uri -> {
-                                        String posterUrl = uri.toString();
+                                // Upload the poster to storage, named with by the imageHash. Get the download Url created by storage
+                                // and save it in posterUrl to be added to the new Event object
+                                storageReference = FirebaseStorage.getInstance().getReference().child("posters").child(imageHash);
+                                storageReference.putBytes(imageData)
+                                        .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
+                                                .addOnSuccessListener(uri -> {
+                                                    String posterUrl = uri.toString();
 
-                                        // Create a new event with the entered details and device ID
-                                        Event newEvent = new Event(
-                                                eventName.getText().toString(),
-                                                location.getText().toString(),
-                                                dateTime.getText().toString(),
-                                                description.getText().toString(),
-                                                Integer.parseInt(maxAttendees.getText().toString()),
-                                                geolocationRequirement.isChecked(),
-                                                notifPreference.isChecked(),
-                                                posterUrl,
-                                                deviceId // Add the device ID here
-                                        );
+                                                    // Create a new event with the entered details and device ID
+                                                    Event newEvent = new Event(
+                                                            eventName.getText().toString(),
+                                                            location.getText().toString(),
+                                                            dateTime.getText().toString(),
+                                                            description.getText().toString(),
+                                                            Integer.parseInt(maxAttendees.getText().toString()),
+                                                            geolocationRequirement.isChecked(),
+                                                            posterUrl,
+                                                            deviceId // Add the device ID here
+                                                    );
 
-                                        // Save new event to FireStore under the events collection. Name it by the event name
-                                        FirebaseFirestore.getInstance().collection("events").document(eventName.getText().toString())
-                                        .set(newEvent)
-                                                .addOnSuccessListener(documentReference -> {
-                                                    Intent intent = new Intent(AddEvent.this, CreateQR.class);
-                                                    intent.putExtra("Event Name", eventName.getText().toString());
-                                                    startActivity(intent);
+                                                    // Save new event to FireStore under the events collection. Name it by the event name
+                                                    FirebaseFirestore.getInstance().collection("events").document(eventName.getText().toString())
+                                                            .set(newEvent)
+                                                            .addOnSuccessListener(documentReference -> {
+                                                                Intent intent = new Intent(AddEvent.this, CreateQR.class);
+                                                                intent.putExtra("Event Name", eventName.getText().toString());
+                                                                startActivity(intent);
+                                                            })
+                                                            .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
                                                 })
-                                                .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
-                                    })
-                            ).addOnFailureListener(e -> {
-                                Log.w(TAG, "Image upload failed", e);
-                                Toast.makeText(AddEvent.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
-                            });
-                } else {
-                    Log.e("FirebaseInstallations", "Unable to get device ID", task.getException());
-                }
-            });
+                                        ).addOnFailureListener(e -> {
+                                            Log.w(TAG, "Image upload failed", e);
+                                            Toast.makeText(AddEvent.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                                        });
+                            } else {
+                                Log.e("FirebaseInstallations", "Unable to get device ID", task.getException());
+                            }
+                        });
+            }
         });
     }
 
@@ -194,6 +194,53 @@ public class AddEvent extends AppCompatActivity {
             }
         });
         builder.show();
+    }
+
+    private boolean validateInputs() {
+        EditText maxAttendees = findViewById(R.id.max_attendees_number);
+        EditText eventName = findViewById(R.id.eventNameEditText);
+        EditText location = findViewById(R.id.locationEditText);
+        EditText dateTime = findViewById(R.id.dateTimeEditText);
+        EditText description = findViewById(R.id.descriptionEditText);
+
+        // Check if any field is empty
+        if (eventName.getText().toString().isEmpty()) {
+            eventName.setError("Event name is required");
+            eventName.requestFocus();
+            return false;
+        }
+
+        if (maxAttendees.getText().toString().isEmpty()) {
+            maxAttendees.setError("Max attendees is required");
+            maxAttendees.requestFocus();
+            return false;
+        }
+
+        if (location.getText().toString().isEmpty()) {
+            location.setError("Location is required");
+            location.requestFocus();
+            return false;
+        }
+
+        if (dateTime.getText().toString().isEmpty()) {
+            dateTime.setError("Date and time are required");
+            dateTime.requestFocus();
+            return false;
+        }
+
+        if (description.getText().toString().isEmpty()) {
+            description.setError("Description is required");
+            description.requestFocus();
+            return false;
+        }
+
+        // Check if poster is selected
+        if (imageData == null || imageHash == null) {
+            Toast.makeText(this, "Please upload a poster image", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true; // All fields are valid
     }
 
     private boolean checkAndRequestPermissions() {

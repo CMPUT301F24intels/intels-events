@@ -147,33 +147,15 @@
         android:paddingStart="10dp"
         android:paddingEnd="15dp"
         android:text="@string/geo_location_requirement"
-        android:textAlignment="viewStart"
+        android:textAlignment="viewEnd"
         android:textColor="#848A94"
         android:textSize="15sp"
+        android:backgroundTint="@color/zxing_transparent"
         app:flow_horizontalAlign="start"
         app:flow_verticalAlign="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/descriptionEditText" />
-
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/notifPreferenceTextView"
-        android:layout_width="349dp"
-        android:layout_height="45dp"
-        android:background="@drawable/rounded_corner_rectangle_light_gray"
-        android:fontFamily="@font/poppins_semibold"
-        android:paddingStart="10dp"
-        android:paddingEnd="15dp"
-        android:textAlignment="textStart"
-        android:textColor="#848A94"
-        android:textSize="15sp"
-        app:flow_horizontalAlign="start"
-        app:flow_verticalAlign="center"
-        android:layout_marginTop="10dp"
-        android:text="@string/notification_preferences"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/geolocationRequirementTextView" />
 
     <Button
         android:id="@+id/replaceQRbutton"

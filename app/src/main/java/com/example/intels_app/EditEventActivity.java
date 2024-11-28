@@ -56,7 +56,6 @@ public class EditEventActivity extends AppCompatActivity {
     EditText dateTime;
     EditText description;
     SwitchCompat geolocationRequirement;
-    SwitchCompat notifPreference;
     ImageView qrImageView;
     ImageView posterImageView;
 
@@ -94,7 +93,6 @@ public class EditEventActivity extends AppCompatActivity {
         dateTime = findViewById(R.id.dateTimeEditText);
         description = findViewById(R.id.descriptionEditText);
         geolocationRequirement = findViewById(R.id.geolocationRequirementTextView);
-        notifPreference = findViewById(R.id.notifPreferenceTextView);
         qrImageView = findViewById(R.id.qrImageView);
         posterImageView = findViewById(R.id.posterImageView);
 
@@ -142,6 +140,13 @@ public class EditEventActivity extends AppCompatActivity {
         saveChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                // Validate that all required fields are filled
+                if (!areFieldsValid()) {
+                    Toast.makeText(EditEventActivity.this, "Please fill out all fields before saving changes.", Toast.LENGTH_LONG).show();
+                    return; // Do not proceed with saving changes
+                }
+
                 if (isPosterChanged) {
                     // Delete old poster and upload the new one
                     FirebaseStorage.getInstance().getReferenceFromUrl(oldEvent.getPosterUrl()).delete()
@@ -222,6 +227,15 @@ public class EditEventActivity extends AppCompatActivity {
         });
     }
 
+    private boolean areFieldsValid() {
+        if (eventNameText.getText().toString().trim().isEmpty()) return false;
+        if (maxAttendees.getText().toString().trim().isEmpty()) return false;
+        if (location.getText().toString().trim().isEmpty()) return false;
+        if (dateTime.getText().toString().trim().isEmpty()) return false;
+        if (description.getText().toString().trim().isEmpty()) return false;
+        return true;
+    }
+
     public void loadProfileData() {
         FirebaseFirestore.getInstance().collection("events").document(eventName).get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -234,7 +248,6 @@ public class EditEventActivity extends AppCompatActivity {
                     dateTime.setText(event.getDateTime());
                     description.setText(event.getDescription());
                     geolocationRequirement.setChecked(event.isGeolocationRequirement());
-                    notifPreference.setChecked(event.isNotifPreference());
 
                     Log.d(TAG, "Event name" + event.getEventName());
                     Log.d(TAG, "Max Attendees" + String.valueOf(event.getMaxAttendees()));
@@ -242,18 +255,17 @@ public class EditEventActivity extends AppCompatActivity {
                     Log.d(TAG, "Date Time" + event.getDateTime());
                     Log.d(TAG, "Description" + event.getDescription());
                     Log.d(TAG, "Geolocation Requirement" + String.valueOf(event.isGeolocationRequirement()));
-                    Log.d(TAG, "Notification Preference" + String.valueOf(event.isNotifPreference()));
 
                     // Load event poster image using Glide
                     if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
                         com.bumptech.glide.Glide.with(getApplicationContext())
                                 .load(event.getPosterUrl())
                                 .placeholder(R.drawable.pfp_placeholder_image)
-                                .error(R.drawable.person_image)
+                                .error(R.drawable.pfp_placeholder_image)
                                 .into(posterImageView);
                     } else {
                         Log.w(TAG, "No poster URL found in the document");
-                        posterImageView.setImageResource(R.drawable.person_image);
+                        posterImageView.setImageResource(R.drawable.pfp_placeholder_image);
                     }
 
                     Log.d(TAG, "Poster URL" + event.getPosterUrl());
@@ -263,7 +275,7 @@ public class EditEventActivity extends AppCompatActivity {
                         com.bumptech.glide.Glide.with(getApplicationContext())
                                 .load(event.getQrCodeUrl())
                                 .placeholder(R.drawable.pfp_placeholder_image)
-                                .error(R.drawable.person_image)
+                                .error(R.drawable.pfp_placeholder_image)
                                 .into(qrImageView);
                     } else {
                         Log.w(TAG, "No poster URL found in the document");
@@ -340,7 +352,6 @@ public class EditEventActivity extends AppCompatActivity {
         String updatedDateTime = dateTime.getText().toString();
         String updatedDescription = description.getText().toString();
         boolean updatedGeolocationRequirement = geolocationRequirement.isChecked();
-        boolean updatedNotifPreference = notifPreference.isChecked();
 
         // Update event details in Firestore with new edit text details and URLs
         FirebaseFirestore.getInstance().collection("events").document(eventName)
@@ -350,7 +361,6 @@ public class EditEventActivity extends AppCompatActivity {
                         "dateTime", updatedDateTime,
                         "description", updatedDescription,
                         "geolocationRequirement", updatedGeolocationRequirement,
-                        "notifPreference", updatedNotifPreference,
                         "posterUrl", finalPosterUrl,
                         "qrCodeUrl", finalQrUrl
                 )

@@ -93,13 +93,13 @@ public class ManageFacility extends AppCompatActivity {
         location = findViewById(R.id.locationEditText);
         email = findViewById(R.id.emailEditText);
         telephone = findViewById(R.id.telephoneEditText);
-        poster = findViewById(R.id.camera_image);
+        poster = findViewById(R.id.pfpPlaceholder);
 
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ManageFacility.this, MainActivity.class);
+                Intent intent = new Intent(ManageFacility.this, ManageEventsActivity.class);
                 startActivity(intent);
             }
         });
@@ -112,6 +112,12 @@ public class ManageFacility extends AppCompatActivity {
     }
 
     private void savePosterChanges() {
+
+        // Validate fields
+        if (!areFieldsValid()) {
+            return; // Exit the method if validation fails
+        }
+
         if (imageUploaded) {
             db.collection("facilities")
                     .whereEqualTo("deviceId", deviceId)
@@ -209,6 +215,30 @@ public class ManageFacility extends AppCompatActivity {
         }
     }
 
+    private boolean areFieldsValid() {
+        if (facilityName.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Facility name is required", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (location.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Location is required", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (email.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Email is required", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email.getText().toString().trim()).matches()) {
+            Toast.makeText(ManageFacility.this, "Enter a valid email address.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (telephone.getText().toString().trim().isEmpty()) {
+            Toast.makeText(this, "Telephone is required", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
     private void loadFacilityDetails(){
         FirebaseFirestore.getInstance()
                 .collection("facilities")
@@ -230,11 +260,11 @@ public class ManageFacility extends AppCompatActivity {
                                 Glide.with(getApplicationContext())
                                         .load(facility.getFacilityImageUrl())
                                         .placeholder(R.drawable.pfp_placeholder_image)
-                                        .error(R.drawable.person_image)
+                                        .error(R.drawable.pfp_placeholder_image)
                                         .into(poster);
                             } else {
                                 Log.w(TAG, "No poster URL found in the document");
-                                poster.setImageResource(R.drawable.person_image);
+                                poster.setImageResource(R.drawable.pfp_placeholder_image);
                             }
                         }
                     }

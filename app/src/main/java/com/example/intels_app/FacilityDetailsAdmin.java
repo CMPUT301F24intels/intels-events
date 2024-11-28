@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 
 public class FacilityDetailsAdmin extends AppCompatActivity {
@@ -43,9 +44,9 @@ public class FacilityDetailsAdmin extends AppCompatActivity {
         facilityImage = findViewById(R.id.pfpPlaceholder);
 
         // Get the facility name from the intent
-        String facilityName = getIntent().getStringExtra("Facility Name");
+        String deviceId = getIntent().getStringExtra("deviceId");
 
-        FirebaseFirestore.getInstance().collection("facilities").document(facilityName).get()
+        FirebaseFirestore.getInstance().collection("facilities").document(deviceId).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -95,7 +96,7 @@ public class FacilityDetailsAdmin extends AppCompatActivity {
                                         public void onSuccess(Void unused) {
 
                                             // Remove image URL from FireStore
-                                            FirebaseFirestore.getInstance().collection("facilities").document(facilityName)
+                                            FirebaseFirestore.getInstance().collection("facilities").document(deviceId)
                                                     .update("facilityImageUrl", null)
                                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                         @Override
