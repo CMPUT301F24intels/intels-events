@@ -101,8 +101,8 @@
 
     <ImageView
         android:id="@+id/camera_image"
-        android:layout_width="57dp"
-        android:layout_height="52dp"
+        android:layout_width="123dp"
+        android:layout_height="114dp"
         app:layout_constraintBottom_toBottomOf="@+id/profile_picture"
         app:layout_constraintEnd_toEndOf="@+id/profile_picture"
         app:layout_constraintHorizontal_bias="0.516"
