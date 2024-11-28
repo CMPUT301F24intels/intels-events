@@ -8,12 +8,15 @@ package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
 
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -24,7 +27,12 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -35,6 +43,7 @@ import com.google.firebase.installations.FirebaseInstallations;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,22 +52,30 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class ManageFacility extends AppCompatActivity {
-    Uri image;
-    String imageHash;
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_IMAGE_PICK = 2;
+    private static final int PERMISSION_REQUEST_CODE = 100;
+    private boolean isCameraOption = false;
+    private FirebaseFirestore db;
+    private Facility oldFacility;
+    private String oldPosterUrl;
+    private String finalPosterUrl;
+    private String imageHash;
     byte[] imageData;
     boolean imageUploaded = false;
-    String deviceId;
-    EditText facilityName;
-    EditText location;
-    EditText email;
-    EditText telephone;
-    ImageView poster;
-    Facility facility;
+    private String deviceId;
+    private EditText facilityName, location, email, telephone;
+    private Button makeChanges;
+    private ImageView poster;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.manage_facility);
+        db = FirebaseFirestore.getInstance();
+
+
+        makeChanges = findViewById(R.id.edit_facility_details_button);
 
         FirebaseInstallations.getInstance().getId()
                 .addOnCompleteListener(task -> {
@@ -66,6 +83,7 @@ public class ManageFacility extends AppCompatActivity {
                         deviceId = task.getResult();
                         Log.d(TAG, "Retrieved Device ID: " + deviceId);
                         loadFacilityDetails();
+                        makeChanges.setOnClickListener(view -> savePosterChanges());
                     } else {
                         Toast.makeText(this, "Error retrieving Device ID", Toast.LENGTH_SHORT).show();
                     }
@@ -88,68 +106,107 @@ public class ManageFacility extends AppCompatActivity {
 
         Button addFacilityImage = findViewById(R.id.edit_poster_button);
         addFacilityImage.setOnClickListener(view -> {
-            Intent intent = new Intent(Intent.ACTION_PICK);
-            intent.setType("image/*");
-            openGallery.launch(intent);
+            showImagePickerDialog();
             imageUploaded = true;
         });
+    }
 
-        Button makeChanges = findViewById(R.id.edit_facility_details_button);
-        makeChanges.setOnClickListener(view -> {
-
-            facilityName = findViewById(R.id.facilityNameEditText);
-            location = findViewById(R.id.locationEditText);
-            email = findViewById(R.id.emailEditText);
-            telephone = findViewById(R.id.telephoneEditText);
-
-            // Get Firebase device ID
-            FirebaseInstallations.getInstance().getId()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            String deviceId = task.getResult();
-
-                            if (imageUploaded) {
-                                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("posters").child(imageHash);
-                                storageReference.putBytes(imageData)
-                                        .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
-                                                .addOnSuccessListener(uri -> {
-                                                    String posterUrl = uri.toString();
-
-                                                    facility = new Facility(
-                                                            facilityName.getText().toString(),
-                                                            location.getText().toString(),
-                                                            email.getText().toString(),
-                                                            telephone.getText().toString(),
-                                                            posterUrl,
-                                                            deviceId
-                                                    );
-                                                })).addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));;
-                            } else {
-                                facility = new Facility(
-                                        facilityName.getText().toString(),
-                                        location.getText().toString(),
-                                        email.getText().toString(),
-                                        telephone.getText().toString(),
-                                        deviceId
-                                );
+    private void savePosterChanges() {
+        if (imageUploaded) {
+            db.collection("facilities")
+                    .whereEqualTo("deviceId", deviceId)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                            oldFacility = documentSnapshot.toObject(Facility.class);
+                            if (oldFacility != null) {
+                                oldPosterUrl = oldFacility.getFacilityImageUrl();
                             }
-
-                            FirebaseFirestore.getInstance().collection("facilities").document(facilityName.getText().toString())
-                                    .set(facility)
-                                    .addOnSuccessListener(documentReference -> {
-                                        Intent intent = new Intent(ManageFacility.this, ManageEventsActivity.class);
-                                        startActivity(intent);
-
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.w(TAG, "Image upload failed", e);
-                                        Toast.makeText(ManageFacility.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
-                                    });
-                        } else {
-                            Log.e("FirebaseInstallations", "Unable to get device ID", task.getException());
                         }
+                        FirebaseStorage.getInstance().getReferenceFromUrl(oldPosterUrl).delete()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        Log.d(TAG, "Old poster deleted successfully");
+
+                                        FirebaseStorage.getInstance().getReference().child("facilities")
+                                                .child(imageHash)
+                                                .putBytes(imageData)
+                                                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                        Log.d(TAG, "New poster uploaded successfully");
+
+                                                        FirebaseStorage.getInstance().getReference().child("facilities").child(imageHash).getDownloadUrl()
+                                                                .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                                    @Override
+                                                                    public void onSuccess(Uri uri) {
+                                                                        finalPosterUrl = uri.toString();
+                                                                        Log.d(TAG, "New Poster URL: " + finalPosterUrl);
+
+                                                                        Facility facility = new Facility(
+                                                                                facilityName.getText().toString(),
+                                                                                location.getText().toString(),
+                                                                                email.getText().toString(),
+                                                                                telephone.getText().toString(),
+                                                                                finalPosterUrl,
+                                                                                deviceId
+                                                                        );
+
+                                                                        db.collection("facilities")
+                                                                                .document(deviceId)
+                                                                                .set(facility)
+                                                                                .addOnSuccessListener(documentReference -> {
+                                                                                    Toast.makeText(ManageFacility.this, "Facility updated", Toast.LENGTH_SHORT).show();
+                                                                                    finish();
+                                                                                })
+                                                                                .addOnFailureListener(e -> {
+                                                                                    Log.w(TAG, "Image upload failed", e);
+                                                                                    Toast.makeText(ManageFacility.this, "Failed to upload poster", Toast.LENGTH_SHORT).show();
+                                                                                });
+
+                                                                    }
+                                                                });
+
+                                                    }
+                                                });
+                                    }
+                                });
                     });
-        });
+        }
+        else {
+            db.collection("facilities")
+                    .whereEqualTo("deviceId", deviceId)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                            oldFacility = documentSnapshot.toObject(Facility.class);
+                            if (oldFacility != null){
+                                finalPosterUrl = oldFacility.getFacilityImageUrl();
+                            }
+                        }
+                        Facility facility = new Facility(
+                                facilityName.getText().toString(),
+                                location.getText().toString(),
+                                email.getText().toString(),
+                                telephone.getText().toString(),
+                                finalPosterUrl,
+                                deviceId
+                        );
+                        FirebaseFirestore.getInstance().collection("facilities").document(deviceId)
+                                .set(facility)
+                                .addOnSuccessListener(documentReference -> {
+                                    Toast.makeText( ManageFacility.this, "Facility updated", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.w(TAG, "Poster upload failed", e);
+                                    Toast.makeText(ManageFacility.this, "Failed to upload poster", Toast.LENGTH_SHORT).show();
+                                });
+                    });
+        }
     }
 
     private void loadFacilityDetails(){
@@ -187,40 +244,91 @@ public class ManageFacility extends AppCompatActivity {
                 });
     }
 
-    ActivityResultLauncher<Intent> openGallery = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    if (result.getData() != null) {
-                        image = result.getData().getData();
-                        Glide.with(getApplicationContext()).load(image).into(poster); // Put uploaded image into imageView
-                        ImageView cameraImage = findViewById(R.id.camera_image);
-                        cameraImage.setVisibility(View.INVISIBLE);
-
-                        try {
-                            // Step 1: Get Bitmap from Uri
-                            Bitmap bitmap = getBitmapFromUri(image, getContentResolver());
-
-                            // Step 2: Convert Bitmap to byte array
-                            imageData = bitmapToByteArray(bitmap);
-
-                            // Step 3: Hash the byte array
-                            imageHash = hashImage(imageData);
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            Toast.makeText(ManageFacility.this, "Error processing image", Toast.LENGTH_SHORT).show();
-                        }
+    private void showImagePickerDialog() {
+        String[] options = {"Use Camera", "Choose from Gallery"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Poster");
+        builder.setItems(options, (dialog, which) -> {
+            switch (which) {
+                case 0: // Take Photo
+                    isCameraOption = true;
+                    if (checkAndRequestPermissions()) {
+                        openCamera();
                     }
+                    break;
+                case 1: // Choose from Gallery
+                    isCameraOption = false;
+                    if (checkAndRequestPermissions()) {
+                        openGallery();
+                    }
+                    break;
+            }
+        });
+        builder.show();
+    }
+
+    private boolean checkAndRequestPermissions() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (isCameraOption) {
+                    openCamera();
                 } else {
-                    Toast.makeText(ManageFacility.this, "Please select an image", Toast.LENGTH_LONG).show();
+                    openGallery();
+                }
+            } else {
+                Toast.makeText(this, "Permissions denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void openCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivity(intent);
+    }
+
+    private void openGallery() {
+        Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_IMAGE_CAPTURE && data != null) {
+                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                if (bitmap != null) {
+                    poster.setImageBitmap(bitmap); // Display the image in ImageView
+                    imageData = bitmapToByteArray(bitmap);
+                    imageHash = hashImage(imageData);// Convert to byte array if needed
+                }
+            } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
+                Uri selectedImage = data.getData();
+                try {
+                    // Decode and scale the selected image to fit within the ImageView
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                    poster.setImageBitmap(bitmap);
+                    imageData = bitmapToByteArray(bitmap); // Convert to byte array if needed
+                    imageHash = hashImage(imageData);
+                    Log.d(TAG, "Gallery Image Set - imageHash: " + imageHash);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
                 }
             }
-    );
-
-    public Bitmap getBitmapFromUri(Uri uri, ContentResolver contentResolver) throws IOException {
-        InputStream inputStream = contentResolver.openInputStream(uri);
-        return BitmapFactory.decodeStream(inputStream);
+        }
     }
 
     public static byte[] bitmapToByteArray(Bitmap bitmap) {

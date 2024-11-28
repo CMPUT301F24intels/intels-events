@@ -31,6 +31,7 @@ import com.google.firebase.installations.FirebaseInstallations;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class EventGridEntrantActivity extends AppCompatActivity {
 
@@ -114,14 +115,23 @@ public class EventGridEntrantActivity extends AppCompatActivity {
                             // Clear the list to avoid duplicates
                             eventData.clear();
 
-                            // Iterate over documents in the result
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
-                                Event event = documentSnapshot.toObject(Event.class);
-                                if (event != null) {
-                                    event.setId(documentSnapshot.getId());
-                                    eventData.add(event);
+                                List<Map<String, Object>> events = (List<Map<String, Object>>) documentSnapshot.get("events");
+                                if (events != null) {
+                                    for (Map<String, Object> eventMap : events) {
+                                        // Extract event details from the map
+                                        String eventName = (String) eventMap.get("eventName");
+
+                                        // Create an Event object (adjust based on your Event class structure)
+                                        Event event = new Event();
+                                        event.setEventName(eventName);
+
+                                        // Add the event to the eventData list
+                                        eventData.add(event);
+                                    }
                                 }
                             }
+
                             // Notify adapter of the data change
                             adapter.notifyDataSetChanged();
                         } else {

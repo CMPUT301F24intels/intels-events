@@ -191,8 +191,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
             return;
         }
 
-        waitlistRef.whereEqualTo("eventName", eventName)
-                .get()
+        waitlistRef.get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         List<DocumentSnapshot> entrants = task.getResult().getDocuments();
@@ -201,19 +200,46 @@ public class EntrantInWaitlist extends AppCompatActivity {
                             Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
                             return;
                         }
+                        boolean notificationSent = false;
 
                         for (DocumentSnapshot entrant : entrants) {
-                            String deviceId = entrant.getString("deviceId");
-                            String profileId = entrant.getId(); // Get the entrant's document ID
+                            // Retrieve the events array
+                            List<Map<String, Object>> events = (List<Map<String, Object>>) entrant.get("events");
+                            Map<String, Object> profile = (Map<String, Object>) entrant.get("profile");
 
-                            if (deviceId != null && !deviceId.isEmpty()) {
-                                sendNotificationToProfile(deviceId, profileId, eventName, message);
-                            } else {
-                                Log.w("Notification", "Device ID missing for profile: " + profileId);
+                            if (events != null && profile != null) {
+                                Boolean notifPref = (Boolean) profile.get("notifPref"); // Retrieve notifPref
+
+                                // Check if notifPref is true
+                                if (notifPref != null && notifPref) {
+                                    for (Map<String, Object> event : events) {
+                                        // Check if the eventName matches
+                                        if (eventName.equals(event.get("eventName"))) {
+                                            // Get the deviceId and profileId
+                                            String deviceId = (String) profile.get("deviceId");
+                                            String profileId = entrant.getId(); // Document ID
+
+                                            // Send notification only if deviceId exists
+                                            if (deviceId != null && !deviceId.isEmpty()) {
+                                                sendNotificationToProfile(deviceId, profileId, eventName, message);
+                                                notificationSent = true;
+                                            } else {
+                                                Log.w("Notification", "Device ID missing for profile: " + profileId);
+                                            }
+                                            break; // Stop checking once a match is found
+                                        }
+                                    }
+                                } else {
+                                    Log.d("Notification", "Skipping entrant due to notifPref being false or null: " + entrant.getId());
+                                }
                             }
                         }
 
-                        Toast.makeText(this, "Notifications sent successfully to all entrants.", Toast.LENGTH_SHORT).show();
+                        if (notificationSent) {
+                            Toast.makeText(this, "Notifications sent successfully to all entrants.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(this, "No eligible entrants found for this event.", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
                         Log.e("Firestore", "Error fetching entrants", task.getException());
                         Toast.makeText(this, "Failed to send notifications.", Toast.LENGTH_SHORT).show();
@@ -247,7 +273,9 @@ public class EntrantInWaitlist extends AppCompatActivity {
         EntrantAdapter adapter = new EntrantAdapter(this, documentNames);
         listView.setAdapter(adapter);
 
-        waitlistRef.whereEqualTo("eventName", eventName)  // Filter by eventName
+        waitlistRef.whereArrayContains("events", new HashMap<String, Object>() {{
+                    put("eventName", eventName);
+                }})  // Filter by eventName
                 .get()  // Use `.get()` to fetch data once
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

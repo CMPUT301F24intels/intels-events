@@ -213,12 +213,20 @@ public class FinalList extends AppCompatActivity {
                                         .document(profileId)
                                         .get()
                                         .addOnSuccessListener(profileDoc -> {
-                                            String deviceId = profileDoc.getString("deviceId");
+                                            if (profileDoc.exists()) {
+                                                // Fetch profile data and check notifPref
+                                                Map<String, Object> profile = (Map<String, Object>) profileDoc.get("profile");
+                                                if (profile != null) {
+                                                    Boolean notifPref = (Boolean) profile.get("notifPref");
+                                                    String deviceId = (String) profile.get("deviceId");
 
-                                            if (deviceId != null && !deviceId.isEmpty()) {
-                                                sendNotificationToProfile(deviceId, profileId, eventName, message);
-                                            } else {
-                                                Log.w("Notification", "Device ID missing for profile: " + profileId);
+                                                    // Only send notification if notifPref is true
+                                                    if (notifPref != null && notifPref && deviceId != null && !deviceId.isEmpty()) {
+                                                        sendNotificationToProfile(deviceId, profileId, eventName, message);
+                                                    } else {
+                                                        Log.d("Notification", "Skipping profile with notifPref set to false or missing device ID: " + profileId);
+                                                    }
+                                                }
                                             }
                                         })
                                         .addOnFailureListener(e -> Log.e("Notification", "Error fetching profile document for ID: " + profileId, e));
