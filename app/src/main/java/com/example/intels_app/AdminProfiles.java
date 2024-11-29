@@ -156,7 +156,7 @@ public class AdminProfiles extends AppCompatActivity {
                 Profile selectedProfile = (Profile) parent.getItemAtPosition(position);
 
                 Intent intent = new Intent(AdminProfiles.this, ProfileDetailsAdmin.class);
-                intent.putExtra("profileId", selectedProfile.getDeviceId());
+                intent.putExtra("deviceId", selectedProfile.getDeviceId());
                 startActivity(intent);
             }
         });
