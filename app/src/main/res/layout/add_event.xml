@@ -136,6 +136,7 @@
         android:layout_width="349dp"
         android:layout_height="45dp"
         android:layout_marginTop="10dp"
+        android:focusable="false"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="@string/date_time"

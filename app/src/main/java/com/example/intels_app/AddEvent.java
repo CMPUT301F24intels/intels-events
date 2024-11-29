@@ -65,6 +65,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -113,6 +114,9 @@ public class AddEvent extends AppCompatActivity {
         addPosterButton = findViewById(R.id.edit_poster_button);
         addPosterButton.setOnClickListener(view -> showImagePickerDialog());
 
+        EditText dateTimeEditText = findViewById(R.id.dateTimeEditText);
+        dateTimeEditText.setOnClickListener(v -> showDateTimePicker(dateTimeEditText));
+
         // Create a new event with entered details if Add Event button clicked
         addEvent = findViewById(R.id.add_event_button);
         addEvent.setOnClickListener(view -> {
@@ -151,7 +155,7 @@ public class AddEvent extends AppCompatActivity {
                                                                             eventName.getText().toString(),
                                                                             facilityName,
                                                                             location.getText().toString(),
-                                                                            dateTime.getText().toString(),
+                                                                            dateTimeEditText.getText().toString(),
                                                                             description.getText().toString(),
                                                                             Integer.parseInt(maxAttendees.getText().toString()),
                                                                             geolocationRequirement.isChecked(),
@@ -182,6 +186,35 @@ public class AddEvent extends AppCompatActivity {
             }
         });
     }
+
+    /**
+     * Opens a Date and Time picker dialog for selecting the event's date and time.
+     * Updates the `EditText` field with the selected date and time.
+     */
+    private void showDateTimePicker(EditText dateTimeEditText) {
+        dateTimeEditText.setInputType(0);
+
+        Calendar calendar = Calendar.getInstance();
+
+        // Show DatePickerDialog
+        new android.app.DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, month);
+            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+            // After selecting a date, show TimePickerDialog
+            new android.app.TimePickerDialog(this, (timeView, hourOfDay, minute) -> {
+                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                calendar.set(Calendar.MINUTE, minute);
+
+                String formattedDateTime = android.text.format.DateFormat.format("yyyy-MM-dd hh:mm a", calendar).toString();
+                dateTimeEditText.setText(formattedDateTime);
+
+            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false).show(); // Use 12-hour format with AM/PM
+
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
+    }
+
 
     private void showImagePickerDialog() {
         String[] options = {"Take Photo", "Choose from Gallery"};
