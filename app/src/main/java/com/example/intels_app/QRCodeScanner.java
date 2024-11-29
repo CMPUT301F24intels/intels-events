@@ -57,7 +57,7 @@ public class QRCodeScanner {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         // Create an intent to start JoinWaitlistActivity
-                        Intent intent = new Intent(activity, JoinWaitlistActivity.class);
+                        Intent intent = new Intent(activity, JoinWaitlistActivityTemp.class);
 
                         // Add all event details to the intent
                         intent.putExtra("eventName", eventName);

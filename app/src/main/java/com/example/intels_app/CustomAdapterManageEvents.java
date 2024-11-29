@@ -252,6 +252,14 @@ public class CustomAdapterManageEvents extends BaseAdapter {
                                     .addOnFailureListener(e -> Log.w(TAG, "Failed to delete image.", e));
                         }
 
+                        // Delete all events under that facility
+                        FirebaseFirestore.getInstance().collection("events").whereEqualTo("facilityName", facility.getFacilityName()).get()
+                                .addOnSuccessListener(queryDocumentSnapshots -> {
+                                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                                        document.getReference().delete();
+                                    }
+                                });
+
                         // Delete facility from Firestore
                         FirebaseFirestore.getInstance().collection("facilities")
                                 .document(facilityData.get(position).getDeviceId())

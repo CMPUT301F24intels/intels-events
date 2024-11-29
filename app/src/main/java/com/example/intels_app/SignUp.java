@@ -227,7 +227,7 @@ public class SignUp extends AppCompatActivity {
 
     private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
     }
 
     private void openGallery() {
@@ -353,8 +353,14 @@ public class SignUp extends AppCompatActivity {
         resultIntent.putExtra("phoneNumber", profile.getPhone_number());
         resultIntent.putExtra("profilePicUrl", profile.getImageUrl());
         resultIntent.putExtra("eventName", eventName);
+
+        if (getIntent().hasExtra("latitude") && getIntent().hasExtra("longitude")) {
+            resultIntent.putExtra("latitude", getIntent().getDoubleExtra("latitude", 0.0));
+            resultIntent.putExtra("longitude", getIntent().getDoubleExtra("longitude", 0.0));
+        }
+
         setResult(RESULT_OK, resultIntent);
-        finish(); // Close SignUp activity
+        finish();
     }
 
 }
