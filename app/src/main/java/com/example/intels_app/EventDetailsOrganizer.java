@@ -45,7 +45,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
     private ImageButton backButton, drawButton, editButton;
     private ImageView posterImageView, qrImageView;
     private TextView eventNameEditText, facilityEditText, locationEditText, dateTimeEditText,
-            descriptionEditText, maxAttendeesTextView, geolocationRequirementTextView, notificationPreferenceTextView;
+            descriptionEditText, maxAttendeesTextView, geolocationRequirementTextView;
 
     private FirebaseFirestore db;
     private String eventName;
@@ -71,7 +71,6 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         descriptionEditText = findViewById(R.id.descriptionEditText);
         maxAttendeesTextView = findViewById(R.id.max_attendees_textview);
         geolocationRequirementTextView = findViewById(R.id.geolocationRequirementTextView);
-        notificationPreferenceTextView = findViewById(R.id.notificationPreferenceTextView);
         posterImageView = findViewById(R.id.posterImageView);
         qrImageView = findViewById(R.id.qrImageView);
         drawButton = findViewById(R.id.drawButton);
@@ -102,13 +101,15 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
         // Get the navigation button
         ImageButton navigationButton = findViewById(R.id.navigationButton);
-
-        // Set OnClickListener
         navigationButton.setOnClickListener(v -> {
-//            String event_page = ""
-            Intent intent = new Intent(EventDetailsOrganizer.this, MapsActivity.class);
-            intent.putExtra("event_name",eventName);
-            startActivity(intent);
+            if (eventName != null && !eventName.isEmpty()) {
+                Intent intent = new Intent(EventDetailsOrganizer.this, MapsActivity.class);
+                intent.putExtra("eventName", eventName);
+                startActivity(intent);
+            } else {
+                Toast.makeText(EventDetailsOrganizer.this, "Event name is missing. Cannot open map.", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Event name is missing for navigation to MapsActivity.");
+            }
         });
 
     }
@@ -127,7 +128,6 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                     descriptionEditText.setText("Description: " + event.getDescription());
                     maxAttendeesTextView.setText("Max Attendees: " + event.getMaxAttendees());
                     geolocationRequirementTextView.setText("Geolocation Requirement: " + event.isGeolocationRequirement());
-                    notificationPreferenceTextView.setText("Notification Preference: " + event.isNotifPreference());
 
                     // Load event poster image using Glide
                     if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {

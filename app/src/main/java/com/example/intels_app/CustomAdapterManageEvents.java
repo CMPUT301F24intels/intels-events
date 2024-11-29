@@ -180,7 +180,7 @@ public class CustomAdapterManageEvents extends BaseAdapter {
 
             convertView.setOnClickListener(v -> {
                 Intent intent = new Intent(context, FacilityDetailsAdmin.class);
-                intent.putExtra("Facility Name", facilityData.get(position).getFacilityName());
+                intent.putExtra("deviceId", facilityData.get(position).getDeviceId());
                 context.startActivity(intent);
             });
         }
@@ -238,7 +238,7 @@ public class CustomAdapterManageEvents extends BaseAdapter {
     // Method to delete facility data from FireStore and Storage
     private void deleteFacility(int position) {
         FirebaseFirestore.getInstance().collection("facilities")
-                .document(facilityData.get(position).getFacilityName())
+                .document(facilityData.get(position).getDeviceId())
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     facility = documentSnapshot.toObject(Facility.class);
@@ -252,9 +252,17 @@ public class CustomAdapterManageEvents extends BaseAdapter {
                                     .addOnFailureListener(e -> Log.w(TAG, "Failed to delete image.", e));
                         }
 
+                        // Delete all events under that facility
+                        FirebaseFirestore.getInstance().collection("events").whereEqualTo("facilityName", facility.getFacilityName()).get()
+                                .addOnSuccessListener(queryDocumentSnapshots -> {
+                                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                                        document.getReference().delete();
+                                    }
+                                });
+
                         // Delete facility from Firestore
                         FirebaseFirestore.getInstance().collection("facilities")
-                                .document(facilityData.get(position).getFacilityName())
+                                .document(facilityData.get(position).getDeviceId())
                                 .delete()
                                 .addOnSuccessListener(unused -> {
                                     Log.d(TAG, "DocumentSnapshot successfully deleted!");
