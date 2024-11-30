@@ -6,6 +6,8 @@ import static com.example.intels_app.CreateQR.bitmapToByteArray;
 import static com.example.intels_app.CreateQR.hashImage;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -38,6 +40,9 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 public class EditEventActivity extends AppCompatActivity {
     String eventName;
@@ -225,6 +230,15 @@ public class EditEventActivity extends AppCompatActivity {
                 }
             }
         });
+
+        dateTime = findViewById(R.id.dateTimeEditText);
+        dateTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Open date picker dialog
+                showDateTimePickerDialog();
+            }
+        });
     }
 
     private boolean areFieldsValid() {
@@ -286,6 +300,47 @@ public class EditEventActivity extends AppCompatActivity {
 
                 });
     }
+
+
+    private void showDateTimePickerDialog() {
+        final Calendar calendar = Calendar.getInstance();
+
+        // Parse the existing date and time from the EditText
+        String existingDateTime = dateTime.getText().toString();
+        SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.getDefault());
+        try {
+            if (!existingDateTime.isEmpty()) {
+                calendar.setTime(dateTimeFormat.parse(existingDateTime));
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error parsing date/time: " + e.getMessage());
+        }
+
+        // DatePickerDialog
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            // Update calendar with the selected date
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, month);
+            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+            // TimePickerDialog
+            TimePickerDialog timePickerDialog = new TimePickerDialog(this, (timeView, hourOfDay, minute) -> {
+                // Update calendar with the selected time
+                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                calendar.set(Calendar.MINUTE, minute);
+
+                String formattedDateTime = dateTimeFormat.format(calendar.getTime());
+
+                // Set the formatted date and time to the EditText
+                dateTime.setText(formattedDateTime);
+            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false); // 12-hour format with AM/PM
+
+            timePickerDialog.show();
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+
+        datePickerDialog.show();
+    }
+
 
     public void generateQRCode() throws WriterException {
         // Use ZXing to generate QR code with only the event name
