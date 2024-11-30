@@ -49,7 +49,7 @@ public class DrawCompleteActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        animationView.pauseAnimation(); 
+        animationView.pauseAnimation();
     }
 
     @Override
