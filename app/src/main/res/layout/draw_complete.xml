@@ -52,18 +52,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title_text" />
 
-    <ImageView
-        android:id="@+id/chair_image"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:layout_marginTop="11dp"
-        android:background="@drawable/segment_background"
-        android:contentDescription="Chair Image"
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/animation_view"
+        android:layout_width="380dp"
+        android:layout_height="350dp"
+        android:layout_marginTop="5dp"
+        android:contentDescription="Chair Animation"
         android:scaleType="centerInside"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/draw_complete_text"
-        app:srcCompat="@drawable/chair" />
+        app:lottie_rawRes="@raw/complete"
+        app:lottie_loop="true"
+        app:lottie_autoPlay="true" />
 
     <!-- Description Text -->
     <TextView
@@ -78,7 +79,7 @@
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chair_image" />
+        app:layout_constraintTop_toBottomOf="@+id/animation_view" />
 
     <!-- Entrants Selected Button -->
     <Button

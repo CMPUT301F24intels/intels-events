@@ -86,6 +86,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.12.0")
     implementation("com.google.firebase:firebase-firestore:24.10.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.airbnb.android:lottie:6.6.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
     implementation(libs.zxing)
     androidTestImplementation(platform(libs.compose.bom))
