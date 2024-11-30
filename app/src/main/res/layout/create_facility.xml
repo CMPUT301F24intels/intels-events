@@ -6,11 +6,22 @@
     android:layout_height="match_parent"
     android:background="#16181F">
 
+    <ImageButton
+        android:id="@+id/back_button_facility"
+        android:layout_width="45dp"
+        android:layout_height="43dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="#16181F"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/back_button" />
+
     <TextView
         android:id="@+id/facilityDetailsTextview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="80dp"
         android:fontFamily="@font/poppins_semibold"
         android:text="Please create your facility profile!"
         android:textAlignment="center"
@@ -48,7 +59,7 @@
         android:id="@+id/edit_poster_button"
         android:layout_width="197dp"
         android:layout_height="45dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="20dp"
         android:backgroundTint="#3580FF"
         android:fontFamily="@font/poppins_semibold"
         android:text="Add Facility Image"

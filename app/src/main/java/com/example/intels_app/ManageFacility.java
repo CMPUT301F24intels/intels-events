@@ -93,7 +93,7 @@ public class ManageFacility extends AppCompatActivity {
         location = findViewById(R.id.locationEditText);
         email = findViewById(R.id.emailEditText);
         telephone = findViewById(R.id.telephoneEditText);
-        poster = findViewById(R.id.pfpPlaceholder);
+        poster = findViewById(R.id.camera_image);
 
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -260,11 +260,11 @@ public class ManageFacility extends AppCompatActivity {
                                 Glide.with(getApplicationContext())
                                         .load(facility.getFacilityImageUrl())
                                         .placeholder(R.drawable.pfp_placeholder_image)
-                                        .error(R.drawable.pfp_placeholder_image)
+                                        .error(R.drawable.camera_image)
                                         .into(poster);
                             } else {
                                 Log.w(TAG, "No poster URL found in the document");
-                                poster.setImageResource(R.drawable.pfp_placeholder_image);
+                                poster.setImageResource(R.drawable.camera_image);
                             }
                         }
                     }
