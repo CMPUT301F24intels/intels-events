@@ -42,7 +42,8 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
     private CollectionReference waitlistRef;
 
     private boolean geolocationRequirement;
-    private String eventName, facilityName, location, dateTime, description, posterUrl;
+    private String eventName;
+    private String facilityName, location, dateTime, description, posterUrl;
     private int maxAttendees;
 
     @Override
@@ -54,36 +55,25 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         profilesRef = db.collection("profiles");
         waitlistRef = db.collection("waitlisted_entrants");
 
-        //        //This hardcoded data is only to TEST, REMOVE AFTER TO REAL CODE
-
-//        String eventName = "Dancing Party";
-//        String facilityName = "Tech Auditorium";
-//        String location = "Whyte Ave, Edmonton";
-//        String dateTime = "2024-12-01 10:00 AM";
-//        String description = "A conference bringing together the brightest minds in tech.";
-//        int maxAttendees = 2;
-//        boolean geolocationRequirement = false;
-//        String posterUrl = "https://testingexample.com/poster.jpg";
-
-        // Retrieve event details from the intent
- //       String eventName = "Dhanshris Event";
-//        String facilityName = "Tech Auditorium";
-  //      String location = "Whyte Ave, Edmonton";
-    //    String dateTime = "2024-12-01 10:00 AM";
- //       String description = "A conference bringing together the brightest minds in tech.";
-   //     int maxAttendees = 2;
-     //   boolean geolocationRequirement = true;
-       // String posterUrl = "https://testingexample.com/poster.jpg";
+        //This hardcoded data is only to TEST, REMOVE AFTER TO REAL CODE
+       /* this.eventName = "Orgy";
+        this.facilityName = "Tech Auditorium";
+        this.location = "Whyte Ave, Edmonton";
+        this.dateTime = "2024-12-01 10:00 AM";
+        this.description = "A conference bringing together the brightest minds in tech.";
+        this.maxAttendees = 2;
+        this.geolocationRequirement = false;
+        this.posterUrl = "https://testingexample.com/poster.jpg";*/
 
         // Retrieve event details from the intent
-        String eventName = getIntent().getStringExtra("eventName");
-        String facilityName = getIntent().getStringExtra("facilityName");
-        String location = getIntent().getStringExtra("location");
-        String dateTime = getIntent().getStringExtra("dateTime");
-        String description = getIntent().getStringExtra("description");
-        int maxAttendees = getIntent().getIntExtra("maxAttendees", 0);
-        boolean geolocationRequirement = getIntent().getBooleanExtra("geolocationRequirement", false);
-        String posterUrl = getIntent().getStringExtra("posterUrl");
+        eventName = getIntent().getStringExtra("eventName");
+        facilityName = getIntent().getStringExtra("facilityName");
+        location = getIntent().getStringExtra("location");
+        dateTime = getIntent().getStringExtra("dateTime");
+        description = getIntent().getStringExtra("description");
+        maxAttendees = getIntent().getIntExtra("maxAttendees", 0);
+        geolocationRequirement = getIntent().getBooleanExtra("geolocationRequirement", false);
+        posterUrl = getIntent().getStringExtra("posterUrl");
 
         setupEventDetailsUI(eventName, facilityName, location, dateTime, description, maxAttendees, geolocationRequirement, posterUrl);
 
@@ -305,6 +295,7 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
                     checkIfProfileExists(deviceId, null);
                 });
     }
+
 }
 
 
