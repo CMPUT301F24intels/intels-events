@@ -37,13 +37,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Chair ImageView -->
     <TextView
         android:id="@+id/draw_complete_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="28dp"
+        android:backgroundTint="#4BA94E"
         android:fontFamily="@font/poppins_semibold"
+        android:paddingHorizontal="32dp"
+        android:paddingVertical="12dp"
         android:text="Draw Complete!"
         android:textColor="@android:color/white"
         android:textSize="20sp"
@@ -55,16 +57,16 @@
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/animation_view"
         android:layout_width="380dp"
-        android:layout_height="350dp"
-        android:layout_marginTop="5dp"
-        android:contentDescription="Chair Animation"
+        android:layout_height="380dp"
+        android:background="@drawable/segment_background"
         android:scaleType="centerInside"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/draw_complete_text"
-        app:lottie_rawRes="@raw/complete"
+        app:lottie_autoPlay="true"
         app:lottie_loop="true"
-        app:lottie_autoPlay="true" />
+        app:lottie_rawRes="@raw/complete"
+        app:tint="@color/white" />
 
     <!-- Description Text -->
     <TextView
