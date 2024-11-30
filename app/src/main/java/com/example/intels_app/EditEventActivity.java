@@ -316,14 +316,12 @@ public class EditEventActivity extends AppCompatActivity {
             Log.e(TAG, "Error parsing date/time: " + e.getMessage());
         }
 
-        // DatePickerDialog
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
             // Update calendar with the selected date
             calendar.set(Calendar.YEAR, year);
             calendar.set(Calendar.MONTH, month);
             calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-            // TimePickerDialog
             TimePickerDialog timePickerDialog = new TimePickerDialog(this, (timeView, hourOfDay, minute) -> {
                 // Update calendar with the selected time
                 calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
@@ -333,7 +331,7 @@ public class EditEventActivity extends AppCompatActivity {
 
                 // Set the formatted date and time to the EditText
                 dateTime.setText(formattedDateTime);
-            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false); // 12-hour format with AM/PM
+            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
 
             timePickerDialog.show();
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
