@@ -8,12 +8,15 @@
 
 package com.example.intels_app;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -49,7 +52,7 @@ public class SelectedEntrantAdapter extends RecyclerView.Adapter<SelectedEntrant
     @Override
     public EntrantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Inflate layout, match with profile_list_view_entrant if needed
-        View view = LayoutInflater.from(context).inflate(R.layout.profile_list_view_entrant, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.profile_list_view, parent, false);
         return new EntrantViewHolder(view);
     }
 
@@ -71,6 +74,21 @@ public class SelectedEntrantAdapter extends RecyclerView.Adapter<SelectedEntrant
             // If no image URL, set the default profile picture
             holder.profileImageView.setImageResource(R.drawable.person_image);
         }
+
+        holder.deleteButton.setOnClickListener(v -> {
+            new AlertDialog.Builder(context)
+                    .setTitle("Confirm Deletion")
+                    .setMessage("Are you sure you want to remove this entrant from the lottery list?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        String profileId = entrants.get(position).getName(); // Replace with the correct field
+                        entrants.remove(position); // Remove from the UI
+                        notifyItemRemoved(position);
+                        notifyItemRangeChanged(position, entrants.size()); // Update RecyclerView
+                        ((LotteryList) context).deleteEntrantFromLotteryList(profileId); // Call the delete method
+                    })
+                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                    .show();
+        });
     }
 
     @Override
@@ -92,11 +110,13 @@ public class SelectedEntrantAdapter extends RecyclerView.Adapter<SelectedEntrant
     public static class EntrantViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView;
         ImageView profileImageView;
+        ImageButton deleteButton;
 
         public EntrantViewHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.profile_name);
             profileImageView = itemView.findViewById(R.id.profile_image);
+            deleteButton = itemView.findViewById(R.id.delete_button);
         }
     }
 
@@ -141,4 +161,5 @@ public class SelectedEntrantAdapter extends RecyclerView.Adapter<SelectedEntrant
         this.entrantsFull = new ArrayList<>(newProfiles);
         notifyDataSetChanged();
     }
+
 }
