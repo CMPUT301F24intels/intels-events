@@ -307,7 +307,7 @@ public class EditEventActivity extends AppCompatActivity {
 
         // Parse the existing date and time from the EditText
         String existingDateTime = dateTime.getText().toString();
-        SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.getDefault());
+        SimpleDateFormat dateTimeFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a", Locale.getDefault());
         try {
             if (!existingDateTime.isEmpty()) {
                 calendar.setTime(dateTimeFormat.parse(existingDateTime));
