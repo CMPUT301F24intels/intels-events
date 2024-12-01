@@ -15,6 +15,8 @@ package com.example.intels_app;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -26,6 +28,7 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.CollectionReference;
@@ -187,40 +190,23 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
     }
 
     private void showProgressDialog() {
-        progressDialog = new Dialog(this);
-        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        progressDialog.setCancelable(false);
-        progressDialog.setContentView(R.layout.dialog_progress_bar);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View customLayout = getLayoutInflater().inflate(R.layout.dialog_progress_bar, null);
+        builder.setView(customLayout);
+        builder.setCancelable(false);
 
-        ProgressBar progressBar = progressDialog.findViewById(R.id.progress_horizontal);
-        TextView progressTitle = progressDialog.findViewById(R.id.progress_title);
+        // Create and show the dialog
+        progressDialog = builder.create();
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        // Ensure the dialog appears as a square
+        progressDialog.setOnShowListener(dialog -> {
+            if (progressDialog.getWindow() != null) {
+                progressDialog.getWindow().setLayout(400, 400); // Set width and height to match layout
+            }
+        });
 
         progressDialog.show();
-
-        // Simulate progress
-        new Thread(() -> {
-            for (int progress = 0; progress <= 100; progress++) {
-                int currentProgress = progress;
-
-                // Update UI on the main thread
-                runOnUiThread(() -> {
-                    progressBar.setProgress(currentProgress);
-
-                    // Optional: Update text to show percentage
-                    progressTitle.setText("Loading... " + currentProgress + "%");
-                });
-
-                try {
-                    // Simulate time taken to load (e.g., network or database query)
-                    Thread.sleep(50); // Adjust duration as needed
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            // Dismiss the dialog once loading is complete
-            runOnUiThread(() -> progressDialog.dismiss());
-        }).start();
     }
 
     private void dismissProgressDialog() {

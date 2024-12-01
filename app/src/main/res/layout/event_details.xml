@@ -174,8 +174,8 @@
         android:id="@+id/navigationButton"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginStart="114dp"
-        android:layout_marginBottom="15dp"
+        android:layout_marginStart="88dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/circular_button"
         android:backgroundTint="#FFD700"
         android:contentDescription="Navigation"
@@ -184,31 +184,45 @@
         app:srcCompat="@drawable/map_pin" />
 
     <ImageButton
+        android:id="@+id/infoButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/circular_button"
+        android:backgroundTint="#FF3535"
+        android:contentDescription="Delete"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/navigationButton"
+        app:srcCompat="@drawable/delete_button" />
+
+    <ImageButton
         android:id="@+id/editButton"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/circular_button"
         android:backgroundTint="#32CD32"
         android:contentDescription="Edit"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/drawButton"
-        app:layout_constraintStart_toEndOf="@+id/navigationButton"
+        app:layout_constraintStart_toEndOf="@+id/infoButton"
         app:srcCompat="@drawable/edit_icon" />
 
     <ImageButton
         android:id="@+id/drawButton"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginEnd="114dp"
-        android:layout_marginBottom="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="83dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/circular_button"
         android:backgroundTint="#FF8C00"
         android:contentDescription="Draw"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/editButton"
         app:srcCompat="@drawable/draw_text" />
 
     <TextView
