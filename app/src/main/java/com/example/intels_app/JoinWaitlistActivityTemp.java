@@ -55,6 +55,8 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         profilesRef = db.collection("profiles");
         waitlistRef = db.collection("waitlisted_entrants");
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         //This hardcoded data is only to TEST, REMOVE AFTER TO REAL CODE
        /* this.eventName = "Orgy";
         this.facilityName = "Tech Auditorium";

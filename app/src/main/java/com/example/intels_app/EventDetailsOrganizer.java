@@ -189,35 +189,47 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                                     notSelectedBatch.commit().addOnSuccessListener(clearVoid -> {
                                         Log.d(TAG, "Cleared previous not_selected entrants for event: " + eventName);
 
-                                        // Fetch waitlisted entrants
-                                        waitlistedEntrantsRef.whereArrayContains("events", new HashMap<String, Object>() {{
-                                            put("eventName", eventName);
-                                        }}).get().addOnSuccessListener(waitlistQuery -> {
-                                            List<DocumentSnapshot> waitlist = waitlistQuery.getDocuments();
+                                        // Fetch all waitlisted entrants and filter locally
+                                        waitlistedEntrantsRef.get().addOnSuccessListener(waitlistQuery -> {
+                                            List<DocumentSnapshot> waitlist = new ArrayList<>();
+
+                                            for (DocumentSnapshot document : waitlistQuery.getDocuments()) {
+                                                // Extract the `events` array and filter locally
+                                                List<Map<String, Object>> events = (List<Map<String, Object>>) document.get("events");
+                                                if (events != null) {
+                                                    for (Map<String, Object> event : events) {
+                                                        if (eventName.equals(event.get("eventName"))) {
+                                                            waitlist.add(document);
+                                                            break; // Stop checking other events for this document
+                                                        }
+                                                    }
+                                                }
+                                            }
+
                                             if (waitlist.isEmpty()) {
                                                 Toast.makeText(this, "No waitlisted profiles for this event.", Toast.LENGTH_SHORT).show();
                                                 return;
                                             }
 
-                                                    int numberOfSpots = Integer.parseInt(maxAttendeesTextView.getText().toString().split(": ")[1]);
-                                                    Collections.shuffle(waitlist);
+                                            int numberOfSpots = Integer.parseInt(maxAttendeesTextView.getText().toString().split(": ")[1]);
+                                            Collections.shuffle(waitlist);
 
-                                                    // Select only up to maxAttendees entrants
-                                                    List<DocumentSnapshot> selectedProfiles = waitlist.subList(0, Math.min(numberOfSpots, waitlist.size()));
-                                                    List<DocumentSnapshot> notSelectedProfiles = waitlist.subList(Math.min(numberOfSpots, waitlist.size()), waitlist.size());
+                                            // Select only up to maxAttendees entrants
+                                            List<DocumentSnapshot> selectedProfiles = waitlist.subList(0, Math.min(numberOfSpots, waitlist.size()));
+                                            List<DocumentSnapshot> notSelectedProfiles = waitlist.subList(Math.min(numberOfSpots, waitlist.size()), waitlist.size());
 
-                                                    sendNotificationsToProfiles(waitlist, selectedProfiles);
-                                                    saveSelectedProfiles(selectedProfiles);
-                                                    storeNotSelectedEntrants(db, notSelectedProfiles, eventName);
+                                            sendNotificationsToProfiles(waitlist, selectedProfiles);
+                                            saveSelectedProfiles(selectedProfiles);
+                                            storeNotSelectedEntrants(db, notSelectedProfiles, eventName);
 
-                                                    // After the draw, redirect to the DrawCompleteActivity
-                                                    Intent intent = new Intent(EventDetailsOrganizer.this, DrawCompleteActivity.class);
-                                                    intent.putExtra("eventName", eventName);
-                                                    startActivity(intent);
-                                                }).addOnFailureListener(e -> {
-                                                    Log.e(TAG, "Error fetching waitlisted entrants", e);
-                                                    Toast.makeText(this, "Failed to fetch waitlisted entrants for this event.", Toast.LENGTH_SHORT).show();
-                                                });
+                                            // After the draw, redirect to the DrawCompleteActivity
+                                            Intent intent = new Intent(EventDetailsOrganizer.this, DrawCompleteActivity.class);
+                                            intent.putExtra("eventName", eventName);
+                                            startActivity(intent);
+                                        }).addOnFailureListener(e -> {
+                                            Log.e(TAG, "Error fetching waitlisted entrants", e);
+                                            Toast.makeText(this, "Failed to fetch waitlisted entrants for this event.", Toast.LENGTH_SHORT).show();
+                                        });
                                     }).addOnFailureListener(e -> Log.e(TAG, "Failed to clear not_selected_entrants", e));
                                 }).addOnFailureListener(e -> Log.e(TAG, "Error fetching not_selected_entrants", e));
                     }).addOnFailureListener(e -> Log.e(TAG, "Failed to delete old selected entrants", e));

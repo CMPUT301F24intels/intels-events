@@ -10,15 +10,17 @@ package com.example.intels_app;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.airbnb.lottie.LottieAnimationView;
 
 public class DrawCompleteActivity extends AppCompatActivity {
 
     private Button entrantsSelectedButton;
     private String eventName;
+    private LottieAnimationView animationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,12 +34,28 @@ public class DrawCompleteActivity extends AppCompatActivity {
             return;
         }
 
-        entrantsSelectedButton = findViewById(R.id.entrants_selected_button);
+        animationView = findViewById(R.id.animation_view);
+        animationView.setAnimation(R.raw.complete);
+        animationView.playAnimation(); // Start the animation
 
+        entrantsSelectedButton = findViewById(R.id.entrants_selected_button);
         entrantsSelectedButton.setOnClickListener(v -> {
             Intent intent = new Intent(DrawCompleteActivity.this, LotteryList.class);
             intent.putExtra("eventName", eventName);
             startActivity(intent);
         });
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        animationView.pauseAnimation();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        animationView.resumeAnimation();
+    }
 }
+

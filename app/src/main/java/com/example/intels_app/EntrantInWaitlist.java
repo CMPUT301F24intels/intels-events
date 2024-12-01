@@ -273,23 +273,36 @@ public class EntrantInWaitlist extends AppCompatActivity {
         EntrantAdapter adapter = new EntrantAdapter(this, entrantList);
         listView.setAdapter(adapter);
 
-        waitlistRef.whereArrayContains("events", new HashMap<String, Object>() {{
-                    put("eventName", eventName);
-                }})
-                .get()
+        waitlistRef.get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         entrantList.clear(); // Clear existing data to avoid duplicates
+
                         if (task.getResult() != null && !task.getResult().isEmpty()) {
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
-                                Map<String, Object> profile = (Map<String, Object>) documentSnapshot.get("profile");
-                                if (profile != null) {
-                                    String name = (String) profile.get("name");
-                                    String imageUrl = (String) profile.get("imageUrl");
-                                    entrantList.add(new Entrant(name, imageUrl)); // Add entrant to the list
+                                List<Map<String, Object>> events = (List<Map<String, Object>>) documentSnapshot.get("events");
+                                if (events != null) {
+                                    for (Map<String, Object> event : events) {
+                                        if (eventName.equals(event.get("eventName"))) {
+                                            // If the event matches, fetch the profile
+                                            Map<String, Object> profile = (Map<String, Object>) documentSnapshot.get("profile");
+                                            if (profile != null) {
+                                                String name = (String) profile.get("name");
+                                                String imageUrl = (String) profile.get("imageUrl");
+                                                entrantList.add(new Entrant(name, imageUrl)); // Add entrant to the list
+                                                Log.d("Firestore", "Entrant added: " + name);
+                                            }
+                                            break; // No need to check further events for this document
+                                        }
+                                    }
                                 }
                             }
-                            adapter.notifyDataSetChanged(); // Refresh the ListView
+
+                            if (!entrantList.isEmpty()) {
+                                adapter.notifyDataSetChanged(); // Refresh the ListView
+                            } else {
+                                Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
+                            }
                         } else {
                             Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
                         }
