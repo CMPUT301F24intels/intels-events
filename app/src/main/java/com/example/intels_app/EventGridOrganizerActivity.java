@@ -13,15 +13,22 @@
 
 package com.example.intels_app;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.CollectionReference;
@@ -37,6 +44,7 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
     private Button entrant_button, organizer_button;
     private CustomAdapterOrganizer adapter;
     private List<Event> eventData;
+    private Dialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +126,7 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
     }
 
     private void fetchEventsForDevice(String deviceId) {
+        showProgressDialog();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference eventsRef = db.collection("events");
 
@@ -138,14 +147,17 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
                                     event.setId(documentSnapshot.getId()); // Set the document ID
                                     Log.d("Firestore", "Event added: " + event.getId());
                                     eventData.add(event); // Add the event to the list
+                                    dismissProgressDialog();
                                 }
                             }
                             // Notify the adapter of the data change to refresh the UI
                             adapter.notifyDataSetChanged();
                         } else {
+                            dismissProgressDialog();
                             Log.d("Firestore", "No documents found.");
                         }
                     } else {
+                        dismissProgressDialog();
                         Log.w("Firestore", "Error fetching documents", task.getException());
                     }
                 });
@@ -175,5 +187,31 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
                 }
             });
          */
+    }
+
+    private void showProgressDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View customLayout = getLayoutInflater().inflate(R.layout.dialog_progress_bar, null);
+        builder.setView(customLayout);
+        builder.setCancelable(false);
+
+        // Create and show the dialog
+        progressDialog = builder.create();
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        // Ensure the dialog appears as a square
+        progressDialog.setOnShowListener(dialog -> {
+            if (progressDialog.getWindow() != null) {
+                progressDialog.getWindow().setLayout(400, 400); // Set width and height to match layout
+            }
+        });
+
+        progressDialog.show();
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 }

@@ -20,18 +20,19 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"/>
 
-    <ImageButton
-        android:id="@+id/deleteButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
+    <ImageView
+        android:id="@+id/infoButton"
+        android:layout_width="41dp"
+        android:layout_height="42dp"
         android:background="@drawable/circular_button"
         android:backgroundTint="@color/zxing_transparent"
         android:contentDescription="Delete"
+        android:clickable="true"
+        android:focusable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/delete_button" />
+        app:srcCompat="@android:drawable/ic_menu_info_details" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

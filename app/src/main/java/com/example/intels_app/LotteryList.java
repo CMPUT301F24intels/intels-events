@@ -188,6 +188,38 @@ public class LotteryList extends AppCompatActivity {
                 });
     }
 
+    public void deleteEntrantFromLotteryList(String profileId) {
+        // Remove from `selected_entrants`
+        db.collection("selected_entrants")
+                .whereEqualTo("eventName", eventName)
+                .whereEqualTo("profileId", profileId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        db.collection("selected_entrants").document(doc.getId())
+                                .delete()
+                                .addOnSuccessListener(aVoid -> Log.d("LotteryList", "Entrant removed from selected_entrants"))
+                                .addOnFailureListener(e -> Log.e("LotteryList", "Error removing entrant from selected_entrants", e));
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("LotteryList", "Error fetching entrant from selected_entrants", e));
+
+        // Update status in `notifications` to "not-selected"
+        db.collection("notifications")
+                .whereEqualTo("eventName", eventName)
+                .whereEqualTo("profileId", profileId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        db.collection("notifications").document(doc.getId())
+                                .update("status", "not-selected")
+                                .addOnSuccessListener(aVoid -> Log.d("LotteryList", "Entrant status updated in notifications"))
+                                .addOnFailureListener(e -> Log.e("LotteryList", "Error updating entrant status in notifications", e));
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("LotteryList", "Error fetching entrant from notifications", e));
+    }
+
     /**
      * Show a dialog to enter a custom notification message.
      */
