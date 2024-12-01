@@ -207,7 +207,7 @@ public class AddEvent extends AppCompatActivity {
                 calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
                 calendar.set(Calendar.MINUTE, minute);
 
-                String formattedDateTime = android.text.format.DateFormat.format("yyyy-MM-dd hh:mm a", calendar).toString();
+                String formattedDateTime = android.text.format.DateFormat.format("MM/dd/yyyy hh:mm a", calendar).toString();
                 dateTimeEditText.setText(formattedDateTime);
 
             }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false).show(); // 12-hour format with AM/PM
