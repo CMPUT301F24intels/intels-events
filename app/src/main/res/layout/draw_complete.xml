@@ -57,7 +57,6 @@
         android:layout_width="380dp"
         android:layout_height="350dp"
         android:layout_marginTop="5dp"
-        android:contentDescription="Chair Animation"
         android:scaleType="centerInside"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
