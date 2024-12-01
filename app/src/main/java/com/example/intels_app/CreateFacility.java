@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -84,6 +85,14 @@ public class CreateFacility extends AppCompatActivity {
             intent.setType("image/*");
             openGallery.launch(intent);
             imageUploaded = true;
+        });
+        ImageButton back_button = findViewById(R.id.back_button_facility);
+        back_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(CreateFacility.this, MainActivity.class);
+                startActivity(intent);
+            }
         });
 
         // Click the create button to create the facility and add it to FireStore
