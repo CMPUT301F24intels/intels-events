@@ -51,8 +51,9 @@ import java.util.ArrayList;
  *
  * This activity initializes Firebase and sets up click listeners for key buttons that navigate to
  * different parts of the app.
- * Author: Dhanshri Patel, Janan Panchal
+ * Author: Dhanshri Patel, Janan Panchal, Aayushi Shah, Katrina Alejo, Het Patel, Kanishka Aswani
  */
+
 public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     //private FirebaseAuth fAuth;

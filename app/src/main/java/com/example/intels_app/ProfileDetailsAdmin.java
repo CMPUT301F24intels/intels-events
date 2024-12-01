@@ -117,6 +117,7 @@ public class ProfileDetailsAdmin extends AppCompatActivity {
         loadProfileDetails();
 
     }
+
     private void loadProfileDetails(){
         DocumentReference documentRef = db.collection("profiles").document(deviceId);
         documentRef.get().addOnSuccessListener(documentSnapshot -> {

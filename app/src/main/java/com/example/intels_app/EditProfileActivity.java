@@ -1,12 +1,3 @@
-/**
- * This class allows users to edit their profile information, including name,
- * email, phone number, and profile picture. The activity provides options
- * for capturing or selecting a profile picture, input validation based on set
- * parameters, and saving profile changes.
- * @author Dhanshri Patel
- * @see com.example.intels_app.MainActivity Main screen of app
- */
-
 package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
@@ -49,7 +40,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Random;
-
+/**
+ * This class allows users to edit their profile information, including name,
+ * email, phone number, and profile picture. The activity provides options
+ * for capturing or selecting a profile picture, input validation based on set
+ * parameters, and saving profile changes.
+ * @author Dhanshri Patel
+ * @see com.example.intels_app.MainActivity Main screen of app
+ */
 public class EditProfileActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_IMAGE_PICK = 2;

@@ -1,3 +1,12 @@
+package com.example.intels_app;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.widget.Toast;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 /**
  * This class provides functionality to initiate a QR code scan within an
  * activity and handle the result to retrieve event details from Firebase
@@ -8,17 +17,6 @@
  * @see com.google.firebase.firestore.FirebaseFirestore Firebase
  * @see com.example.intels_app.JoinWaitlistActivity Joining waitlist
  */
-
-package com.example.intels_app;
-
-import android.app.Activity;
-import android.content.Intent;
-import android.widget.Toast;
-
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
-
 public class QRCodeScanner {
 
     private final Activity activity;

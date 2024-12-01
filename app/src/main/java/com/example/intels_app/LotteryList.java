@@ -1,12 +1,3 @@
-/**
- * This class displays a list of selected entrants for a lottery event
- * in a RecyclerView based on the event ID and displays each entrant's
- * profile information.
- * Author: Katrina Alejo
- * @see com.example.intels_app.Profile Profiles class
- * @see com.example.intels_app.SelectedEntrantAdapter Adapter for profiles
- */
-
 package com.example.intels_app;
 
 import android.app.AlertDialog;
@@ -36,7 +27,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * This class displays a list of selected entrants for a lottery event
+ * in a RecyclerView based on the event ID and displays each entrant's
+ * profile information.
+ * Author: Katrina Alejo
+ * @see com.example.intels_app.Profile Profiles class
+ * @see com.example.intels_app.SelectedEntrantAdapter Adapter for profiles
+ */
 public class LotteryList extends AppCompatActivity {
     private RecyclerView recyclerView;
     private SelectedEntrantAdapter adapter;

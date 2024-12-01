@@ -50,7 +50,18 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-// Author: Janan Panchal, Dhanshri Patel
+/**
+ *
+ * Activity for editing event details, including event name, location, date, description, poster, and QR code.
+ * Allows event poster and QR code to be replaced, and saves the changes to Firebase Firestore and Storage.
+ *
+ * @author Janan Panchal, Dhanshri Patel
+ * @see com.example.intels_app.Event Event model used for event data
+ * @see com.example.intels_app.EventDetailsOrganizer Activity that shows event details after editing
+ * @see com.google.firebase.firestore.FirebaseFirestore Firebase Firestore for storing event details
+ * @see com.google.firebase.storage.FirebaseStorage Firebase Storage for storing event images (poster, QR)
+ */
+
 public class EditEventActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_IMAGE_PICK = 2;

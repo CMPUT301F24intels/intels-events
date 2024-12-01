@@ -33,6 +33,16 @@ import java.util.HashMap;
 import java.util.Map;
 import android.Manifest;
 
+/**
+ * This activity allows users to join an event's waitlist. It retrieves event details from the intent
+ * and displays them to the user. If the event has a geolocation requirement, the user is prompted
+ * to allow location access before joining the waitlist. The user can also be redirected to create
+ * a profile if one doesn't exist. Upon successful addition to the waitlist, the user is navigated
+ * to a success screen.
+ *
+ * @author Aayuhsi Shah
+ */
+
 public class JoinWaitlistActivityTemp extends AppCompatActivity {
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private FusedLocationProviderClient fusedLocationClient;
@@ -56,16 +66,6 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         waitlistRef = db.collection("waitlisted_entrants");
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
-        //This hardcoded data is only to TEST, REMOVE AFTER TO REAL CODE
-       /* this.eventName = "Orgy";
-        this.facilityName = "Tech Auditorium";
-        this.location = "Whyte Ave, Edmonton";
-        this.dateTime = "2024-12-01 10:00 AM";
-        this.description = "A conference bringing together the brightest minds in tech.";
-        this.maxAttendees = 2;
-        this.geolocationRequirement = false;
-        this.posterUrl = "https://testingexample.com/poster.jpg";*/
 
         // Retrieve event details from the intent
         eventName = getIntent().getStringExtra("eventName");

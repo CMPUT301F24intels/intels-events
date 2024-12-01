@@ -1,9 +1,3 @@
-/**
- * Creates a QR code for the event and displays it
- * @author Janan Panchal
- * @see com.example.intels_app.ManageEventsActivity Back button leads to page displaying organizer Events
- * @see com.example.intels_app.EventDetailsOrganizer Event details page for event just created
- */
 package com.example.intels_app;
 
 import android.app.Dialog;
@@ -36,6 +30,13 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * Creates a QR code for the event and displays it
+ * @author Janan Panchal
+ * @see com.example.intels_app.ManageEventsActivity Back button leads to page displaying organizer Events
+ * @see com.example.intels_app.EventDetailsOrganizer Event details page for event just created
+ */
+
 public class CreateQR extends AppCompatActivity {
     private StorageReference storageReference;
     private Uri image;
@@ -48,6 +49,7 @@ public class CreateQR extends AppCompatActivity {
      * Creates a QR code for the event
      * @param savedInstanceState Bundle to save the state of the activity
      */
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

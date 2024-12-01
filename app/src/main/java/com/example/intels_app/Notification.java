@@ -1,11 +1,10 @@
+package com.example.intels_app;
 /**
  * This class represents a notification with a title and message, for sending
  * and displaying notifications within the app.
+ * @deprecated
  * @author Katrina Alejo, Aayushi Shah
  */
-
-package com.example.intels_app;
-
 public class Notification {
     private String title;
     private String message;

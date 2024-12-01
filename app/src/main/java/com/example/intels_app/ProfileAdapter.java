@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * ProfileAdapter is a custom adapter for displaying and filtering a list of Profile objects
  * in a ListView. It supports search functionality through filtering, updating the displayed

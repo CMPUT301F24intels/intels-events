@@ -1,8 +1,8 @@
+package com.example.intels_app;
 /**
  * Represents a facility with its details.
  * @author Janan Panchal
  */
-package com.example.intels_app;
 
 public class Facility {
     private String facilityName;

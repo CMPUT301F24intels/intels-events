@@ -1,8 +1,3 @@
-/**
- * Takes a list of events and inflates it into the gridview
- * @author Janan Panchal
- * @see com.example.intels_app.EventDetailsOrganizer Event details page for event just created
- */
 package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
@@ -30,6 +25,12 @@ import com.google.firebase.storage.FirebaseStorage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+/**
+ * Takes a list of events and inflates it into the gridview
+ * @author Janan Panchal
+ * @see com.example.intels_app.EventDetailsOrganizer Event details page for event just created
+ */
 
 public class CustomAdapterManageEvents extends BaseAdapter {
     private Context context;

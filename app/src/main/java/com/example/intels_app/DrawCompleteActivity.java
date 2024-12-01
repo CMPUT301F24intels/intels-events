@@ -1,11 +1,3 @@
-/**
- * This class represents the activity displayed when a draw for an event
- * is completed. This activity provides an option to view the selected entrants
- * for the specific event by navigating to the SelectedEntrantActivity.
- * @author Katrina ALejo
- * @see com.example.intels_app.SelectedEntrantActivity Selected entrants in draw
- */
-
 package com.example.intels_app;
 
 import android.content.Intent;
@@ -15,6 +7,14 @@ import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
+
+/**
+ * This class represents the activity displayed when a draw for an event
+ * is completed. This activity provides an option to view the selected entrants
+ * for the specific event by navigating to the SelectedEntrantActivity.
+ * @author Katrina ALejo
+ * @see com.example.intels_app.SelectedEntrantActivity Selected entrants in draw
+ */
 
 public class DrawCompleteActivity extends AppCompatActivity {
 

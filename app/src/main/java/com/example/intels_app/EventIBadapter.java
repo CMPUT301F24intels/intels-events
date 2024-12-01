@@ -10,6 +10,13 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
+/**
+ * This adapter is responsible for displaying a list of event images in a GridView.
+ * It binds data from an ArrayList of EventDataClass objects to the grid items using Glide to load images.
+ *
+ * @author Kanishka Aswani
+ * @see android.widget.BaseAdapter
+ */
 
 public class EventIBadapter extends BaseAdapter {
     private ArrayList<EventDataClass> eventDataClassArrayList;

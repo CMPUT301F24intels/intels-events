@@ -1,13 +1,3 @@
-/**
- * This class allows users to view detailed information about an event
- * and provides an option to join the waitlist. This activity displays
- * event details such as name, location, facility, date and time, description,
- * maximum attendees, and geolocation requirements.
- *
- * @author Het Patel
- * @see com.example.intels_app.SelectRoleActivity Select role as entrant/guest
- */
-
 package com.example.intels_app;
 
 import android.Manifest;
@@ -38,6 +28,16 @@ import com.google.firebase.firestore.GeoPoint;
 
 import java.util.HashMap;
 import java.util.Map;
+/**
+ * This class allows users to view detailed information about an event
+ * and provides an option to join the waitlist. This activity displays
+ * event details such as name, location, facility, date and time, description,
+ * maximum attendees, and geolocation requirements.
+ *
+ * @author Het Patel
+ * @deprecated
+ * @see com.example.intels_app.SelectRoleActivity Select role as entrant/guest
+ */
 
 public class JoinWaitlistActivity extends AppCompatActivity {
 

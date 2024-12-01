@@ -1,14 +1,3 @@
-/**
- * This class extends AppCompatActivity and provides a user interface to manage
- * entrants who have enrolled/joined a waitlist. This activity allows organizers
- * to view, filter, and send notifications to entrants in waitlist using a ListView
- * and search functionality.
- * @author Aayushi Shah, Katrina Alejo
- * @see com.example.intels_app.Profile Profile object
- * @see com.example.intels_app.EntrantInCancelledWaitlist Cancelled entrant information
- * @see com.example.intels_app.EventGridOrganizerActivity Organizer's gridview of events
- */
-
 package com.example.intels_app;
 
 import android.app.AlertDialog;
@@ -39,6 +28,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+/**
+ * This class extends AppCompatActivity and provides a user interface to manage
+ * entrants who have enrolled/joined a waitlist. This activity allows organizers
+ * to view, filter, and send notifications to entrants in waitlist using a ListView
+ * and search functionality.
+ * @author Aayushi Shah, Katrina Alejo
+ * @see com.example.intels_app.Profile Profile object
+ * @see com.example.intels_app.EntrantInCancelledWaitlist Cancelled entrant information
+ * @see com.example.intels_app.EventGridOrganizerActivity Organizer's gridview of events
+ */
 
 public class EntrantInWaitlist extends AppCompatActivity {
     private Button waitlist_button, cancelled_button, final_list_button, lottery_list_button, back_button;
@@ -118,7 +118,6 @@ public class EntrantInWaitlist extends AppCompatActivity {
         });
 
 
-
         final_list_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -157,6 +156,7 @@ public class EntrantInWaitlist extends AppCompatActivity {
         waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
         cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
     }
+
     private void showCustomNotificationDialog() {
         EditText input = new EditText(this);
         input.setHint("Enter custom notification message");
@@ -312,37 +312,5 @@ public class EntrantInWaitlist extends AppCompatActivity {
                     }
                 });
     }
-
-        /*
-        waitlistRef.whereEqualTo("eventName", eventName)  // Filter by eventName
-                .addSnapshotListener((queryDocumentSnapshots, e) -> {
-                    if (e != null) {
-                        Log.w("Firestore", "Listen failed.", e);
-                        Toast.makeText(this, "Error listening to changes.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    documentNames.clear(); // Helps remove duplicates
-
-                    if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
-                        Log.d("EntrantInWaitlist", "Received updated documents from waitlisted_entrants.");
-
-                        // Add each document ID or name to the list
-                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                            String documentId = documentSnapshot.getId();  // Or get a field like "name"
-                            Log.d("EntrantInWaitlist", "Document ID: " + documentId);
-                            documentNames.add(documentId);  // Store document name (ID) in list
-                        }
-
-                        // Notify adapter of data change to refresh the ListView
-                        adapter.notifyDataSetChanged();
-
-                    } else {
-                        Log.w("EntrantInWaitlist", "No document names found for this event.");
-                        Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-         */
-    }
+}
 

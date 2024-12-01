@@ -1,15 +1,3 @@
-/**
- * This class displays the details of a specific event to the organizer,
- * allowing them to view event information, view the event poster, and
- * perform a lottery draw for selecting attendees. The class retrieves data
- * from Firebase Firestore and provides functionality to notify both selected
- * and unselected entrants.
- * @author Janan Panchal, Aayushi Shah, Katrina Alejo
- * @see com.example.intels_app.Profile Profile object
- * @see com.example.intels_app.ManageEventsActivity Manage events screen
- * @see com.example.intels_app.DrawCompleteActivity Draw completed activity
- */
-
 package com.example.intels_app;
 
 import android.app.AlertDialog;
@@ -40,7 +28,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * This class displays the details of a specific event to the organizer,
+ * allowing them to view event information, view the event poster, and
+ * perform a lottery draw for selecting attendees. The class retrieves data
+ * from Firebase Firestore and provides functionality to notify both selected
+ * and unselected entrants.
+ * @author Janan Panchal, Aayushi Shah, Katrina Alejo
+ * @see com.example.intels_app.Profile Profile object
+ * @see com.example.intels_app.ManageEventsActivity Manage events screen
+ * @see com.example.intels_app.DrawCompleteActivity Draw completed activity
+ */
 public class EventDetailsOrganizer extends AppCompatActivity {
 
     private static final String TAG = "EventDetailsOrganizer";

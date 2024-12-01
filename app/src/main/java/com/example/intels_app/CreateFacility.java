@@ -1,9 +1,3 @@
-/**
- * When the user uses the app for the first time (new device ID), prompt them to create a facility profile
- * @author Janan Panchal
- * @see com.example.intels_app.MainActivity Creating a profile leads to main page
- * @see com.example.intels_app.Facility Facility object
- */
 package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
@@ -49,6 +43,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+/**
+ * When the user uses the app for the first time (new device ID), prompt them to create a facility profile
+ * @author Janan Panchal
+ * @see com.example.intels_app.MainActivity Creating a profile leads to main page
+ * @see com.example.intels_app.Facility Facility object
+ */
 
 public class CreateFacility extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
