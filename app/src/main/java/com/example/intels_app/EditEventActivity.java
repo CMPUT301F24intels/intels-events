@@ -5,16 +5,18 @@ import static android.content.ContentValues.TAG;
 import static com.example.intels_app.CreateQR.bitmapToByteArray;
 import static com.example.intels_app.CreateQR.hashImage;
 
-import android.app.AlertDialog;
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -25,9 +27,13 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -44,13 +50,16 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-
+// Author: Janan Panchal, Dhanshri Patel
 public class EditEventActivity extends AppCompatActivity {
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_IMAGE_PICK = 2;
+    private static final int PERMISSION_REQUEST_CODE = 100;
     String eventName;
     Event oldEvent;
     String finalPosterUrl;
     String finalQrUrl;
-
+    private boolean isCameraOption = false;
     Button replacePosterButton;
     Button replaceQRButton;
     Button saveChangesButton;
@@ -69,6 +78,7 @@ public class EditEventActivity extends AppCompatActivity {
     Uri newPosterImage;
     String newPosterImageHash;
     byte[] newQRImageData;
+    byte[] newPosterImageData;
 
     // Flags to track changes
     boolean isQRChanged = false;
@@ -119,10 +129,7 @@ public class EditEventActivity extends AppCompatActivity {
         replacePosterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Open gallery and glide image into view
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType("image/*");
-                openGallery.launch(intent);
+                showPosterDialog();
                 isPosterChanged = true;
             }
         });
@@ -162,14 +169,18 @@ public class EditEventActivity extends AppCompatActivity {
                                     Log.d(TAG, "Old poster deleted successfully");
 
                                     // Upload new poster to storage
-                                    FirebaseStorage.getInstance().getReference().child("posters").child(newPosterImageHash).putFile(newPosterImage)
+                                    FirebaseStorage.getInstance().getReference().child("posters")
+                                            .child(newPosterImageHash)
+                                            .putBytes(newPosterImageData)
                                             .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                                 @Override
                                                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                                     Log.d(TAG, "New poster uploaded successfully");
 
                                                     // Get URL of new poster
-                                                    FirebaseStorage.getInstance().getReference("posters").child(newPosterImageHash).getDownloadUrl()
+                                                    FirebaseStorage.getInstance().getReference("posters")
+                                                            .child(newPosterImageHash)
+                                                            .getDownloadUrl()
                                                             .addOnSuccessListener(new OnSuccessListener<Uri>() {
                                                                 @Override
                                                                 public void onSuccess(Uri uri) {
@@ -355,40 +366,6 @@ public class EditEventActivity extends AppCompatActivity {
         Glide.with(getApplicationContext()).load(newQRbitmap).into(qrImageView);
     }
 
-    ActivityResultLauncher<Intent> openGallery = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result != null && result.getResultCode() == RESULT_OK) {
-                    // Get the URI of the selected image
-                    newPosterImage = result.getData().getData();
-
-                    // Set the selected image into the ImageView
-                    Glide.with(getApplicationContext()).load(newPosterImage).into(posterImageView);
-
-                    // Get Bitmap from Uri
-                    Bitmap newPosterBitmap = null;
-                    try {
-                        newPosterBitmap = getBitmapFromUri(newPosterImage, getContentResolver());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    // Convert Bitmap to byte array
-                    byte[] posterImageData = bitmapToByteArray(newPosterBitmap);
-
-                    // Hash the byte array
-                    newPosterImageHash = hashImage(posterImageData);
-                } else {
-                    Toast.makeText(EditEventActivity.this, "Please select an image", Toast.LENGTH_LONG).show();
-                }
-            }
-    );
-
-    public Bitmap getBitmapFromUri(Uri uri, ContentResolver contentResolver) throws IOException {
-        InputStream inputStream = contentResolver.openInputStream(uri);
-        return BitmapFactory.decodeStream(inputStream);
-    }
-
     public void checkAndUpdateFirestore() {
 
         // Ensure both URLs are ready
@@ -427,6 +404,93 @@ public class EditEventActivity extends AppCompatActivity {
         Intent intent = new Intent(EditEventActivity.this, EventDetailsOrganizer.class);
         intent.putExtra("Event Name", updatedEventName); // Pass the updated event name back
         startActivity(intent);
+    }
+
+    private void showPosterDialog() {
+        String[] options = {"Take Photo", "Choose from Gallery"};
+        androidx.appcompat.app.AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Event Poster");
+        builder.setItems(options, (dialog, which) -> {
+            switch (which) {
+                case 0: // Take Photo
+                    isCameraOption = true;
+                    if (checkAndRequestPermissions()) {
+                        openCamera();
+                    }
+                    break;
+                case 1: // Choose from Gallery
+                    isCameraOption = false;
+                    if (checkAndRequestPermissions()) {
+                        openGallery();
+                    }
+                    break;
+            }
+        });
+        builder.show();
+    }
+
+    private boolean checkAndRequestPermissions() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (isCameraOption) {
+                    openCamera();
+                } else {
+                    openGallery();
+                }
+            } else {
+                Toast.makeText(this, "Permissions denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void openCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+    }
+
+    private void openGallery() {
+        Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_IMAGE_CAPTURE && data != null) {
+                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                if (bitmap != null) {
+                    posterImageView.setImageBitmap(bitmap); // Display the image in ImageView
+                    newPosterImageData = bitmapToByteArray(bitmap);
+                    newPosterImageHash = hashImage(newPosterImageData);// Convert to byte array if needed
+                }
+            } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
+                Uri selectedImage = data.getData();
+                try {
+                    // Decode and scale the selected image to fit within the ImageView
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                    posterImageView.setImageBitmap(bitmap);
+                    newPosterImageData = bitmapToByteArray(bitmap); // Convert to byte array if needed
+                    newPosterImageHash = hashImage(newPosterImageData);
+                    Log.d(TAG, "Gallery Image Set - imageHash: " + newPosterImageHash);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
     }
 
 }
