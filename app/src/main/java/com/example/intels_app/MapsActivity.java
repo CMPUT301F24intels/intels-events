@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -59,6 +60,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else {
             loadMap();
         }
+
+        ImageButton backButton = findViewById(R.id.back_button);
+        backButton.setOnClickListener(v -> {
+            onBackPressed();
+        });
+
     }
 
     private void loadMap() {
