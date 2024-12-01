@@ -12,13 +12,17 @@ package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,6 +37,7 @@ import java.util.ArrayList;
 public class ManageEventsActivity extends AppCompatActivity {
     ArrayList<Event> eventData;
     CustomAdapterManageEvents adapter;
+    private Dialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,6 +136,8 @@ public class ManageEventsActivity extends AppCompatActivity {
     }
 
     private void fetchEventsForDevice(String deviceId) {
+        showProgressDialog(); // Show progress dialog
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference eventsRef = db.collection("events");
 
@@ -138,6 +145,8 @@ public class ManageEventsActivity extends AppCompatActivity {
         eventsRef.whereEqualTo("deviceId", deviceId)
                 .get()  // Use `.get()` to fetch data once instead of listening for changes
                 .addOnCompleteListener(task -> {
+                    dismissProgressDialog(); // Dismiss progress dialog when done
+
                     if (task.isSuccessful()) {
                         if (task.getResult() != null && !task.getResult().isEmpty()) {
                             Log.d("Firestore", "Data received: " + task.getResult().size() + " documents");
@@ -160,8 +169,52 @@ public class ManageEventsActivity extends AppCompatActivity {
                             Log.d("Firestore", "No documents found.");
                         }
                     } else {
+                        dismissProgressDialog(); // Ensure dismissal on failure
                         Log.w("Firestore", "Error fetching documents", task.getException());
                     }
                 });
+    }
+
+    private void showProgressDialog() {
+        progressDialog = new Dialog(this);
+        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        progressDialog.setCancelable(false);
+        progressDialog.setContentView(R.layout.dialog_progress_bar);
+
+        ProgressBar progressBar = progressDialog.findViewById(R.id.progress_horizontal);
+        TextView progressTitle = progressDialog.findViewById(R.id.progress_title);
+
+        progressDialog.show();
+
+        // Simulate progress
+        new Thread(() -> {
+            for (int progress = 0; progress <= 100; progress++) {
+                int currentProgress = progress;
+
+                // Update UI on the main thread
+                runOnUiThread(() -> {
+                    progressBar.setProgress(currentProgress);
+
+                    // Optional: Update text to show percentage
+                    progressTitle.setText("Loading... " + currentProgress + "%");
+                });
+
+                try {
+                    // Simulate time taken to load (e.g., network or database query)
+                    Thread.sleep(50); // Adjust duration as needed
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // Dismiss the dialog once loading is complete
+            runOnUiThread(() -> progressDialog.dismiss());
+        }).start();
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 }

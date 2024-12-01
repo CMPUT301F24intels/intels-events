@@ -8,16 +8,20 @@
  */
 package com.example.intels_app;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -39,6 +43,7 @@ public class AdminProfiles extends AppCompatActivity {
     private List<Profile> profileList;
     private Profile profile;
     private ImageButton imageButton22;
+    private Dialog progressDialog;
 
     /**
      * Displays a list of all profiles for the admin view.
@@ -83,9 +88,11 @@ public class AdminProfiles extends AppCompatActivity {
             }
         });*/
 
+        showProgressDialog();
         // Retrieve all profile data from FireStore and assign it to profile arraylist
         FirebaseFirestore.getInstance().collection("profiles").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    dismissProgressDialog();
                     if (!queryDocumentSnapshots.isEmpty()) {
                         for (DocumentSnapshot document : queryDocumentSnapshots) {
 
@@ -95,6 +102,7 @@ public class AdminProfiles extends AppCompatActivity {
                             adapter.notifyDataSetChanged();
                         }
                     } else {
+                        dismissProgressDialog();
                         Log.d("Firestore", "No documents found in this collection.");
                     }
                 }).addOnFailureListener(e -> Log.w("Firestore", "Error fetching documents", e));
@@ -195,6 +203,7 @@ public class AdminProfiles extends AppCompatActivity {
                     Toast.makeText(AdminProfiles.this, "Error fetching facilities: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
+
     private void showPopupMenu(View v) {
         PopupMenu popup = new PopupMenu(this, v);
         popup.inflate(R.menu.popup_menu);
@@ -211,5 +220,48 @@ public class AdminProfiles extends AppCompatActivity {
         });
 
         popup.show();
+    }
+
+    private void showProgressDialog() {
+        progressDialog = new Dialog(this);
+        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        progressDialog.setCancelable(false);
+        progressDialog.setContentView(R.layout.dialog_progress_bar);
+
+        ProgressBar progressBar = progressDialog.findViewById(R.id.progress_horizontal);
+        TextView progressTitle = progressDialog.findViewById(R.id.progress_title);
+
+        progressDialog.show();
+
+        // Simulate progress
+        new Thread(() -> {
+            for (int progress = 0; progress <= 100; progress++) {
+                int currentProgress = progress;
+
+                // Update UI on the main thread
+                runOnUiThread(() -> {
+                    progressBar.setProgress(currentProgress);
+
+                    // Optional: Update text to show percentage
+                    progressTitle.setText("Loading... " + currentProgress + "%");
+                });
+
+                try {
+                    // Simulate time taken to load (e.g., network or database query)
+                    Thread.sleep(50); // Adjust duration as needed
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // Dismiss the dialog once loading is complete
+            runOnUiThread(() -> progressDialog.dismiss());
+        }).start();
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 }

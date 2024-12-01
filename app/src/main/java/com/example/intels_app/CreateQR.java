@@ -6,6 +6,7 @@
  */
 package com.example.intels_app;
 
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -41,6 +42,7 @@ public class CreateQR extends AppCompatActivity {
     private Bitmap bitmap;
     private byte[] imageData;
     private String imageHash;
+    private Dialog progressDialog;
 
     /**
      * Creates a QR code for the event
@@ -56,6 +58,7 @@ public class CreateQR extends AppCompatActivity {
 
         // Where to display QR
         ImageView qrCodeImageView = findViewById(R.id.qrCodeImageView);
+        dismissProgressDialog();
 
         try {
             // Use ZXing to generate QR code with only the event name
@@ -143,6 +146,12 @@ public class CreateQR extends AppCompatActivity {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
         }
     }
 }

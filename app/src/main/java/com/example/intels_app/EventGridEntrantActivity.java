@@ -14,13 +14,17 @@
 
 package com.example.intels_app;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -38,6 +42,7 @@ public class EventGridEntrantActivity extends AppCompatActivity {
     private Button entrant_button, organizer_button;
     private CustomAdapterEntrant adapter;
     private List<Event> eventData;
+    private Dialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +108,7 @@ public class EventGridEntrantActivity extends AppCompatActivity {
     }
 
     private void fetchSignedUpEvents(String deviceId) {
+        showProgressDialog();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference waitlistedEventsRef = db.collection("waitlisted_entrants");
 
@@ -128,6 +134,7 @@ public class EventGridEntrantActivity extends AppCompatActivity {
 
                                         // Add the event to the eventData list
                                         eventData.add(event);
+                                        dismissProgressDialog();
                                     }
                                 }
                             }
@@ -135,9 +142,11 @@ public class EventGridEntrantActivity extends AppCompatActivity {
                             // Notify adapter of the data change
                             adapter.notifyDataSetChanged();
                         } else {
+                            dismissProgressDialog();
                             Log.d("Firestore", "No documents found.");
                         }
                     } else {
+                        dismissProgressDialog();
                         Log.w("Firestore", "Error fetching documents", task.getException());
                     }
                 });
@@ -164,6 +173,49 @@ public class EventGridEntrantActivity extends AppCompatActivity {
                     }
                 });
          */
+    }
+
+    private void showProgressDialog() {
+        progressDialog = new Dialog(this);
+        progressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        progressDialog.setCancelable(false);
+        progressDialog.setContentView(R.layout.dialog_progress_bar);
+
+        ProgressBar progressBar = progressDialog.findViewById(R.id.progress_horizontal);
+        TextView progressTitle = progressDialog.findViewById(R.id.progress_title);
+
+        progressDialog.show();
+
+        // Simulate progress
+        new Thread(() -> {
+            for (int progress = 0; progress <= 100; progress++) {
+                int currentProgress = progress;
+
+                // Update UI on the main thread
+                runOnUiThread(() -> {
+                    progressBar.setProgress(currentProgress);
+
+                    // Optional: Update text to show percentage
+                    progressTitle.setText("Loading... " + currentProgress + "%");
+                });
+
+                try {
+                    // Simulate time taken to load (e.g., network or database query)
+                    Thread.sleep(50); // Adjust duration as needed
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // Dismiss the dialog once loading is complete
+            runOnUiThread(() -> progressDialog.dismiss());
+        }).start();
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 
 }

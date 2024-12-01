@@ -36,25 +36,25 @@
         android:id="@+id/posterImageView"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="36dp"
         android:scaleType="centerCrop"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/eventDetailsTextview"
+        app:layout_constraintTop_toBottomOf="@+id/textView4"
         tools:srcCompat="@tools:sample/avatars" />
 
     <ImageView
         android:id="@+id/qrImageView"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="71dp"
         android:scaleType="centerCrop"
         app:layout_constraintEnd_toStartOf="@+id/posterImageView"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.111"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/eventDetailsTextview"
+        app:layout_constraintTop_toBottomOf="@+id/textView3"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
@@ -210,5 +210,35 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/draw_text" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="146dp"
+        android:layout_height="19dp"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="21dp"
+        android:text="Click to Expand"
+        android:textColor="@color/white"
+        android:textAlignment="center"
+        android:fontFamily="@font/poppins_semibold"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toStartOf="@+id/textView4"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/eventDetailsTextview" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="146dp"
+        android:layout_height="19dp"
+        android:layout_marginTop="21dp"
+        android:layout_marginEnd="36dp"
+        android:text="Click to Expand"
+        android:textColor="@color/white"
+        android:textAlignment="center"
+        android:fontFamily="@font/poppins_semibold"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/eventDetailsTextview" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

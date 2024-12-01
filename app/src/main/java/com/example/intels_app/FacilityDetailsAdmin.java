@@ -4,6 +4,7 @@ import static android.content.ContentValues.TAG;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -80,6 +81,13 @@ public class FacilityDetailsAdmin extends AppCompatActivity {
             }
         });
 
+        facilityImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageDialog(((ImageView) view).getDrawable());
+            }
+        });
+
         removeImageButton = findViewById(R.id.edit_poster_button);
         removeImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,5 +125,21 @@ public class FacilityDetailsAdmin extends AppCompatActivity {
                         .show();
             }
         });
+    }
+
+    private void showImageDialog(Drawable imageDrawable) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_expand_image, null);
+        ImageView enlargedImageView = dialogView.findViewById(R.id.enlargedImageView);
+
+        enlargedImageView.setImageDrawable(imageDrawable);
+
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+
+        // Close dialog when clicked
+        enlargedImageView.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 }

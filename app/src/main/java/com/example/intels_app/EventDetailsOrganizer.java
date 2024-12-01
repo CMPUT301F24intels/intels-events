@@ -12,7 +12,9 @@
 
 package com.example.intels_app;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -98,6 +100,19 @@ public class EventDetailsOrganizer extends AppCompatActivity {
             startActivity(intent);
         });
 
+        posterImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageDialog(((ImageView) view).getDrawable());
+            }
+        });
+
+        qrImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageDialog(((ImageView) view).getDrawable());
+            }
+        });
 
         // Get the navigation button
         ImageButton navigationButton = findViewById(R.id.navigationButton);
@@ -234,6 +249,22 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                                 }).addOnFailureListener(e -> Log.e(TAG, "Error fetching not_selected_entrants", e));
                     }).addOnFailureListener(e -> Log.e(TAG, "Failed to delete old selected entrants", e));
                 }).addOnFailureListener(e -> Log.e(TAG, "Error loading previous selected entrants", e));
+    }
+
+    private void showImageDialog(Drawable imageDrawable) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_expand_image, null);
+        ImageView enlargedImageView = dialogView.findViewById(R.id.enlargedImageView);
+
+        enlargedImageView.setImageDrawable(imageDrawable);
+
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+
+        // Close dialog when clicked
+        enlargedImageView.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 
     private void storeNotSelectedEntrants(FirebaseFirestore db, List<DocumentSnapshot> notSelectedProfiles, String eventName) {
