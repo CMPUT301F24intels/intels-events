@@ -10,6 +10,14 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
+/**
+ * This adapter is responsible for providing facility image data to be displayed in a grid view.
+ * It loads the images from URLs into ImageViews using Glide, based on the data in the facility list.
+ * The adapter works with the custom layout `facilityimagegrid`.
+ *
+ * @author Kaniskha Aswani
+ */
+
 public class FacilityIBadapter extends BaseAdapter {
     private ArrayList<FacilityDataClass> facilityDataList;
     private Context context;

@@ -22,6 +22,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
+/**
+ * This activity displays the detailed information of a facility for the admin, including its name,
+ * location, email, telephone number, and an image. It also provides options to view and remove the facility image.
+ * The data is fetched from Firebase Firestore, and the image is fetched from Firebase Storage.
+ *
+ * @author Janan Panchal
+ */
 
 public class FacilityDetailsAdmin extends AppCompatActivity {
     private Facility facility;

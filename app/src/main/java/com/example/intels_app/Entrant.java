@@ -1,12 +1,12 @@
-/**
- * The {Entrant} class represents anyone signing up for an event or using the
- * app as an entrant. Each entrant has a name and is associated to a Entrant
- * Notification object that will handle notifications for the specific entrant.
- * @author Aayushi Shah
- * @see com.example.intels_app.EntrantNotifications Entrant notifications
- */
-
 package com.example.intels_app;
+
+/**
+ * This class represents an entrant with a name, notifications, and an optional profile image.
+ * It allows for storing the entrant's name, managing their notification preferences, and setting
+ * their profile image URL.
+ * @author Aayushi Shah
+ * @see com.example.intels_app.Event Event related to the entrant
+ */
 
 public class Entrant {
     private String name;

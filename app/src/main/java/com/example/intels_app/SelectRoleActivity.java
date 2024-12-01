@@ -18,14 +18,17 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.HashMap;
 import java.util.Map;
+
 /**
  * SelectRoleActivity allows users to choose between joining an event as an entrant or a guest.
  * It handles navigation to the appropriate activity based on the user's selection and updates
  * the event waitlist in Firestore when joining as a guest.
  *
  * This activity also retrieves and logs the device ID for tracking purposes.
+ * @deprecated
  * Author: Dhanshri Patel
  */
+
 public class SelectRoleActivity extends AppCompatActivity {
     ImageButton backButton;
     Button join_as_entrant_button;

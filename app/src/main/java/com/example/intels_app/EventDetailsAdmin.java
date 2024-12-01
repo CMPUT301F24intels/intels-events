@@ -1,11 +1,3 @@
-/**
- * This class displays the details of a specific event to the organizer,
- * allowing them to view event information, view the event poster, and delete images.
- * The class retrieves and removes data from FireStore.
- * @author Janan Panchal
- * @see com.example.intels_app.Event Event object
- */
-
 package com.example.intels_app;
 
 import android.app.AlertDialog;
@@ -40,7 +32,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * This class displays the details of a specific event to the organizer,
+ * allowing them to view event information, view the event poster, and delete images.
+ * The class retrieves and removes data from FireStore.
+ * @author Janan Panchal
+ * @see com.example.intels_app.Event Event object
+ */
 public class EventDetailsAdmin extends AppCompatActivity {
     private static final String TAG = "EventDetailsOrganizer";
     private String eventName;

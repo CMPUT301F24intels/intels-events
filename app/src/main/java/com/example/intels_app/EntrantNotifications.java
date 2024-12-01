@@ -1,3 +1,7 @@
+package com.example.intels_app;
+
+import java.util.ArrayList;
+import java.util.List;
 /**
  * This class manages a list of notifications for an entrant.
  * This class allows notifications to be added and retrieved,
@@ -5,11 +9,6 @@
  * to an entrant.
  * @author Katrina Alejo
  */
-
-package com.example.intels_app;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class EntrantNotifications {
 

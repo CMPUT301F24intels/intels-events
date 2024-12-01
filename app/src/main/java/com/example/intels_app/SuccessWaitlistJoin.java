@@ -1,13 +1,3 @@
-/**
- * This class displays a confirmation screen after successfully joining an
- * event's waitlist.Upon successful joining they can view their waitlisted events,
- * or return to the home page.
- * @author Aayushi Shah
- * @see com.example.intels_app.EventGridEntrantActivity
- * @see com.example.intels_app.MainActivity
- * @see com.example.intels_app.MainActivity
- */
-
 package com.example.intels_app;
 
 import android.content.Intent;
@@ -17,7 +7,15 @@ import android.widget.Button;
 import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
-
+/**
+ * This class displays a confirmation screen after successfully joining an
+ * event's waitlist.Upon successful joining they can view their waitlisted events,
+ * or return to the home page.
+ * @author Aayushi Shah
+ * @see com.example.intels_app.EventGridEntrantActivity
+ * @see com.example.intels_app.MainActivity
+ * @see com.example.intels_app.MainActivity
+ */
 public class SuccessWaitlistJoin extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,11 +1,3 @@
-/**
- * This adapter is a custom adapter extending ArrayAdapter and inflates a
- * custom layout for each entrant and populates the entrant listview with
- * the entrant name.
- * @author Aayushi Shah
- * @see android.widget.ArrayAdapter ArrayAdapter
- */
-
 package com.example.intels_app;
 
 import android.content.Context;
@@ -22,6 +14,14 @@ import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 
 import java.util.List;
+/**
+ * This class is an adapter for displaying a list of entrants in a list view.
+ * It binds each entrant's name and profile image to the corresponding views in the list item layout.
+ * The class uses Glide to load profile images, and it shows a default image if the entrant does not have an image URL.
+ * @author Aayushi Shah
+ * @see com.example.intels_app.Entrant Entrant object representing an individual entrant
+ * @see com.example.intels_app.Event Event related to the entrants
+ */
 
 public class EntrantAdapter extends ArrayAdapter<Entrant> {
     private Context context;

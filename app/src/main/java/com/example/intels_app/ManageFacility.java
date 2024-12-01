@@ -1,9 +1,3 @@
-/**
- * Allows the organizer to manage their facility profile by editing the details.
- * @author Janan Panchal, Dhanshri Patel
- * @see com.example.intels_app.Facility Facility object
- * @see com.example.intels_app.ManageEventsActivity Back button leads to manage events page
- */
 package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
@@ -50,6 +44,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+/**
+ * Allows the organizer to manage their facility profile by editing the details.
+ * @author Janan Panchal, Dhanshri Patel
+ * @see com.example.intels_app.Facility Facility object
+ * @see com.example.intels_app.ManageEventsActivity Back button leads to manage events page
+ */
 
 public class ManageFacility extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;

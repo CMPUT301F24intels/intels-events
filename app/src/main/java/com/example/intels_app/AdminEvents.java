@@ -1,10 +1,3 @@
-/**
- * Displays a list of all events for the admin view.
- * @author Janan Panchal
- * @see com.example.intels_app.MainActivity Back button leads to main page
- * @see com.example.intels_app.AdminProfiles Clicking the profiles tab leads to the admin profiles page
- * @see com.example.intels_app.CustomAdapterOrganizer Custom adapter for the grid view
- */
 package com.example.intels_app;
 
 import android.app.Dialog;
@@ -30,6 +23,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+
+/**
+ * Displays a list of all events for the admin view.
+ * @author Janan Panchal
+ * @see com.example.intels_app.MainActivity Back button leads to main page
+ * @see com.example.intels_app.AdminProfiles Clicking the profiles tab leads to the admin profiles page
+ * @see com.example.intels_app.CustomAdapterOrganizer Custom adapter for the grid view
+ */
 
 public class AdminEvents extends AppCompatActivity {
     private Button profile_button;

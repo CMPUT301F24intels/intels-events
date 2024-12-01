@@ -1,3 +1,11 @@
+package com.example.intels_app;
+
+import android.content.Intent;
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.Toast;
 /**
  * This class allows for users to scan a QR code and navigate
  * based on the scan result. It uses QRCodeScanner class to initiate
@@ -7,16 +15,6 @@
  * @see com.example.intels_app.QRCodeScanner Scans QR code
  * @see com.example.intels_app.MainActivity Main screen of app
  */
-
-package com.example.intels_app;
-
-import android.content.Intent;
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.Toast;
-
 public class ScanQRActivity extends AppCompatActivity {
 
     private QRCodeScanner qrCodeScanner;

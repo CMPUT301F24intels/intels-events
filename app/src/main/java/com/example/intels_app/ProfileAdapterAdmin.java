@@ -1,9 +1,3 @@
-/**
- * Adapter for the profile list view to take the data list and inflate it into the view.
- * @author Janan Panchal, Dhanshri Patel
- * @see com.example.intels_app.Profile Profile object
- * @see com.example.intels_app.AdminProfiles Get the data list from the admin profiles page
- */
 package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
@@ -31,6 +25,13 @@ import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 import java.util.List;
+
+/**
+ * Adapter for the profile list view to take the data list and inflate it into the view.
+ * @author Janan Panchal, Dhanshri Patel
+ * @see com.example.intels_app.Profile Profile object
+ * @see com.example.intels_app.AdminProfiles Get the data list from the admin profiles page
+ */
 
 public class ProfileAdapterAdmin extends BaseAdapter {
     private Context context;

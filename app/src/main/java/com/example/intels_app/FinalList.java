@@ -34,7 +34,6 @@ import java.util.Set;
  * Users can navigate back to the organizer's event grid and compose custom notification messages for selected entrants.
  * Author: Dhanshri Patel, Katrina Alejo
  */
-
 public class FinalList extends AppCompatActivity {
     private ListView entrantList;
     private List<Profile> profileList;

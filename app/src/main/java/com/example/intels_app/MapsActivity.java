@@ -29,6 +29,16 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.List;
 import java.util.Map;
+/**
+ * This activity displays a map with markers representing the locations of participants who have joined the waitlist for an event.
+ * It uses the Google Maps API to display the map and Firebase Firestore to retrieve the waitlist data, which includes location
+ * information for each participant. Upon granting location permissions, the user's current location is also shown on the map.
+ *
+ * The activity retrieves event data from Firestore, displaying markers for participants based on their geolocation data.
+ * If no locations are available for the event, the map notifies the user.
+ *
+ * @author Kanishka Aswani
+ */
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 

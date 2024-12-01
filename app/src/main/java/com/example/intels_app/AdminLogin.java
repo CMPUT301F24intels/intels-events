@@ -9,6 +9,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 /**
  * AdminLogin is an activity that provides an interface for administrators to log in
  * to the application. The activity includes input fields for the username and password,
@@ -17,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
  * is displayed, and the password field is cleared.
  * Author: Dhanshri Patel
  */
+
 public class AdminLogin extends AppCompatActivity {
     ImageButton back_button;
     EditText adminName, adminPassword;

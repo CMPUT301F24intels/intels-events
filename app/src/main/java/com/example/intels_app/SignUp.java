@@ -362,5 +362,4 @@ public class SignUp extends AppCompatActivity {
         setResult(RESULT_OK, resultIntent);
         finish();
     }
-
 }

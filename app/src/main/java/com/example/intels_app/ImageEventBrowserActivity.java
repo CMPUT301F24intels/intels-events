@@ -14,6 +14,13 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+/**
+ * This activity allows users to browse event posters stored in Firebase Storage. It displays the
+ * posters in a grid view and supports features such as viewing and deleting event posters. When a
+ * poster is deleted, it is removed from Firebase Storage.
+ *
+ * @author Kanishka Aswani
+ */
 
 public class ImageEventBrowserActivity extends AppCompatActivity {
 

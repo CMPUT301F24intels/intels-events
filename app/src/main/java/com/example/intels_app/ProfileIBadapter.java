@@ -10,6 +10,17 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
+/**
+ * This adapter is used to populate a grid view with images in the profile section of the app. It takes a list of `DataClass` objects,
+ * which contain URLs of images to be displayed in the grid. It uses the Glide image loading library to efficiently load images into
+ * the `ImageView` components in the grid items.
+ *
+ * The adapter binds each image from the `dataClassArrayList` to a corresponding `ImageView` in the grid layout and optimizes
+ * recycling of views with the `ViewHolder` pattern.
+ *
+ * @author Kanishka Aswani
+ * @see com.bumptech.glide.Glide Glide image loading library
+ */
 
 public class ProfileIBadapter extends BaseAdapter {
     private ArrayList<DataClass> dataClassArrayList;

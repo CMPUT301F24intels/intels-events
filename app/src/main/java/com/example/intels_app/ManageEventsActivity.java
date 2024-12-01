@@ -1,13 +1,3 @@
-/**
- * This class displays the manage events page which shows the events of an organizer
- * @author Janan Panchal
- * @see com.example.intels_app.EventDetailsOrganizer Event details page for event just created
- * @see com.example.intels_app.AddEvent Add event page
- * @see com.example.intels_app.ManageFacility Manage facility page
- * @see com.example.intels_app.MainActivity Main page
- * @see com.example.intels_app.Event Event object
- * @see com.example.intels_app.CustomAdapterManageEvents Custom adapter for dispaying events
- */
 package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
@@ -37,7 +27,16 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.installations.FirebaseInstallations;
 
 import java.util.ArrayList;
-
+/**
+ * This class displays the manage events page which shows the events of an organizer
+ * @author Janan Panchal
+ * @see com.example.intels_app.EventDetailsOrganizer Event details page for event just created
+ * @see com.example.intels_app.AddEvent Add event page
+ * @see com.example.intels_app.ManageFacility Manage facility page
+ * @see com.example.intels_app.MainActivity Main page
+ * @see com.example.intels_app.Event Event object
+ * @see com.example.intels_app.CustomAdapterManageEvents Custom adapter for dispaying events
+ */
 public class ManageEventsActivity extends AppCompatActivity {
     ArrayList<Event> eventData;
     CustomAdapterManageEvents adapter;

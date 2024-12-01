@@ -22,6 +22,13 @@ import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+/**
+ * This activity allows users to browse images stored in Firebase Storage. It displays the images in a
+ * grid view and supports features such as viewing and deleting images. When an image is deleted,
+ * it is removed from both Firebase Storage and the associated Firestore document.
+ *
+ * @author Kaniskha Aswani
+ */
 
 public class ImageBrowserActivity extends AppCompatActivity {
 

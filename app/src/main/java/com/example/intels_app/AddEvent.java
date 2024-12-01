@@ -1,14 +1,4 @@
-/**
- * An organizer can enter details to create a new event including a poster.
- * The event gets created by the system and FireStore is updated with the information.
- * @author Janan Panchal, Dhanshri Patel
- * @see com.example.intels_app.ManageEventsActivity Back button leads to main page
- * @see com.example.intels_app.CreateQR Adding an even generates a QR code
- * @see com.example.intels_app.Event Event object
- *
- */
 package com.example.intels_app;
-
 import static android.content.ContentValues.TAG;
 
 import android.Manifest;
@@ -76,6 +66,14 @@ import java.util.HashMap;
 import java.util.Map;
 import com.google.firebase.messaging.FirebaseMessaging;
 import java.util.UUID;
+/**
+ * An organizer can enter details to create a new event including a poster.
+ * The event gets created by the system and FireStore is updated with the information.
+ * @author Janan Panchal, Dhanshri Patel
+ * @see com.example.intels_app.ManageEventsActivity Back button leads to main page
+ * @see com.example.intels_app.CreateQR Adding an even generates a QR code
+ * @see com.example.intels_app.Event Event object
+ */
 
 public class AddEvent extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
