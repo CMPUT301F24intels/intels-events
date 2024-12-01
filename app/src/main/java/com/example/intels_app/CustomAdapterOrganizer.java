@@ -23,10 +23,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.TooltipCompat;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -65,41 +67,9 @@ public class CustomAdapterOrganizer extends BaseAdapter {
         TextView eventText = convertView.findViewById(R.id.event_text);
         eventText.setText(currentEvent.getEventName());// Populate each item’s text
 
-        ImageButton deleteButton = convertView.findViewById(R.id.deleteButton);
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new AlertDialog.Builder(context)
-                        .setTitle("Confirm Deletion")
-                        .setMessage("Are you sure you want to delete this event?")
-                        .setPositiveButton("Yes", (dialog, which) -> {
-                            // Delete event-related operations
-                            // Remove item from Firestore, data list, and notify adapter
-                            FirebaseFirestore.getInstance().collection("events").document(currentEvent.getEventName())
-                                    .delete()
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void unused) {
-                                            Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.w(TAG, "Error deleting document", e);
-                                        }
-                                    });
+        ImageView infoButton = convertView.findViewById(R.id.infoButton);
+        infoButton.setVisibility(View.INVISIBLE);
 
-                            data.remove(position);
-                            notifyDataSetChanged();
-                            Toast.makeText(context, "Event deleted", Toast.LENGTH_SHORT).show();
-                        })
-                        .setNegativeButton("No", (dialog, which) -> {
-                            // Dismiss the dialog if the user cancels
-                            dialog.dismiss();
-                        })
-                        .show();
-            }
-        });
         convertView.setOnClickListener(v -> {
             Intent intent = new Intent(context, EntrantInWaitlist.class);
             intent.putExtra("eventName", data.get(position).getEventName());

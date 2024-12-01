@@ -12,7 +12,9 @@
 
 package com.example.intels_app;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -31,6 +33,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +45,7 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
     private static final String TAG = "EventDetailsOrganizer";
 
-    private ImageButton backButton, drawButton, editButton;
+    private ImageButton backButton, drawButton, editButton, deleteButton;
     private ImageView posterImageView, qrImageView;
     private TextView eventNameEditText, facilityEditText, locationEditText, dateTimeEditText,
             descriptionEditText, maxAttendeesTextView, geolocationRequirementTextView;
@@ -98,6 +101,40 @@ public class EventDetailsOrganizer extends AppCompatActivity {
             startActivity(intent);
         });
 
+        deleteButton = findViewById(R.id.infoButton);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new AlertDialog.Builder(EventDetailsOrganizer.this)
+                        .setTitle("Confirm Deletion")
+                        .setMessage("Are you sure you want to delete this event?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            // Delete event-related operations
+                            deleteEvent();
+                            Intent intent = new Intent(EventDetailsOrganizer.this, ManageEventsActivity.class);
+                            startActivity(intent);
+                        })
+                        .setNegativeButton("No", (dialog, which) -> {
+                            // Dismiss the dialog if the user cancels
+                            dialog.dismiss();
+                        })
+                        .show();
+            }
+        });
+
+        posterImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageDialog(((ImageView) view).getDrawable());
+            }
+        });
+
+        qrImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageDialog(((ImageView) view).getDrawable());
+            }
+        });
 
         // Get the navigation button
         ImageButton navigationButton = findViewById(R.id.navigationButton);
@@ -157,6 +194,51 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                 Log.e(TAG, "No such document exists");
             }
         }).addOnFailureListener(e -> Log.w(TAG, "Error getting document", e));
+    }
+
+    // Method to delete event data from Firestore and Storage
+    private void deleteEvent() {
+        Log.d(TAG, "Deleting event: " + eventName);
+        String eventToDelete = eventName;
+
+        FirebaseFirestore.getInstance().collection("events")
+                .document(eventToDelete)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    Event event = documentSnapshot.toObject(Event.class);
+                    Log.d(TAG, "Event data retrieved: " + event.getEventName());
+
+                    if (event != null) {
+                        Log.d(TAG, "Event data is not null.");
+
+                        if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
+                            // Delete poster and QR code from Firebase Storage
+                            FirebaseStorage.getInstance().getReferenceFromUrl(event.getPosterUrl()).delete()
+                                    .addOnSuccessListener(unused -> Log.d(TAG, "Poster successfully deleted."))
+                                    .addOnFailureListener(e -> Log.w(TAG, "Failed to delete poster.", e));
+                        }
+
+                        if (event.getQrCodeUrl() != null && !event.getQrCodeUrl().isEmpty()) {
+                            FirebaseStorage.getInstance().getReferenceFromUrl(event.getQrCodeUrl()).delete()
+                                    .addOnSuccessListener(unused -> Log.d(TAG, "QR successfully deleted."))
+                                    .addOnFailureListener(e -> Log.w(TAG, "Failed to delete QR code.", e));
+                        }
+
+                        // Delete event from Firestore
+                        FirebaseFirestore.getInstance().collection("events")
+                                .document(eventToDelete)
+                                .delete()
+                                .addOnSuccessListener(unused -> {
+                                    Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                    Toast.makeText(EventDetailsOrganizer.this, "Event deleted", Toast.LENGTH_SHORT).show();
+                                })
+                                .addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
+                    } else {
+                        Log.w(TAG, "Event data is null, cannot delete.");
+                        Toast.makeText(EventDetailsOrganizer.this, "Failed to retrieve event data", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> Log.w(TAG, "Failed to fetch event details for deletion", e));
     }
 
     private void performLotteryDraw() {
@@ -234,6 +316,22 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                                 }).addOnFailureListener(e -> Log.e(TAG, "Error fetching not_selected_entrants", e));
                     }).addOnFailureListener(e -> Log.e(TAG, "Failed to delete old selected entrants", e));
                 }).addOnFailureListener(e -> Log.e(TAG, "Error loading previous selected entrants", e));
+    }
+
+    private void showImageDialog(Drawable imageDrawable) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_expand_image, null);
+        ImageView enlargedImageView = dialogView.findViewById(R.id.enlargedImageView);
+
+        enlargedImageView.setImageDrawable(imageDrawable);
+
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+
+        // Close dialog when clicked
+        enlargedImageView.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 
     private void storeNotSelectedEntrants(FirebaseFirestore db, List<DocumentSnapshot> notSelectedProfiles, String eventName) {

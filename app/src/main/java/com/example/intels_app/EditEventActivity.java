@@ -12,6 +12,7 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -301,7 +302,6 @@ public class EditEventActivity extends AppCompatActivity {
                 });
     }
 
-
     private void showDateTimePickerDialog() {
         final Calendar calendar = Calendar.getInstance();
 
@@ -338,7 +338,6 @@ public class EditEventActivity extends AppCompatActivity {
 
         datePickerDialog.show();
     }
-
 
     public void generateQRCode() throws WriterException {
         // Use ZXing to generate QR code with only the event name

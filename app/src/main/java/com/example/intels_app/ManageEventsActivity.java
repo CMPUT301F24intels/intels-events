@@ -12,15 +12,23 @@ package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.CollectionReference;
@@ -33,6 +41,7 @@ import java.util.ArrayList;
 public class ManageEventsActivity extends AppCompatActivity {
     ArrayList<Event> eventData;
     CustomAdapterManageEvents adapter;
+    private Dialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,6 +140,8 @@ public class ManageEventsActivity extends AppCompatActivity {
     }
 
     private void fetchEventsForDevice(String deviceId) {
+        showProgressDialog(); // Show progress dialog
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference eventsRef = db.collection("events");
 
@@ -138,6 +149,8 @@ public class ManageEventsActivity extends AppCompatActivity {
         eventsRef.whereEqualTo("deviceId", deviceId)
                 .get()  // Use `.get()` to fetch data once instead of listening for changes
                 .addOnCompleteListener(task -> {
+                    dismissProgressDialog(); // Dismiss progress dialog when done
+
                     if (task.isSuccessful()) {
                         if (task.getResult() != null && !task.getResult().isEmpty()) {
                             Log.d("Firestore", "Data received: " + task.getResult().size() + " documents");
@@ -160,8 +173,35 @@ public class ManageEventsActivity extends AppCompatActivity {
                             Log.d("Firestore", "No documents found.");
                         }
                     } else {
+                        dismissProgressDialog(); // Ensure dismissal on failure
                         Log.w("Firestore", "Error fetching documents", task.getException());
                     }
                 });
+    }
+
+    private void showProgressDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View customLayout = getLayoutInflater().inflate(R.layout.dialog_progress_bar, null);
+        builder.setView(customLayout);
+        builder.setCancelable(false);
+
+        // Create and show the dialog
+        progressDialog = builder.create();
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        // Ensure the dialog appears as a square
+        progressDialog.setOnShowListener(dialog -> {
+            if (progressDialog.getWindow() != null) {
+                progressDialog.getWindow().setLayout(400, 400); // Set width and height to match layout
+            }
+        });
+
+        progressDialog.show();
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 }

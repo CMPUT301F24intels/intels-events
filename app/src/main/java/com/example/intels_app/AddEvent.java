@@ -12,13 +12,16 @@ package com.example.intels_app;
 import static android.content.ContentValues.TAG;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -27,10 +30,13 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
@@ -83,6 +89,7 @@ public class AddEvent extends AppCompatActivity {
     private ImageButton backButton;
     private Button addPosterButton;
     private Button addEvent;
+    private Dialog progressDialog;
 
     /**
      * Opens the Add Event layout that allows organizers to enter details for their new event
@@ -133,52 +140,64 @@ public class AddEvent extends AppCompatActivity {
                 // During creation, the event will be added for the organizer with this device ID
                 FirebaseInstallations.getInstance().getId()
                         .addOnCompleteListener(task -> {
+                            showProgressDialog();
                             if (task.isSuccessful()) {
-                                String deviceId = task.getResult();
+                                new AlertDialog.Builder(AddEvent.this)
+                                        .setTitle("Confirm Event Creation")
+                                        .setMessage("You will not be able to change your event name once it is created. Are you sure you want to create this event?")
+                                        .setPositiveButton("Yes", (dialog, which) -> {
+                                            String deviceId = task.getResult();
 
-                                // Upload the poster to storage, named with by the imageHash. Get the download Url created by storage
-                                // and save it in posterUrl to be added to the new Event object
-                                storageReference = FirebaseStorage.getInstance().getReference().child("posters").child(imageHash);
-                                storageReference.putBytes(imageData)
-                                        .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
-                                                .addOnSuccessListener(uri -> {
-                                                    String posterUrl = uri.toString();
+                                            // Upload the poster to storage, named with by the imageHash. Get the download Url created by storage
+                                            // and save it in posterUrl to be added to the new Event object
+                                            storageReference = FirebaseStorage.getInstance().getReference().child("posters").child(imageHash);
+                                            storageReference.putBytes(imageData)
+                                                    .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl()
+                                                            .addOnSuccessListener(uri -> {
+                                                                String posterUrl = uri.toString();
 
-                                                    FirebaseFirestore.getInstance().collection("facilities").document(deviceId).get()
-                                                            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                                                @Override
-                                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                                                    String facilityName = documentSnapshot.getString("facilityName");
+                                                                FirebaseFirestore.getInstance().collection("facilities").document(deviceId).get()
+                                                                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                                            @Override
+                                                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                                                String facilityName = documentSnapshot.getString("facilityName");
 
-                                                                    // Create a new event with the entered details and device ID
-                                                                    Event newEvent = new Event(
-                                                                            eventName.getText().toString(),
-                                                                            facilityName,
-                                                                            location.getText().toString(),
-                                                                            dateTimeEditText.getText().toString(),
-                                                                            description.getText().toString(),
-                                                                            Integer.parseInt(maxAttendees.getText().toString()),
-                                                                            geolocationRequirement.isChecked(),
-                                                                            posterUrl,
-                                                                            deviceId // Add the device ID here
-                                                                    );
+                                                                                // Create a new event with the entered details and device ID
+                                                                                Event newEvent = new Event(
+                                                                                        eventName.getText().toString(),
+                                                                                        facilityName,
+                                                                                        location.getText().toString(),
+                                                                                        dateTimeEditText.getText().toString(),
+                                                                                        description.getText().toString(),
+                                                                                        Integer.parseInt(maxAttendees.getText().toString()),
+                                                                                        geolocationRequirement.isChecked(),
+                                                                                        posterUrl,
+                                                                                        deviceId // Add the device ID here
+                                                                                );
 
-                                                                    // Save new event to FireStore under the events collection. Name it by the event name
-                                                                    FirebaseFirestore.getInstance().collection("events").document(eventName.getText().toString())
-                                                                            .set(newEvent)
-                                                                            .addOnSuccessListener(documentReference -> {
-                                                                                Intent intent = new Intent(AddEvent.this, CreateQR.class);
-                                                                                intent.putExtra("Event Name", eventName.getText().toString());
-                                                                                startActivity(intent);
-                                                                            })
-                                                                            .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
-                                                                }
-                                                            });
-                                                })
-                                        ).addOnFailureListener(e -> {
-                                            Log.w(TAG, "Image upload failed", e);
-                                            Toast.makeText(AddEvent.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
-                                        });
+                                                                                // Save new event to FireStore under the events collection. Name it by the event name
+                                                                                FirebaseFirestore.getInstance().collection("events").document(eventName.getText().toString())
+                                                                                        .set(newEvent)
+                                                                                        .addOnSuccessListener(documentReference -> {
+                                                                                            Intent intent = new Intent(AddEvent.this, CreateQR.class);
+                                                                                            intent.putExtra("Event Name", eventName.getText().toString());
+                                                                                            startActivity(intent);
+                                                                                        })
+                                                                                        .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
+                                                                            }
+                                                                        });
+                                                            })
+                                                    ).addOnFailureListener(e -> {
+                                                        Log.w(TAG, "Image upload failed", e);
+                                                        Toast.makeText(AddEvent.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                                                    });
+                                        })
+                                        .setNegativeButton("No", (dialog, which) -> {
+                                            // Dismiss the dialog if the user cancels
+                                            dialog.dismiss();
+                                            dismissProgressDialog();
+                                        })
+                                        .show();
                             } else {
                                 Log.e("FirebaseInstallations", "Unable to get device ID", task.getException());
                             }
@@ -214,7 +233,6 @@ public class AddEvent extends AppCompatActivity {
 
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
-
 
     private void showImagePickerDialog() {
         String[] options = {"Take Photo", "Choose from Gallery"};
@@ -380,6 +398,32 @@ public class AddEvent extends AppCompatActivity {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    private void showProgressDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View customLayout = getLayoutInflater().inflate(R.layout.dialog_progress_bar, null);
+        builder.setView(customLayout);
+        builder.setCancelable(false);
+
+        // Create and show the dialog
+        progressDialog = builder.create();
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        // Ensure the dialog appears as a square
+        progressDialog.setOnShowListener(dialog -> {
+            if (progressDialog.getWindow() != null) {
+                progressDialog.getWindow().setLayout(400, 400); // Set width and height to match layout
+            }
+        });
+
+        progressDialog.show();
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
         }
     }
 }
