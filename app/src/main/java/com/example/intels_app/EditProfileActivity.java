@@ -178,7 +178,9 @@ public class EditProfileActivity extends AppCompatActivity {
                                                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                                         Log.d(TAG, "New profile picture uploaded successfully");
 
-                                                        FirebaseStorage.getInstance().getReference().child("profile_pics").child(imageHash).getDownloadUrl()
+                                                        FirebaseStorage.getInstance().getReference()
+                                                                .child("profile_pics")
+                                                                .child(imageHash).getDownloadUrl()
                                                                 .addOnSuccessListener(new OnSuccessListener<Uri>() {
                                                                     @Override
                                                                     public void onSuccess(Uri uri) {

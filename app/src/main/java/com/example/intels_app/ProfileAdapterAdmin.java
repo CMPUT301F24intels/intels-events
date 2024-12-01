@@ -110,7 +110,7 @@ public class ProfileAdapterAdmin extends BaseAdapter {
 
         convertView.setOnClickListener(v -> {
             Intent intent = new Intent(context, ProfileDetailsAdmin.class);
-            intent.putExtra("profileId", profiles.get(position).getName());
+            intent.putExtra("deviceId", profiles.get(position).getDeviceId());
             context.startActivity(intent);
         });
 

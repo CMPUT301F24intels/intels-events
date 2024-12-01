@@ -40,21 +40,21 @@ public class ProfileDetailsAdmin extends AppCompatActivity {
     private ImageButton back_button;
     private Button delete_pfp_button;
     private FirebaseFirestore db;
-    private String profileId;
+    private String deviceId;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_details_admin);
 
-        profileId = getIntent().getStringExtra("profileId");
+        deviceId = getIntent().getStringExtra("deviceId");
 
-        if (profileId == null) {
+        if (deviceId == null) {
             Log.e(TAG, "Profile ID is missing");
             finish();
             return;
         }
 
-        FirebaseFirestore.getInstance().collection("profiles").document(profileId).get()
+        FirebaseFirestore.getInstance().collection("profiles").document(deviceId).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -86,7 +86,7 @@ public class ProfileDetailsAdmin extends AppCompatActivity {
                                     public void onSuccess(Void unused) {
 
                                         // Remove pfp URL from profile details
-                                        FirebaseFirestore.getInstance().collection("profiles").document(profileId)
+                                        FirebaseFirestore.getInstance().collection("profiles").document(deviceId)
                                                 .update("imageUrl", null)
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
@@ -118,7 +118,7 @@ public class ProfileDetailsAdmin extends AppCompatActivity {
 
     }
     private void loadProfileDetails(){
-        DocumentReference documentRef = db.collection("profiles").document(profileId);
+        DocumentReference documentRef = db.collection("profiles").document(deviceId);
         documentRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 Profile profile = documentSnapshot.toObject(Profile.class);
