@@ -43,7 +43,7 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
 
     private Button entrant_button, organizer_button;
     private CustomAdapterOrganizer adapter;
-    private List<Event> eventData;
+    private ArrayList<Event> eventData;
     private Dialog progressDialog;
 
     @Override
@@ -64,7 +64,11 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
         // Initialize the GridView and set the adapter
         GridView gridView = findViewById(R.id.grid_view);
         eventData = new ArrayList<>();
-        adapter = new CustomAdapterOrganizer(this, eventData);
+        adapter = new CustomAdapterOrganizer(this, eventData, position -> {
+            Intent intent = new Intent(EventGridOrganizerActivity.this, EntrantInWaitlist.class);
+            intent.putExtra("eventName", eventData.get(position).getEventName());
+            startActivity(intent);
+        });
         gridView.setAdapter(adapter);
 
         /*List<Event> eventData = new ArrayList<>();

@@ -34,23 +34,42 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CustomAdapterOrganizer extends BaseAdapter {
     private Context context;
-    private List<Event> data;
+    private ArrayList<Event> eventData;
+    private ArrayList<Facility> facilityData;
+    private CustomAdapterOrganizer.OnEventClickListener listener;
+    private boolean isEventAdapter; // To differentiate between Event and Facility types
+    Event event;
+    Facility facility;
 
-    public CustomAdapterOrganizer(Context context, List<Event> data) {
+    // Define the interface inside the adapter
+    public interface OnEventClickListener {
+        void onEventClick(int position);
+    }
+
+    public CustomAdapterOrganizer(Context context, ArrayList<Event> data, CustomAdapterOrganizer.OnEventClickListener listener) {
         this.context = context;
-        this.data = data;
+        this.eventData = data;
+        this.listener = listener;
+        this.isEventAdapter = true;
+    }
+
+    public CustomAdapterOrganizer(Context context, ArrayList<Facility> data) {
+        this.context = context;
+        this.facilityData = data;
+        this.isEventAdapter = false;
     }
 
     public int getCount() {
-        return data.size();
+        return eventData.size();
     }
 
     public Object getItem(int position) {
-        return data.get(position);
+        return eventData.get(position);
     }
 
     public long getItemId(int position) {
@@ -59,22 +78,38 @@ public class CustomAdapterOrganizer extends BaseAdapter {
 
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.grid_item_manage_event, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.grid_item_organizer, parent, false);
         }
 
-        Event currentEvent = data.get(position);
+        // Populate the view based on the data type
+        if (isEventAdapter && eventData != null) {
 
-        TextView eventText = convertView.findViewById(R.id.event_text);
-        eventText.setText(currentEvent.getEventName());// Populate each item’s text
+            Event currentEvent = eventData.get(position);
 
-        ImageView infoButton = convertView.findViewById(R.id.infoButton);
-        infoButton.setVisibility(View.INVISIBLE);
+            TextView eventText = convertView.findViewById(R.id.event_text);
+            eventText.setText(currentEvent.getEventName());// Populate each item’s text
 
-        convertView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, EntrantInWaitlist.class);
-            intent.putExtra("eventName", data.get(position).getEventName());
-            context.startActivity(intent);
-        });
+            convertView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onEventClick(position);
+                }
+            });
+
+        } else if (!isEventAdapter && facilityData != null) {
+
+            // Set the text for each item
+            TextView facilityText = convertView.findViewById(R.id.event_text);
+            facilityText.setText(facilityData.get(position).getFacilityName()); // Populate each item’s text
+
+            ImageView infoButton = convertView.findViewById(R.id.infoButton);
+            infoButton.setVisibility(View.INVISIBLE);
+
+            convertView.setOnClickListener(v -> {
+                Intent intent = new Intent(context, FacilityDetailsAdmin.class);
+                intent.putExtra("deviceId", facilityData.get(position).getDeviceId());
+                context.startActivity(intent);
+            });
+        }
 
         return convertView;
     }

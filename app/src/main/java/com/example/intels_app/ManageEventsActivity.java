@@ -40,7 +40,7 @@ import java.util.ArrayList;
 
 public class ManageEventsActivity extends AppCompatActivity {
     ArrayList<Event> eventData;
-    CustomAdapterManageEvents adapter;
+    CustomAdapterOrganizer adapter;
     private Dialog progressDialog;
 
     @Override
@@ -64,7 +64,7 @@ public class ManageEventsActivity extends AppCompatActivity {
         GridView gridview = findViewById(R.id.gridViewEvents);
         eventData = new ArrayList<>();
 
-        adapter = new CustomAdapterManageEvents(this, eventData, position -> {
+        adapter = new CustomAdapterOrganizer(this, eventData, position -> {
             Intent intent = new Intent(ManageEventsActivity.this, EventDetailsOrganizer.class);
             intent.putExtra("Event Name", eventData.get(position).getEventName());
             startActivity(intent);

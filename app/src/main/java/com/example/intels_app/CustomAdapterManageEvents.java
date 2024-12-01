@@ -130,8 +130,23 @@ public class CustomAdapterManageEvents extends BaseAdapter {
             eventText.setText(eventData.get(position).getEventName());
 
             // Set up info button functionality for Event
-            ImageView infoButton = convertView.findViewById(R.id.infoButton);
-            infoButton.setVisibility(View.INVISIBLE);
+            ImageButton deleteButton = convertView.findViewById(R.id.infoButton);
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new AlertDialog.Builder(context)
+                            .setTitle("Confirm Deletion")
+                            .setMessage("Are you sure you want to delete this event?")
+                            .setPositiveButton("Yes", (dialog, which) -> {
+                                deleteEvent(position);
+                            })
+                            .setNegativeButton("No", (dialog, which) -> {
+                                // Dismiss the dialog if the user cancels
+                                dialog.dismiss();
+                            })
+                            .show();
+                }
+            });
 
             // Set click listener for the event item
             convertView.setOnClickListener(v -> {
@@ -146,8 +161,23 @@ public class CustomAdapterManageEvents extends BaseAdapter {
             TextView facilityText = convertView.findViewById(R.id.event_text);
             facilityText.setText(facilityData.get(position).getFacilityName()); // Populate each item’s text
 
-            ImageButton infoButton = convertView.findViewById(R.id.infoButton);
-            infoButton.setVisibility(View.INVISIBLE);
+            ImageButton deleteButton = convertView.findViewById(R.id.infoButton);
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new AlertDialog.Builder(context)
+                            .setTitle("Confirm Deletion")
+                            .setMessage("Are you sure you want to delete this facility?")
+                            .setPositiveButton("Yes", (dialog, which) -> {
+                                deleteFacility(position);
+                            })
+                            .setNegativeButton("No", (dialog, which) -> {
+                                // Dismiss the dialog if the user cancels
+                                dialog.dismiss();
+                            })
+                            .show();
+                }
+            });
 
             convertView.setOnClickListener(v -> {
                 Intent intent = new Intent(context, FacilityDetailsAdmin.class);
