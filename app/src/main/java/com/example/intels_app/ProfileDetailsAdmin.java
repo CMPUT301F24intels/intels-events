@@ -41,6 +41,12 @@ public class ProfileDetailsAdmin extends AppCompatActivity {
     private Button delete_pfp_button;
     private FirebaseFirestore db;
     private String deviceId;
+
+    /**
+     * Called when the activity is first created.
+     * Sets up the UI, retrieves profile details, and adds functionality to UI elements.
+     * @param savedInstanceState saved state of the activity
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,6 +124,9 @@ public class ProfileDetailsAdmin extends AppCompatActivity {
 
     }
 
+    /**
+     * Loads the profile details from Firestore and populates the UI elements with the retrieved information.
+     */
     private void loadProfileDetails(){
         DocumentReference documentRef = db.collection("profiles").document(deviceId);
         documentRef.get().addOnSuccessListener(documentSnapshot -> {

@@ -34,12 +34,23 @@ public class SelectedEntrantAdapter extends RecyclerView.Adapter<SelectedEntrant
     private List<Profile> entrantsFull; // Original full list for filtering
     private Filter entrantFilter;
 
+    /**
+     * Constructs a SelectedEntrantAdapter with the given context and list of entrants.
+     * @param context  The context of the calling activity.
+     * @param entrants The list of entrants to be displayed.
+     */
     public SelectedEntrantAdapter(Context context, List<Profile> entrants) {
         this.context = context;
         this.entrants = entrants;
         this.entrantsFull = new ArrayList<>(entrants); // Copy of the full list for filtering
     }
 
+    /**
+     * Inflates the item view layout for each entrant in the RecyclerView.
+     * @param parent   The parent ViewGroup.
+     * @param viewType The type of view to create (not used here).
+     * @return An instance of EntrantViewHolder containing the inflated view.
+     */
     @NonNull
     @Override
     public EntrantViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -48,6 +59,11 @@ public class SelectedEntrantAdapter extends RecyclerView.Adapter<SelectedEntrant
         return new EntrantViewHolder(view);
     }
 
+    /**
+     * Binds data to each view holder, including setting the entrant name and loading the profile image.
+     * @param holder   The view holder that should be updated.
+     * @param position The position of the item within the adapter's data set.
+     */
     @Override
     public void onBindViewHolder(@NonNull EntrantViewHolder holder, int position) {
         Profile profile = entrants.get(position);
@@ -83,6 +99,10 @@ public class SelectedEntrantAdapter extends RecyclerView.Adapter<SelectedEntrant
         });
     }
 
+    /**
+     * Returns the total count of items in the adapter.
+     * @return The size of the entrants list.
+     */
     @Override
     public int getItemCount() {
         return entrants.size();

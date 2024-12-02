@@ -35,6 +35,11 @@ public class SelectedEntrantActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private String eventName;
 
+    /**
+     * Called when the activity is first created. Initializes the layout, Firestore instance,
+     * RecyclerView, and starts loading the selected entrants.
+     * @param savedInstanceState A Bundle containing the activity's previously saved state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +78,11 @@ public class SelectedEntrantActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads the selected entrants from Firestore.
+     * Queries the "selected_entrants" collection for the specified event and retrieves their profiles.
+     * Updates the RecyclerView with the retrieved data.
+     */
     private void loadSelectedEntrants() {
         db.collection("selected_entrants")
                 .whereEqualTo("eventName", eventName)

@@ -27,27 +27,53 @@ public class ProfileIBadapter extends BaseAdapter {
     private Context context;
     private LayoutInflater layoutInflater;
 
+    /**
+     * Constructor for ProfileIBadapter.
+     * @param dataClassArrayList ArrayList of DataClass objects that contain data for each item in the GridView.
+     * @param context            Context of the activity using this adapter.
+     */
     public ProfileIBadapter(ArrayList<DataClass> dataClassArrayList, Context context) {
         this.dataClassArrayList = dataClassArrayList;
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
     }
 
+    /**
+     * Returns the number of items in the adapter.
+     * @return Number of items in the dataClassArrayList.
+     */
     @Override
     public int getCount() {
         return dataClassArrayList.size();
     }
 
+    /**
+     * Returns the item at a specified position.
+     * @param position Position of the item to return.
+     * @return The DataClass object at the given position.
+     */
     @Override
     public Object getItem(int position) {
         return dataClassArrayList.get(position);
     }
 
+    /**
+     * Returns the row ID associated with the specified position.
+     * @param position Position of the item whose ID is needed.
+     * @return The position itself, used as the ID.
+     */
     @Override
     public long getItemId(int position) {
         return position;
     }
 
+    /**
+     * Creates and returns a view for each item in the data set.
+     * @param position    The position of the item within the data set.
+     * @param convertView The old view to reuse, if possible.
+     * @param parent      The parent that this view will eventually be attached to.
+     * @return The created view with the data bound to it.
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
@@ -68,6 +94,9 @@ public class ProfileIBadapter extends BaseAdapter {
         return convertView;
     }
 
+    /**
+     * ViewHolder class to improve performance by avoiding repeated calls to findViewById.
+     */
     private static class ViewHolder {
         ImageView gridImage;
     }
