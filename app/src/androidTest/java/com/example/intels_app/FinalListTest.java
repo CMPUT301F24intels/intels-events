@@ -19,10 +19,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-public class AdminEventsTest {
+public class FinalListTest {
     @Rule
-    public ActivityScenarioRule<AdminEvents> activityRule = new
-            ActivityScenarioRule<AdminEvents>(AdminEvents.class);
+    public ActivityScenarioRule<FinalList> activityRule = new
+            ActivityScenarioRule<FinalList>(FinalList.class);
     @Before
     public void setUp() {
         Intents.init();
@@ -33,9 +33,14 @@ public class AdminEventsTest {
         Intents.release();
     }
     @Test
+    public void testInitialUIElementsDisplayed() {
+        // Verify that the grid view and buttons are displayed
+        onView(withId(R.id.back_button)).check(matches(isDisplayed()));
+    }
+    @Test
     public void testBackButton() {
         onView(withId(R.id.back_button)).perform(click());
-        intended(hasComponent(MainActivity.class.getName()));
+        intended(hasComponent(EntrantInWaitlist.class.getName()));
     }
 
 }
