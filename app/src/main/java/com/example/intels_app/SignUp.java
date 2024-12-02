@@ -81,6 +81,11 @@ public class SignUp extends AppCompatActivity {
     private byte[] imageData;
 
 
+    /**
+     * onCreate is called when the activity is first created.
+     * Initializes Firestore, storage, and UI components and sets up event listeners.
+     * @param savedInstanceState Bundle contains the most recent data.
+     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sign_up);
@@ -125,6 +130,10 @@ public class SignUp extends AppCompatActivity {
         register_button.setOnClickListener(view -> registerUser());
     }
 
+    /**
+     * Registers a new user with the provided information and uploads their profile picture.
+     * If registration is successful, adds the user to the waitlist collection.
+     */
     private void registerUser() {
         String userName = name.getText().toString();
         String userEmail = email.getText().toString();
@@ -170,6 +179,10 @@ public class SignUp extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Shows an image picker dialog allowing the user to take a photo, choose from gallery,
+     * or generate a profile picture with initials.
+     */
     private void showImagePickerDialog() {
         String[] options = {"Take Photo", "Choose from Gallery", "Generate with Initials"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -200,6 +213,10 @@ public class SignUp extends AppCompatActivity {
         builder.show();
     }
 
+    /**
+     * Checks and requests permissions for accessing the camera and external storage.
+     * @return True if permissions are granted, otherwise false.
+     */
     private boolean checkAndRequestPermissions() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -209,6 +226,12 @@ public class SignUp extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Handles the result of a permission request.
+     * @param requestCode  The request code passed in requestPermissions.
+     * @param permissions  The requested permissions.
+     * @param grantResults The results for the requested permissions.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -225,16 +248,27 @@ public class SignUp extends AppCompatActivity {
         }
     }
 
+    /**
+     * Opens the camera to take a picture.
+     */
     private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
     }
 
+    /**
+     * Opens the gallery to choose an existing picture.
+     */
     private void openGallery() {
         Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK);
     }
 
+    /**
+     * Generates a profile picture bitmap with the initials of the user's name.
+     * @param name The name of the user to generate initials.
+     * @return The generated bitmap.
+     */
     private Bitmap generateProfilePicture(String name) {
         String initials = name.length() >= 2 ? name.substring(0, 2).toUpperCase() : name.substring(0, 1).toUpperCase();
 
@@ -262,6 +296,12 @@ public class SignUp extends AppCompatActivity {
         return bitmap;
     }
 
+    /**
+     * Handles the result of activities for capturing or selecting images.
+     * @param requestCode The integer request code originally supplied.
+     * @param resultCode  The integer result code returned by the child activity.
+     * @param data        The data returned by the child activity.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -290,12 +330,22 @@ public class SignUp extends AppCompatActivity {
         }
     }
 
+    /**
+     * Converts a bitmap image to a byte array.
+     * @param bitmap The bitmap to convert.
+     * @return The byte array representing the bitmap.
+     */
     private byte[] bitmapToByteArray(Bitmap bitmap) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         return baos.toByteArray();
     }
 
+    /**
+     * Hashes the provided image data using SHA-256.
+     * @param imageData The byte array representing the image data.
+     * @return The hexadecimal string representation of the hash.
+     */
     public static String hashImage(byte[] imageData) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -316,6 +366,11 @@ public class SignUp extends AppCompatActivity {
         }
     }
 
+    /**
+     * Adds the created profile to the waitlisted entrants collection in Firestore.
+     * @param profile   The profile object representing the user.
+     * @param eventName The name of the event the user is joining.
+     */
     private void addToWaitlistedEntrants(Profile profile, String eventName) {
         CollectionReference waitlistRef = db.collection("waitlisted_entrants");
 
@@ -345,6 +400,11 @@ public class SignUp extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Returns the created profile back to the calling activity.
+     * @param profile   The profile object that has been created.
+     * @param eventName The name of the event.
+     */
     private void returnCreatedProfile(Profile profile, String eventName) {
         Intent resultIntent = new Intent();
         resultIntent.putExtra("deviceId", profile.getDeviceId());
@@ -353,8 +413,13 @@ public class SignUp extends AppCompatActivity {
         resultIntent.putExtra("phoneNumber", profile.getPhone_number());
         resultIntent.putExtra("profilePicUrl", profile.getImageUrl());
         resultIntent.putExtra("eventName", eventName);
-        setResult(RESULT_OK, resultIntent);
-        finish(); // Close SignUp activity
-    }
 
+        if (getIntent().hasExtra("latitude") && getIntent().hasExtra("longitude")) {
+            resultIntent.putExtra("latitude", getIntent().getDoubleExtra("latitude", 0.0));
+            resultIntent.putExtra("longitude", getIntent().getDoubleExtra("longitude", 0.0));
+        }
+
+        setResult(RESULT_OK, resultIntent);
+        finish();
+    }
 }

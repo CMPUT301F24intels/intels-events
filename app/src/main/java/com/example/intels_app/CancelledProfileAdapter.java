@@ -1,11 +1,3 @@
-/**
- * CancelledProfileAdapter is a custom adapter for managing and displaying a list of profiles
- * that belong to cancelled entrants. It includes a delete button to remove entrants from the list
- * and from Firestore.
- *
- * @author Katrina Alejo
- */
-
 package com.example.intels_app;
 
 import android.app.AlertDialog;
@@ -23,8 +15,20 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
+/**
+ * CancelledProfileAdapter is a custom adapter for managing and displaying a list of profiles
+ * that belong to cancelled entrants. It includes a delete button to remove entrants from the list
+ * and from Firestore.
+ * @author Katrina Alejo
+ */
+
 public class CancelledProfileAdapter extends ProfileAdapter {
 
+    /**
+     * Constructor
+     * @param context Context of the current state of the application
+     * @param profileList List of Profile objects to be used by the adapter
+     */
     public CancelledProfileAdapter(Context context, List<Profile> profileList) {
         super(context, profileList);
     }

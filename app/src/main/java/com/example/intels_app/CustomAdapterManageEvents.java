@@ -1,36 +1,36 @@
-/**
- * Takes a list of events and inflates it into the gridview
- * @author Janan Panchal
- * @see com.example.intels_app.EventDetailsOrganizer Event details page for event just created
- */
 package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
-
-import static androidx.core.content.ContextCompat.startActivity;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.appcompat.widget.TooltipCompat;
 
-import com.example.intels_app.EventDetailsOrganizer;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Takes a list of events and inflates it into the gridview
+ * @author Janan Panchal
+ * @see com.example.intels_app.EventDetailsOrganizer Event details page for event just created
+ */
 
 public class CustomAdapterManageEvents extends BaseAdapter {
     private Context context;
@@ -130,22 +130,23 @@ public class CustomAdapterManageEvents extends BaseAdapter {
             TextView eventText = convertView.findViewById(R.id.event_text);
             eventText.setText(eventData.get(position).getEventName());
 
-            // Set up delete button functionality for Event
-            ImageButton deleteButton = convertView.findViewById(R.id.deleteButton);
-            deleteButton.setOnClickListener(v -> {
-                new AlertDialog.Builder(context)
-                        .setTitle("Confirm Deletion")
-                        .setMessage("Are you sure you want to delete this event?")
-                        .setPositiveButton("Yes", (dialog, which) -> {
-                            // Delete event-related operations
-                            Log.d(TAG, "User confirmed deletion");
-                            deleteEvent(position);
-                        })
-                        .setNegativeButton("No", (dialog, which) -> {
-                            // Dismiss the dialog if the user cancels
-                            dialog.dismiss();
-                        })
-                        .show();
+            // Set up info button functionality for Event
+            ImageButton deleteButton = convertView.findViewById(R.id.infoButton);
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new AlertDialog.Builder(context)
+                            .setTitle("Confirm Deletion")
+                            .setMessage("Are you sure you want to delete this event?")
+                            .setPositiveButton("Yes", (dialog, which) -> {
+                                deleteEvent(position);
+                            })
+                            .setNegativeButton("No", (dialog, which) -> {
+                                // Dismiss the dialog if the user cancels
+                                dialog.dismiss();
+                            })
+                            .show();
+                }
             });
 
             // Set click listener for the event item
@@ -161,21 +162,22 @@ public class CustomAdapterManageEvents extends BaseAdapter {
             TextView facilityText = convertView.findViewById(R.id.event_text);
             facilityText.setText(facilityData.get(position).getFacilityName()); // Populate each item’s text
 
-            // Set up delete button functionality for Facility
-            ImageButton deleteButton = convertView.findViewById(R.id.deleteButton);
-            deleteButton.setOnClickListener(v -> {
-                new AlertDialog.Builder(context)
-                        .setTitle("Confirm Deletion")
-                        .setMessage("Are you sure you want to delete this facility?")
-                        .setPositiveButton("Yes", (dialog, which) -> {
-                            // Delete event-related operations
-                            deleteFacility(position);
-                        })
-                        .setNegativeButton("No", (dialog, which) -> {
-                            // Dismiss the dialog if the user cancels
-                            dialog.dismiss();
-                        })
-                        .show();
+            ImageButton deleteButton = convertView.findViewById(R.id.infoButton);
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new AlertDialog.Builder(context)
+                            .setTitle("Confirm Deletion")
+                            .setMessage("Are you sure you want to delete this facility?")
+                            .setPositiveButton("Yes", (dialog, which) -> {
+                                deleteFacility(position);
+                            })
+                            .setNegativeButton("No", (dialog, which) -> {
+                                // Dismiss the dialog if the user cancels
+                                dialog.dismiss();
+                            })
+                            .show();
+                }
             });
 
             convertView.setOnClickListener(v -> {
@@ -188,7 +190,12 @@ public class CustomAdapterManageEvents extends BaseAdapter {
         return convertView;
     }
 
-    // Method to delete event data from Firestore and Storage
+    /**
+     * Deletes an event from Firestore and Firebase Storage.
+     * This method removes the event document from the "events" collection in Firestore and deletes
+     * associated images (poster and QR code) from Firebase Storage and adapter's data set.
+     * @param position The position of the event in the adapter's data list.
+     */
     private void deleteEvent(int position) {
         Log.d(TAG, "Deleting event: " + eventData.get(position).getEventName());
         String eventToDelete = eventData.get(position).getEventName();
@@ -235,7 +242,13 @@ public class CustomAdapterManageEvents extends BaseAdapter {
                 .addOnFailureListener(e -> Log.w(TAG, "Failed to fetch event details for deletion", e));
     }
 
-    // Method to delete facility data from FireStore and Storage
+    /**
+     * Deletes a facility and its related events from Firestore and Firebase Storage.
+     * This method removes the facility document from the "facilities" collection in Firestore,
+     * deletes the associated facility image from Firebase Storage, and deletes all events
+     * under that facility from the "events" collection in Firestore.
+     * @param position The position of the facility in the adapter's data list.
+     */
     private void deleteFacility(int position) {
         FirebaseFirestore.getInstance().collection("facilities")
                 .document(facilityData.get(position).getDeviceId())
@@ -251,6 +264,14 @@ public class CustomAdapterManageEvents extends BaseAdapter {
                                     .addOnSuccessListener(unused -> Log.d(TAG, "Image successfully deleted."))
                                     .addOnFailureListener(e -> Log.w(TAG, "Failed to delete image.", e));
                         }
+
+                        // Delete all events under that facility
+                        FirebaseFirestore.getInstance().collection("events").whereEqualTo("facilityName", facility.getFacilityName()).get()
+                                .addOnSuccessListener(queryDocumentSnapshots -> {
+                                    for (DocumentSnapshot document : queryDocumentSnapshots) {
+                                        document.getReference().delete();
+                                    }
+                                });
 
                         // Delete facility from Firestore
                         FirebaseFirestore.getInstance().collection("facilities")

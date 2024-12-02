@@ -1,12 +1,3 @@
-/**
- * This class allows users to edit their profile information, including name,
- * email, phone number, and profile picture. The activity provides options
- * for capturing or selecting a profile picture, input validation based on set
- * parameters, and saving profile changes.
- * @author Dhanshri Patel
- * @see com.example.intels_app.MainActivity Main screen of app
- */
-
 package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
@@ -47,8 +38,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
 import java.util.Random;
-
+/**
+ * This class allows users to edit their profile information, including name,
+ * email, phone number, and profile picture. The activity provides options
+ * for capturing or selecting a profile picture, input validation based on set
+ * parameters, and saving profile changes.
+ * @author Dhanshri Patel
+ * @see com.example.intels_app.MainActivity Main screen of app
+ */
 public class EditProfileActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_IMAGE_PICK = 2;
@@ -69,6 +68,11 @@ public class EditProfileActivity extends AppCompatActivity {
     private byte[] imageData;
     private boolean imageUploaded;
 
+    /**
+     * Initializes the UI components, loads the existing profile data from Firestore,
+     * and sets up click listeners for buttons.
+     * @param savedInstanceState contains the data it most recently supplied in {@link #onSaveInstanceState}.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,6 +112,9 @@ public class EditProfileActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads the current profile details from Firestore and populates the UI components.
+     */
     private void loadProfileDetails(){
         FirebaseFirestore.getInstance()
                 .collection("profiles")
@@ -147,6 +154,10 @@ public class EditProfileActivity extends AppCompatActivity {
                         Log.w(TAG, "Error getting document", e));
     }
 
+    /**
+     * Saves the updated profile details including name, email, phone number, and optionally, the profile picture.
+     * Updates Firestore with the new profile information.
+     */
     private void saveProfileChanges() {
         SwitchCompat notificationSwitch = findViewById(R.id.notification_switch);
         boolean updatedNotifPref = notificationSwitch.isChecked();
@@ -177,7 +188,9 @@ public class EditProfileActivity extends AppCompatActivity {
                                                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                                         Log.d(TAG, "New profile picture uploaded successfully");
 
-                                                        FirebaseStorage.getInstance().getReference().child("profile_pics").child(imageHash).getDownloadUrl()
+                                                        FirebaseStorage.getInstance().getReference()
+                                                                .child("profile_pics")
+                                                                .child(imageHash).getDownloadUrl()
                                                                 .addOnSuccessListener(new OnSuccessListener<Uri>() {
                                                                     @Override
                                                                     public void onSuccess(Uri uri) {
@@ -198,6 +211,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                                                                 .set(profile)
                                                                                 .addOnSuccessListener(documentReference -> {
                                                                                     Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
+                                                                                    updateWaitlistedEntrants(updatedNotifPref);
                                                                                     finish();
                                                                                 })
                                                                                 .addOnFailureListener(e -> {
@@ -238,6 +252,7 @@ public class EditProfileActivity extends AppCompatActivity {
                                 .set(profile)
                                 .addOnSuccessListener(documentReference -> {
                                     Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
+                                    updateWaitlistedEntrants(updatedNotifPref);
                                     finish();
                                 })
                                 .addOnFailureListener(e -> {
@@ -248,6 +263,10 @@ public class EditProfileActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Opens a dialog to allow the user to select a new profile picture, either by taking a photo,
+     * selecting from the gallery, or generating an image with initials.
+     */
     private void showImagePickerDialog() {
         String[] options = {"Take Photo", "Choose from Gallery", "Remove Profile Picture"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -277,6 +296,11 @@ public class EditProfileActivity extends AppCompatActivity {
         builder.show();
     }
 
+    /**
+     * Checks if the required permissions (Camera and Storage) are granted.
+     * Requests permissions if they are not already granted.
+     * @return true if all required permissions are granted, false otherwise.
+     */
     private boolean checkAndRequestPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -286,6 +310,12 @@ public class EditProfileActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Handles result of permission request.
+     * @param requestCode  The request code passed in {@link #requestPermissions}.
+     * @param permissions  The requested permissions.
+     * @param grantResults The grant results for the corresponding permissions.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -302,18 +332,28 @@ public class EditProfileActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Opens the device camera for profile picture.
+     */
     private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
-        }
+        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
     }
 
+    /**
+     * Opens the device's gallery for profile picture.
+     */
     private void openGallery() {
         Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK);
     }
 
+    /**
+     * Handles the result of activities such as image capture or gallery selection.
+     * @param requestCode  The request code identifying which activity is returning data.
+     * @param resultCode   The result code returned by the child activity.
+     * @param data         An Intent containing the data from the activity.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -343,6 +383,12 @@ public class EditProfileActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Generates a profile picture bitmap containing the initials of the user's name.
+     * Randomly assigns a background color.
+     * @param email The name to generate initials from.
+     * @return A Bitmap representing the generated profile picture.
+     */
     private Bitmap generateProfilePicture(String email) {
         String initials = email.length() >= 2 ? email.substring(0, 2).toUpperCase() : email.substring(0, 1).toUpperCase();
 
@@ -370,12 +416,22 @@ public class EditProfileActivity extends AppCompatActivity {
         return bitmap;
     }
 
+    /**
+     * Converts the given Bitmap to a byte array for storage.
+     * @param bitmap The Bitmap to convert.
+     * @return A byte array representation of the Bitmap.
+     */
     private byte[] bitmapToByteArray(Bitmap bitmap) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         return baos.toByteArray();
     }
 
+    /**
+     * Hashes the given byte array using SHA-256 for use in naming the profile picture in Firebase Storage.
+     * @param imageData The byte array of the image.
+     * @return A hash string of the image.
+     */
     public static String hashImage(byte[] imageData) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -394,6 +450,36 @@ public class EditProfileActivity extends AppCompatActivity {
             e.printStackTrace();
             return null;
         }
+    }
+
+    /**
+     * Updates the notification preferences in all entries under the `waitlisted_entrants` collection
+     * that match the user's profile.
+     * @param updatedNotifPref The updated notification preference.
+     */
+    private void updateWaitlistedEntrants(boolean updatedNotifPref) {
+        db.collection("waitlisted_entrants")
+                .whereEqualTo("profile.name", name.getText().toString()) // Assuming "profile.name" matches the profile's name
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments()) {
+                            Map<String, Object> profileMap = (Map<String, Object>) documentSnapshot.get("profile");
+                            if (profileMap != null) {
+                                profileMap.put("notifPref", updatedNotifPref);
+
+                                db.collection("waitlisted_entrants")
+                                        .document(documentSnapshot.getId())
+                                        .update("profile", profileMap)
+                                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Updated notifPref in waitlisted_entrants successfully"))
+                                        .addOnFailureListener(e -> Log.w(TAG, "Failed to update notifPref in waitlisted_entrants", e));
+                            }
+                        }
+                    } else {
+                        Log.d(TAG, "No matching documents found in waitlisted_entrants for profile name: " + name.getText().toString());
+                    }
+                })
+                .addOnFailureListener(e -> Log.w(TAG, "Error fetching waitlisted_entrants", e));
     }
 }
 

@@ -45,7 +45,7 @@ public class ManageFacilityTest {
     @Test
     public void testbackButton(){
         onView(withId(R.id.back_button)).perform(click());
-        intended(hasComponent(MainActivity.class.getName()));
+        intended(hasComponent(ManageEventsActivity.class.getName()));
     }
 
 }

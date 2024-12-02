@@ -1,13 +1,3 @@
-/**
- * This adapter is a custom adapter extending BaseAdapter and  is used to populate
- * the entrant gridview under View My Waitlist with Event objects to display the
- * events the entrant has joined the waitlist for. The event manages event deletion
- * for the user to leave the waitlist and provides a toggle switch for the entrant
- * to be considered for reselection in draw.
- * @author Aayushi Shah
- * @see com.example.intels_app.Event Event object
- */
-
 package com.example.intels_app;
 
 import android.app.AlertDialog;
@@ -30,33 +20,71 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 import java.util.Map;
+/**
+ * This adapter is a custom adapter extending BaseAdapter and  is used to populate
+ * the entrant gridview under View My Waitlist with Event objects to display the
+ * events the entrant has joined the waitlist for. The event manages event deletion
+ * for the user to leave the waitlist and provides a toggle switch for the entrant
+ * to be considered for reselection in draw.
+ * @author Aayushi Shah
+ * @see com.example.intels_app.Event Event object
+ */
 
 public class CustomAdapterEntrant extends BaseAdapter {
     private Context context;
     private List<Event> data;
     private String deviceId;
 
+    /**
+     * Constructor for CustomAdapterEntrant.
+     * @param context The context in which the adapter will be used.
+     * @param data The list of Event objects to be displayed in the GridView.
+     * @param deviceId The unique device ID of the entrant.
+     */
     public CustomAdapterEntrant(Context context, List<Event> data, String deviceId) {
         this.context = context;
         this.data = data;
         this.deviceId = deviceId;
     }
 
+    /**
+     * Returns the number of items in the data set represented by the adapter.
+     * @return The number of events in the adapter.
+     */
     @Override
     public int getCount() {
         return data.size();
     }
 
+    /**
+     * Returns the Event object at the specified position in the data set.
+     * @param position The position of the item within the adapter's data set.
+     * @return The Event object at the specified position.
+     */
     @Override
     public Object getItem(int position) {
         return data.get(position);
     }
 
+    /**
+     * Returns the row ID of the specified position.
+     * @param position The position of the item within the adapter's data set.
+     * @return The row ID of the specified item.
+     */
     @Override
     public long getItemId(int position) {
         return position;
     }
 
+    /**
+     * Provides a custom view for each item in the data set, including setting event details,
+     * handling the "reconsider for draw" switch state, and allowing removal from the waitlist
+     * with Firestore updates.
+     * @param position The position of the item within the adapter's data set.
+     * @param convertView old view to reuse.
+     * @param parent The parent view that this view will eventually be attached to.
+     * @return A View corresponding to the data at the specified position.
+     */
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         if (convertView == null) {

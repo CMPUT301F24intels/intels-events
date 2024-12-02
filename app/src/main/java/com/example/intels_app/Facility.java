@@ -1,8 +1,8 @@
+package com.example.intels_app;
 /**
  * Represents a facility with its details.
  * @author Janan Panchal
  */
-package com.example.intels_app;
 
 public class Facility {
     private String facilityName;
@@ -52,59 +52,107 @@ public class Facility {
         this.deviceID = deviceID;
     }
 
-    // Getters and setters
+    /**
+     * Getter for facility name
+     */
     public String getFacilityName() {
         return facilityName;
     }
 
+    /**
+     * Setter for facility name
+     * @param facilityName Name of the facility
+     */
     public void setFacilityName(String facilityName) {
         this.facilityName = facilityName;
     }
 
+    /**
+     * Getter for location
+     */
     public String getLocation() {
         return location;
     }
 
+    /**
+     * Setter for facility location
+     * @param location location of facility
+     */
     public void setLocation(String location) {
         this.location = location;
     }
 
+    /**
+     * Getter for organizer name
+     */
     public String getOrganizerName() {
         return organizerName;
     }
 
+    /**
+     * Setter for organizer name
+     * @param organizerName organizer name
+     */
     public void setOrganizerName(String organizerName) {
         this.organizerName = organizerName;
     }
 
+    /**
+     * Getter for facility email
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     * Setter for facility email
+     * @param email facility email
+     */
     public void setEmail(String email) {
         this.email = email;
     }
 
+    /**
+     * Getter for facility phone number
+     */
     public String getTelephone() {
         return telephone;
     }
 
+    /**
+     * Setter for facility phone number
+     * @param telephone facility phone number
+     */
     public void setTelephone(String telephone) {
         this.telephone = telephone;
     }
 
+    /**
+     * Getter for Facility image
+     */
     public String getFacilityImageUrl() {
         return imageUrl;
     }
 
+    /**
+     * Setter for facility image
+     * @param posterUrl facility image
+     */
     public void setFacilityImageUrl(String posterUrl) {
         this.imageUrl = posterUrl;
     }
 
+    /**
+     * Getter for device ID
+     */
     public String getDeviceId() {
         return deviceID;
     }
 
+    /**
+     * Setter for device ID
+     * @param deviceID device ID
+     */
     public void setDeviceId(String deviceID) {
         this.deviceID = deviceID;
     }

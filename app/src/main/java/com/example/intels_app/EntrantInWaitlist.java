@@ -1,14 +1,3 @@
-/**
- * This class extends AppCompatActivity and provides a user interface to manage
- * entrants who have enrolled/joined a waitlist. This activity allows organizers
- * to view, filter, and send notifications to entrants in waitlist using a ListView
- * and search functionality.
- * @author Aayushi Shah, Katrina Alejo
- * @see com.example.intels_app.Profile Profile object
- * @see com.example.intels_app.EntrantInCancelledWaitlist Cancelled entrant information
- * @see com.example.intels_app.EventGridOrganizerActivity Organizer's gridview of events
- */
-
 package com.example.intels_app;
 
 import android.app.AlertDialog;
@@ -40,6 +29,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class extends AppCompatActivity and provides a user interface to manage
+ * entrants who have enrolled/joined a waitlist. This activity allows organizers
+ * to view, filter, and send notifications to entrants in waitlist using a ListView
+ * and search functionality.
+ * @author Aayushi Shah, Katrina Alejo
+ * @see com.example.intels_app.Profile Profile object
+ * @see com.example.intels_app.EntrantInCancelledWaitlist Cancelled entrant information
+ * @see com.example.intels_app.EventGridOrganizerActivity Organizer's gridview of events
+ */
+
 public class EntrantInWaitlist extends AppCompatActivity {
     private Button waitlist_button, cancelled_button, final_list_button, lottery_list_button, back_button;
     private ListView listView;
@@ -48,6 +48,10 @@ public class EntrantInWaitlist extends AppCompatActivity {
     private String eventName;
     private ProfileAdapter adapter;
 
+    /**
+     * Initializes the UI components, sets up event listeners, and fetches the list of waitlisted entrants.
+     * @param savedInstanceState A Bundle containing the activity's previously saved state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,7 +122,6 @@ public class EntrantInWaitlist extends AppCompatActivity {
         });
 
 
-
         final_list_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -150,6 +153,9 @@ public class EntrantInWaitlist extends AppCompatActivity {
         });
     }
 
+    /**
+     * Updates the color of the buttons to indicate the current state when returning to this activity.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -157,6 +163,11 @@ public class EntrantInWaitlist extends AppCompatActivity {
         waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.selected_color));
         cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
     }
+
+    /**
+     * Shows a custom notification dialog where the user can enter a custom message to be sent
+     * to all waitlisted entrants.
+     */
     private void showCustomNotificationDialog() {
         EditText input = new EditText(this);
         input.setHint("Enter custom notification message");
@@ -181,6 +192,10 @@ public class EntrantInWaitlist extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Sends a notification with a custom message to all eligible waitlisted entrants for the event.
+     * @param message The custom message to be sent to the waitlisted entrants.
+     */
     private void sendNotificationToEntrants(String message) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference waitlistRef = db.collection("waitlisted_entrants");
@@ -247,6 +262,13 @@ public class EntrantInWaitlist extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Sends a notification to a specific profile.
+     * @param deviceId  The device ID of the profile to receive the notification.
+     * @param profileId The ID of the profile to receive the notification.
+     * @param eventName The name of the event associated with the notification.
+     * @param message   The message to be sent to the profile.
+     */
     private void sendNotificationToProfile(String deviceId, String profileId, String eventName, String message) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -265,6 +287,10 @@ public class EntrantInWaitlist extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.e("Notification", "Error sending notification", e));
     }
 
+    /**
+     * Fetches the list of waitlisted entrants for the specified event from Firestore.
+     * Updates the ListView with the retrieved profiles.
+     */
     private void fetchEntrants() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference waitlistRef = db.collection("waitlisted_entrants");
@@ -273,23 +299,36 @@ public class EntrantInWaitlist extends AppCompatActivity {
         EntrantAdapter adapter = new EntrantAdapter(this, entrantList);
         listView.setAdapter(adapter);
 
-        waitlistRef.whereArrayContains("events", new HashMap<String, Object>() {{
-                    put("eventName", eventName);
-                }})
-                .get()
+        waitlistRef.get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         entrantList.clear(); // Clear existing data to avoid duplicates
+
                         if (task.getResult() != null && !task.getResult().isEmpty()) {
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
-                                Map<String, Object> profile = (Map<String, Object>) documentSnapshot.get("profile");
-                                if (profile != null) {
-                                    String name = (String) profile.get("name");
-                                    String imageUrl = (String) profile.get("imageUrl");
-                                    entrantList.add(new Entrant(name, imageUrl)); // Add entrant to the list
+                                List<Map<String, Object>> events = (List<Map<String, Object>>) documentSnapshot.get("events");
+                                if (events != null) {
+                                    for (Map<String, Object> event : events) {
+                                        if (eventName.equals(event.get("eventName"))) {
+                                            // If the event matches, fetch the profile
+                                            Map<String, Object> profile = (Map<String, Object>) documentSnapshot.get("profile");
+                                            if (profile != null) {
+                                                String name = (String) profile.get("name");
+                                                String imageUrl = (String) profile.get("imageUrl");
+                                                entrantList.add(new Entrant(name, imageUrl)); // Add entrant to the list
+                                                Log.d("Firestore", "Entrant added: " + name);
+                                            }
+                                            break; // No need to check further events for this document
+                                        }
+                                    }
                                 }
                             }
-                            adapter.notifyDataSetChanged(); // Refresh the ListView
+
+                            if (!entrantList.isEmpty()) {
+                                adapter.notifyDataSetChanged(); // Refresh the ListView
+                            } else {
+                                Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
+                            }
                         } else {
                             Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
                         }
@@ -299,37 +338,5 @@ public class EntrantInWaitlist extends AppCompatActivity {
                     }
                 });
     }
-
-        /*
-        waitlistRef.whereEqualTo("eventName", eventName)  // Filter by eventName
-                .addSnapshotListener((queryDocumentSnapshots, e) -> {
-                    if (e != null) {
-                        Log.w("Firestore", "Listen failed.", e);
-                        Toast.makeText(this, "Error listening to changes.", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    documentNames.clear(); // Helps remove duplicates
-
-                    if (queryDocumentSnapshots != null && !queryDocumentSnapshots.isEmpty()) {
-                        Log.d("EntrantInWaitlist", "Received updated documents from waitlisted_entrants.");
-
-                        // Add each document ID or name to the list
-                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                            String documentId = documentSnapshot.getId();  // Or get a field like "name"
-                            Log.d("EntrantInWaitlist", "Document ID: " + documentId);
-                            documentNames.add(documentId);  // Store document name (ID) in list
-                        }
-
-                        // Notify adapter of data change to refresh the ListView
-                        adapter.notifyDataSetChanged();
-
-                    } else {
-                        Log.w("EntrantInWaitlist", "No document names found for this event.");
-                        Toast.makeText(this, "No entrants found for this event.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-         */
-    }
+}
 

@@ -1,11 +1,3 @@
-/**
- * This adapter is a custom adapter extending ArrayAdapter and inflates a
- * custom layout for each entrant and populates the entrant listview with
- * the entrant name.
- * @author Aayushi Shah
- * @see android.widget.ArrayAdapter ArrayAdapter
- */
-
 package com.example.intels_app;
 
 import android.content.Context;
@@ -22,17 +14,38 @@ import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 
 import java.util.List;
+/**
+ * This class is an adapter for displaying a list of entrants in a list view.
+ * It binds each entrant's name and profile image to the corresponding views in the list item layout.
+ * The class uses Glide to load profile images, and it shows a default image if the entrant does not have an image URL.
+ * @author Aayushi Shah
+ * @see com.example.intels_app.Entrant Entrant object representing an individual entrant
+ * @see com.example.intels_app.Event Event related to the entrants
+ */
 
 public class EntrantAdapter extends ArrayAdapter<Entrant> {
     private Context context;
     private List<Entrant> entrantList;
 
+    /**
+     * Constructor for creating an instance of {@code EntrantAdapter}.
+     * @param context    The context of the calling activity.
+     * @param entrantList The list of {@link Entrant} objects to be displayed.
+     */
     public EntrantAdapter(Context context, List<Entrant> entrantList) {
         super(context, 0, entrantList);
         this.context = context;
         this.entrantList = entrantList;
     }
 
+    /**
+     * Provides a custom view for each entrant in the adapter's data set.
+     * This method inflates a layout that displays the entrant's name and profile image.
+     * @param position    The position of the item within the adapter's data set.
+     * @param convertView The old view to reuse, if possible.
+     * @param parent      The parent view that this view will eventually be attached to.
+     * @return A {@link View} corresponding to the data at the specified position.
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {

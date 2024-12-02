@@ -1,4 +1,30 @@
+package com.example.intels_app;
 
+import android.app.Dialog;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
+import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.installations.FirebaseInstallations;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 /**
  * This class extends AppCompatActivity and provides a grid view of events for
  * the entrant, displaying events they are signed up for. This activity retrieves
@@ -11,34 +37,18 @@
  * @see com.example.intels_app.MainActivity Main screen of app
  * @see FirebaseFirestore
  */
-
-package com.example.intels_app;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.GridView;
-import android.widget.ImageButton;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.installations.FirebaseInstallations;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 public class EventGridEntrantActivity extends AppCompatActivity {
 
     private Button entrant_button, organizer_button;
     private CustomAdapterEntrant adapter;
     private List<Event> eventData;
+    private Dialog progressDialog;
 
+    /**
+     * Called when the activity is starting. Initializes the layout, views, and fetches events
+     * that the current device has signed up for.
+     * @param savedInstanceState Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,7 +112,13 @@ public class EventGridEntrantActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Fetches the events that the current device has signed up for from Firestore.
+     * Updates the GridView with the list of signed-up events.
+     * @param deviceId The ID of the current device.
+     */
     private void fetchSignedUpEvents(String deviceId) {
+        showProgressDialog();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference waitlistedEventsRef = db.collection("waitlisted_entrants");
 
@@ -128,6 +144,7 @@ public class EventGridEntrantActivity extends AppCompatActivity {
 
                                         // Add the event to the eventData list
                                         eventData.add(event);
+                                        dismissProgressDialog();
                                     }
                                 }
                             }
@@ -135,9 +152,11 @@ public class EventGridEntrantActivity extends AppCompatActivity {
                             // Notify adapter of the data change
                             adapter.notifyDataSetChanged();
                         } else {
+                            dismissProgressDialog();
                             Log.d("Firestore", "No documents found.");
                         }
                     } else {
+                        dismissProgressDialog();
                         Log.w("Firestore", "Error fetching documents", task.getException());
                     }
                 });
@@ -164,6 +183,38 @@ public class EventGridEntrantActivity extends AppCompatActivity {
                     }
                 });
          */
+    }
+
+    /**
+     * Displays a custom progress dialog to indicate that data is being loaded.
+     */
+    private void showProgressDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View customLayout = getLayoutInflater().inflate(R.layout.dialog_progress_bar, null);
+        builder.setView(customLayout);
+        builder.setCancelable(false);
+
+        // Create and show the dialog
+        progressDialog = builder.create();
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        // Ensure the dialog appears as a square
+        progressDialog.setOnShowListener(dialog -> {
+            if (progressDialog.getWindow() != null) {
+                progressDialog.getWindow().setLayout(400, 400); // Set width and height to match layout
+            }
+        });
+
+        progressDialog.show();
+    }
+
+    /**
+     * Dismisses the progress dialog if it is currently showing.
+     */
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 
 }

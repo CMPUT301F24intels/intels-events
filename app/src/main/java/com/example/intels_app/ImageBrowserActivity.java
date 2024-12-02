@@ -22,6 +22,13 @@ import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+/**
+ * This activity allows users to browse images stored in Firebase Storage. It displays the images in a
+ * grid view and supports features such as viewing and deleting images. When an image is deleted,
+ * it is removed from both Firebase Storage and the associated Firestore document.
+ *
+ * @author Kaniskha Aswani
+ */
 
 public class ImageBrowserActivity extends AppCompatActivity {
 
@@ -30,6 +37,11 @@ public class ImageBrowserActivity extends AppCompatActivity {
     private FirebaseStorage firebaseStorage;
     private ProfileIBadapter imageAdapter;
 
+    /**
+     * Called when the activity is first created.
+     * Initializes UI components and sets up Firebase for loading images.
+     * @param savedInstanceState Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +68,9 @@ public class ImageBrowserActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads images from Firebase Storage and adds them to the GridView.
+     */
     private void loadImagesFromFirebase() {
         StorageReference storageReference = firebaseStorage.getReference().child("profile_pics/");
 
@@ -72,6 +87,10 @@ public class ImageBrowserActivity extends AppCompatActivity {
                 Toast.makeText(ImageBrowserActivity.this, "Failed to load images.", Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Shows a confirmation dialog to confirm if the user wants to delete the selected image.
+     * @param position The position of the image in the GridView that the user wants to delete.
+     */
     private void showDeleteConfirmationDialog(final int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Delete Image")
@@ -81,6 +100,10 @@ public class ImageBrowserActivity extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Deletes the image from Firebase Storage and removes it from Firestore and the GridView.
+     * @param position The position of the image in the GridView that the user wants to delete.
+     */
     private void deleteImage(int position) {
         DataClass imageToDelete = imageUrls.get(position);
         StorageReference imageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageToDelete.getImageUrl());

@@ -1,15 +1,8 @@
-/**
- * This class displays the details of a specific event to the organizer,
- * allowing them to view event information, view the event poster, and delete images.
- * The class retrieves and removes data from FireStore.
- * @author Janan Panchal
- * @see com.example.intels_app.Event Event object
- */
-
 package com.example.intels_app;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -39,7 +32,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * This class displays the details of a specific event to the organizer,
+ * allowing them to view event information, view the event poster, and delete images.
+ * The class retrieves and removes data from FireStore.
+ * @author Janan Panchal
+ * @see com.example.intels_app.Event Event object
+ */
 public class EventDetailsAdmin extends AppCompatActivity {
     private static final String TAG = "EventDetailsOrganizer";
     private String eventName;
@@ -50,6 +49,10 @@ public class EventDetailsAdmin extends AppCompatActivity {
     private TextView eventNameEditText, facilityEditText, locationEditText, dateTimeEditText,
             descriptionEditText, maxAttendeesTextView, geolocationRequirementTextView, notificationPreferenceTextView;
 
+    /**
+     * Initializes the layout, retrieves event details from Firestore, and sets up the UI elements and click listeners.
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down, this Bundle contains the saved data.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,7 +86,6 @@ public class EventDetailsAdmin extends AppCompatActivity {
         descriptionEditText = findViewById(R.id.descriptionEditText);
         maxAttendeesTextView = findViewById(R.id.max_attendees_textview);
         geolocationRequirementTextView = findViewById(R.id.geolocationRequirementTextView);
-        notificationPreferenceTextView = findViewById(R.id.notificationPreferenceTextView);
         posterImageView = findViewById(R.id.posterImageView);
         qrImageView = findViewById(R.id.qrImageView);
 
@@ -96,6 +98,10 @@ public class EventDetailsAdmin extends AppCompatActivity {
 
         deleteQRButton = findViewById(R.id.remove_qr_button);
         deleteQRButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Deletes the event's QR code from Firestore and Firebase Storage.
+             * Prompts the user for confirmation before deleting.
+             */
             @Override
             public void onClick(View view) {
                 new AlertDialog.Builder(EventDetailsAdmin.this)
@@ -144,9 +150,12 @@ public class EventDetailsAdmin extends AppCompatActivity {
             }
         });
 
-
         deletePosterButton = findViewById(R.id.remove_poster_button);
         deletePosterButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Deletes the event's poster from Firestore and Firebase Storage.
+             * Prompts the user for confirmation before deleting.
+             */
             @Override
             public void onClick(View view) {
 
@@ -180,8 +189,26 @@ public class EventDetailsAdmin extends AppCompatActivity {
                         .show();
             }
         });
+
+        posterImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageDialog(((ImageView) view).getDrawable());
+            }
+        });
+
+        qrImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageDialog(((ImageView) view).getDrawable());
+            }
+        });
     }
 
+    /**
+     * Displays the event's name, location, date and time, description, maximum attendees, geolocation requirement,
+     * poster image, and QR code image.
+     */
     private void loadEventDetails() {
         if (event != null) {
             // Populate the UI with event details
@@ -221,5 +248,25 @@ public class EventDetailsAdmin extends AppCompatActivity {
                 deleteQRButton.setVisibility(View.INVISIBLE); // Hide delete button
             }
         }
+    }
+
+    /**
+     * Shows an image dialog to enlarge an image when clicked.
+     * @param imageDrawable The Drawable object to be displayed in an enlarged view.
+     */
+    private void showImageDialog(Drawable imageDrawable) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_expand_image, null);
+        ImageView enlargedImageView = dialogView.findViewById(R.id.enlargedImageView);
+
+        enlargedImageView.setImageDrawable(imageDrawable);
+
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+
+        // Close dialog when clicked
+        enlargedImageView.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 }

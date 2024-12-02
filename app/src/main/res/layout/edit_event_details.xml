@@ -66,6 +66,7 @@
         android:fontFamily="@font/poppins_semibold"
         android:hint="@string/event_name"
         android:paddingStart="10dp"
+        android:focusable="false"
         android:textColor="@color/white"
         android:textColorHint="#848A94"
         android:textSize="15sp"
@@ -77,7 +78,6 @@
         android:id="@+id/maxAttendeesEditText"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="10dp"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="Max Attendees"
@@ -85,9 +85,9 @@
         android:textColor="@color/white"
         android:textColorHint="#848A94"
         android:textSize="15sp"
-        app:layout_constraintTop_toBottomOf="@+id/eventNameEditText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
     <EditText
         android:id="@+id/locationEditText"
@@ -110,6 +110,7 @@
         android:layout_width="349dp"
         android:layout_height="45dp"
         android:layout_marginTop="10dp"
+        android:focusable="false"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="@string/date_time"
@@ -193,5 +194,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.521"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="177dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="5dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:paddingStart="10dp"
+        android:text="Event Name is not editable"
+        android:textColor="@color/white"
+        android:textSize="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.132"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/eventNameEditText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

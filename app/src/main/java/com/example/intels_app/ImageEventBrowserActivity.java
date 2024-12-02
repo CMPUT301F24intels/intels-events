@@ -14,6 +14,13 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+/**
+ * This activity allows users to browse event posters stored in Firebase Storage. It displays the
+ * posters in a grid view and supports features such as viewing and deleting event posters. When a
+ * poster is deleted, it is removed from Firebase Storage.
+ *
+ * @author Kanishka Aswani
+ */
 
 public class ImageEventBrowserActivity extends AppCompatActivity {
 
@@ -22,6 +29,11 @@ public class ImageEventBrowserActivity extends AppCompatActivity {
     private FirebaseStorage firebaseStorage;
     private EventIBadapter imageAdapter;
 
+    /**
+     * Called when the activity is first created.
+     * Initializes UI components and sets up Firebase for loading event posters.
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down, this Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +60,9 @@ public class ImageEventBrowserActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads event posters from Firebase Storage and adds them to the GridView.
+     */
     private void loadEventPostersFromFirebase() {
         StorageReference storageReference = firebaseStorage.getReference().child("posters/");
 
@@ -64,6 +79,10 @@ public class ImageEventBrowserActivity extends AppCompatActivity {
                 Toast.makeText(ImageEventBrowserActivity.this, "Failed to load posters.", Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Shows a confirmation dialog to confirm if the user wants to delete the selected event poster.
+     * @param position The position of the poster in the GridView that the user wants to delete.
+     */
     private void showDeleteConfirmationDialog(final int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Delete Poster")
@@ -73,6 +92,10 @@ public class ImageEventBrowserActivity extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Deletes the event poster from Firebase Storage and removes it from the GridView.
+     * @param position The position of the poster in the GridView that the user wants to delete.
+     */
     private void deleteEventPoster(int position) {
         EventDataClass posterToDelete = imageUrls.get(position);
         StorageReference posterRef = FirebaseStorage.getInstance().getReferenceFromUrl(posterToDelete.getImageUrl());

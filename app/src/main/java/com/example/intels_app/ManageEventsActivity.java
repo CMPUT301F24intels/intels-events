@@ -1,3 +1,32 @@
+package com.example.intels_app;
+
+import static android.content.ContentValues.TAG;
+
+import android.app.Dialog;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.installations.FirebaseInstallations;
+
+import java.util.ArrayList;
 /**
  * This class displays the manage events page which shows the events of an organizer
  * @author Janan Panchal
@@ -8,32 +37,18 @@
  * @see com.example.intels_app.Event Event object
  * @see com.example.intels_app.CustomAdapterManageEvents Custom adapter for dispaying events
  */
-package com.example.intels_app;
-
-import static android.content.ContentValues.TAG;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.GridView;
-import android.widget.ImageButton;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.installations.FirebaseInstallations;
-
-import java.util.ArrayList;
-
 public class ManageEventsActivity extends AppCompatActivity {
     ArrayList<Event> eventData;
-    CustomAdapterManageEvents adapter;
+    CustomAdapterOrganizer adapter;
+    private Dialog progressDialog;
 
+    /**
+     * Sets up the event management screen, retrieves the current device ID,
+     * checks if a facility exists for the device, and fetches events associated
+     * with the device. Initializes UI elements such as the GridView, back button,
+     * add event button, and manage facility button.
+     * @param savedInstanceState Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,7 +70,7 @@ public class ManageEventsActivity extends AppCompatActivity {
         GridView gridview = findViewById(R.id.gridViewEvents);
         eventData = new ArrayList<>();
 
-        adapter = new CustomAdapterManageEvents(this, eventData, position -> {
+        adapter = new CustomAdapterOrganizer(this, eventData, position -> {
             Intent intent = new Intent(ManageEventsActivity.this, EventDetailsOrganizer.class);
             intent.putExtra("Event Name", eventData.get(position).getEventName());
             startActivity(intent);
@@ -130,7 +145,15 @@ public class ManageEventsActivity extends AppCompatActivity {
         finish(); // Close MainActivity
     }
 
+    /**
+     * Fetches events associated with the specified device ID from Firestore.
+     * Shows a progress dialog while data is being fetched and updates the
+     * event list once data is retrieved.
+     * @param deviceId The ID of the device to filter events for.
+     */
     private void fetchEventsForDevice(String deviceId) {
+        showProgressDialog(); // Show progress dialog
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference eventsRef = db.collection("events");
 
@@ -138,6 +161,8 @@ public class ManageEventsActivity extends AppCompatActivity {
         eventsRef.whereEqualTo("deviceId", deviceId)
                 .get()  // Use `.get()` to fetch data once instead of listening for changes
                 .addOnCompleteListener(task -> {
+                    dismissProgressDialog(); // Dismiss progress dialog when done
+
                     if (task.isSuccessful()) {
                         if (task.getResult() != null && !task.getResult().isEmpty()) {
                             Log.d("Firestore", "Data received: " + task.getResult().size() + " documents");
@@ -160,8 +185,43 @@ public class ManageEventsActivity extends AppCompatActivity {
                             Log.d("Firestore", "No documents found.");
                         }
                     } else {
+                        dismissProgressDialog(); // Ensure dismissal on failure
                         Log.w("Firestore", "Error fetching documents", task.getException());
                     }
                 });
+    }
+
+    /**
+     * Displays a progress dialog to indicate that a background task (such as data loading) is in progress.
+     * The dialog appears as a square with a transparent background, preventing user interaction.
+     */
+    private void showProgressDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View customLayout = getLayoutInflater().inflate(R.layout.dialog_progress_bar, null);
+        builder.setView(customLayout);
+        builder.setCancelable(false);
+
+        // Create and show the dialog
+        progressDialog = builder.create();
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        // Ensure the dialog appears as a square
+        progressDialog.setOnShowListener(dialog -> {
+            if (progressDialog.getWindow() != null) {
+                progressDialog.getWindow().setLayout(400, 400); // Set width and height to match layout
+            }
+        });
+
+        progressDialog.show();
+    }
+
+    /**
+     * Dismisses the progress dialog if it is currently being shown.
+     * Ensures that the progress indicator is removed after a background task has completed.
+     */
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 }

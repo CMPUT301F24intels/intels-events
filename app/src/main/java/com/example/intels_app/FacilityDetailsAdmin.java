@@ -4,6 +4,7 @@ import static android.content.ContentValues.TAG;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +22,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
+/**
+ * This activity displays the detailed information of a facility for the admin, including its name,
+ * location, email, telephone number, and an image. It also provides options to view and remove the facility image.
+ * The data is fetched from Firebase Firestore, and the image is fetched from Firebase Storage.
+ *
+ * @author Janan Panchal
+ */
 
 public class FacilityDetailsAdmin extends AppCompatActivity {
     private Facility facility;
@@ -32,6 +40,12 @@ public class FacilityDetailsAdmin extends AppCompatActivity {
     Button removeImageButton;
     ImageButton backButton;
 
+    /**
+     * This method sets up the layout and initializes the UI components,
+     * storing the facility details for admins to view. Allows for facility
+     * deletion and facility image deletion.
+     * @param savedInstanceState A Bundle object containing the activity's previously saved state.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +94,13 @@ public class FacilityDetailsAdmin extends AppCompatActivity {
             }
         });
 
+        facilityImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageDialog(((ImageView) view).getDrawable());
+            }
+        });
+
         removeImageButton = findViewById(R.id.edit_poster_button);
         removeImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,5 +138,25 @@ public class FacilityDetailsAdmin extends AppCompatActivity {
                         .show();
             }
         });
+    }
+
+    /**
+     * Shows the facility image in an expanded dialog.
+     * @param imageDrawable The Drawable representing the facility image.
+     */
+    private void showImageDialog(Drawable imageDrawable) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_expand_image, null);
+        ImageView enlargedImageView = dialogView.findViewById(R.id.enlargedImageView);
+
+        enlargedImageView.setImageDrawable(imageDrawable);
+
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+
+        // Close dialog when clicked
+        enlargedImageView.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 }

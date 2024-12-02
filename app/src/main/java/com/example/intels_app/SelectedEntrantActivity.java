@@ -1,13 +1,3 @@
-/**
- * This class displays a list of selected entrants from Firestore for a
- * specific event using a RecyclerView based on the event ID, and displays
- * each entrant's profile information.
- * @author Aayushi Shah, Katrina Alejo
- * @see com.example.intels_app.SelectedEntrantAdapter Adapter for entrants selected in lottery
- * @see com.google.firebase.firestore.FirebaseFirestore Firebase
- * @see com.example.intels_app.ManageEventsActivity Manage events home page
- */
-
 package com.example.intels_app;
 
 import android.content.Intent;
@@ -28,6 +18,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
+/**
+ * This class displays a list of selected entrants from Firestore for a
+ * specific event using a RecyclerView based on the event ID, and displays
+ * each entrant's profile information.
+ * @author Aayushi Shah, Katrina Alejo
+ * @see com.example.intels_app.SelectedEntrantAdapter Adapter for entrants selected in lottery
+ * @see com.google.firebase.firestore.FirebaseFirestore Firebase
+ * @see com.example.intels_app.ManageEventsActivity Manage events home page
+ */
 
 public class SelectedEntrantActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
@@ -36,6 +35,11 @@ public class SelectedEntrantActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private String eventName;
 
+    /**
+     * Called when the activity is first created. Initializes the layout, Firestore instance,
+     * RecyclerView, and starts loading the selected entrants.
+     * @param savedInstanceState A Bundle containing the activity's previously saved state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +78,11 @@ public class SelectedEntrantActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads the selected entrants from Firestore.
+     * Queries the "selected_entrants" collection for the specified event and retrieves their profiles.
+     * Updates the RecyclerView with the retrieved data.
+     */
     private void loadSelectedEntrants() {
         db.collection("selected_entrants")
                 .whereEqualTo("eventName", eventName)

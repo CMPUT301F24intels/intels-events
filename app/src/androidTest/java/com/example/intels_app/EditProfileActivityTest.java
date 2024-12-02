@@ -19,10 +19,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-public class AdminEventsTest {
+public class EditProfileActivityTest {
     @Rule
-    public ActivityScenarioRule<AdminEvents> activityRule = new
-            ActivityScenarioRule<AdminEvents>(AdminEvents.class);
+    public ActivityScenarioRule<EditProfileActivity> activityRule = new
+            ActivityScenarioRule<EditProfileActivity>(EditProfileActivity.class);
     @Before
     public void setUp() {
         Intents.init();
@@ -35,10 +35,12 @@ public class AdminEventsTest {
     @Test
     public void testInitialUIElementsDisplayed() {
         // Verify that the grid view and buttons are displayed
-        onView(withId(R.id.events_gridview)).check(matches(isDisplayed()));
-        onView(withId(R.id.profile_button)).check(matches(isDisplayed()));
-        onView(withId(R.id.events_button)).check(matches(isDisplayed()));
         onView(withId(R.id.back_button)).check(matches(isDisplayed()));
+        onView(withId(R.id.enter_name)).check(matches(isDisplayed()));
+        onView(withId(R.id.enter_email)).check(matches(isDisplayed()));
+        onView(withId(R.id.enter_phone_number)).check(matches(isDisplayed()));
+        onView(withId(R.id.camera_image)).check(matches(isDisplayed()));
+
     }
     @Test
     public void testBackButton() {

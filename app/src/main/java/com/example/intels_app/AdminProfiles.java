@@ -1,26 +1,25 @@
-/**
- * Displays a list of all profiles for the admin view.
- * @author Janan Panchal, Dhanshri Patel
- * @see com.example.intels_app.MainActivity Back button leads to main page
- * @see com.example.intels_app.AdminEvents Clicking the events tab leads to the admin events page
- * @see com.example.intels_app.ProfileAdapterAdmin Custom adapter for the list view
- * @see com.example.intels_app.Profile Profile object
- */
 package com.example.intels_app;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.CollectionReference;
@@ -31,6 +30,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Displays a list of all profiles for the admin view.
+ * @author Janan Panchal, Dhanshri Patel
+ * @see com.example.intels_app.MainActivity Back button leads to main page
+ * @see com.example.intels_app.AdminEvents Clicking the events tab leads to the admin events page
+ * @see com.example.intels_app.ProfileAdapterAdmin Custom adapter for the list view
+ * @see com.example.intels_app.Profile Profile object
+ */
+
 public class AdminProfiles extends AppCompatActivity {
     private ImageButton back_button;
     private Button profile_button;
@@ -39,6 +47,7 @@ public class AdminProfiles extends AppCompatActivity {
     private List<Profile> profileList;
     private Profile profile;
     private ImageButton imageButton22;
+    private Dialog progressDialog;
 
     /**
      * Displays a list of all profiles for the admin view.
@@ -83,9 +92,11 @@ public class AdminProfiles extends AppCompatActivity {
             }
         });*/
 
+        showProgressDialog();
         // Retrieve all profile data from FireStore and assign it to profile arraylist
         FirebaseFirestore.getInstance().collection("profiles").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    dismissProgressDialog();
                     if (!queryDocumentSnapshots.isEmpty()) {
                         for (DocumentSnapshot document : queryDocumentSnapshots) {
 
@@ -95,6 +106,7 @@ public class AdminProfiles extends AppCompatActivity {
                             adapter.notifyDataSetChanged();
                         }
                     } else {
+                        dismissProgressDialog();
                         Log.d("Firestore", "No documents found in this collection.");
                     }
                 }).addOnFailureListener(e -> Log.w("Firestore", "Error fetching documents", e));
@@ -156,11 +168,48 @@ public class AdminProfiles extends AppCompatActivity {
                 Profile selectedProfile = (Profile) parent.getItemAtPosition(position);
 
                 Intent intent = new Intent(AdminProfiles.this, ProfileDetailsAdmin.class);
-                intent.putExtra("profileId", selectedProfile.getDeviceId());
+                intent.putExtra("deviceId", selectedProfile.getDeviceId());
                 startActivity(intent);
             }
         });
     }
+
+    /**
+     * Displays the dialog with the loading circle while data is being fetched from Firestore
+     */
+    private void showProgressDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View customLayout = getLayoutInflater().inflate(R.layout.dialog_progress_bar, null);
+        builder.setView(customLayout);
+        builder.setCancelable(false);
+
+        // Create and show the dialog
+        progressDialog = builder.create();
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        // Ensure the dialog appears as a square
+        progressDialog.setOnShowListener(dialog -> {
+            if (progressDialog.getWindow() != null) {
+                progressDialog.getWindow().setLayout(400, 400); // Set width and height to match layout
+            }
+        });
+
+        progressDialog.show();
+    }
+
+    /**
+     * Stops the dialog with the loading circle
+     */
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
+
+    /**
+     * Deletes a random facility from the FireStore "facilities" collection.
+     * @deprecated Facilities are no longer deleted from the profiles page. They should not be deleted randomly.
+     */
     private void deleteFacility() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference facilitiesRef = db.collection("facilities");
@@ -195,6 +244,11 @@ public class AdminProfiles extends AppCompatActivity {
                     Toast.makeText(AdminProfiles.this, "Error fetching facilities: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
+
+    /**
+     * @deprecated This function was used to display options when clicking three dots. The 3 dots no longer exist.
+     * @param v View to show the popup menu
+     */
     private void showPopupMenu(View v) {
         PopupMenu popup = new PopupMenu(this, v);
         popup.inflate(R.menu.popup_menu);

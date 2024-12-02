@@ -1,12 +1,3 @@
-/**
- * This class displays a list of selected entrants for a lottery event
- * in a RecyclerView based on the event ID and displays each entrant's
- * profile information.
- * Author: Katrina Alejo
- * @see com.example.intels_app.Profile Profiles class
- * @see com.example.intels_app.SelectedEntrantAdapter Adapter for profiles
- */
-
 package com.example.intels_app;
 
 import android.app.AlertDialog;
@@ -36,7 +27,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * This class displays a list of selected entrants for a lottery event
+ * in a RecyclerView based on the event ID and displays each entrant's
+ * profile information.
+ * Author: Katrina Alejo
+ * @see com.example.intels_app.Profile Profiles class
+ * @see com.example.intels_app.SelectedEntrantAdapter Adapter for profiles
+ */
 public class LotteryList extends AppCompatActivity {
     private RecyclerView recyclerView;
     private SelectedEntrantAdapter adapter;
@@ -45,6 +43,11 @@ public class LotteryList extends AppCompatActivity {
     private String eventName;
     private CheckBox sendNotifications;
 
+    /**
+     * Initializes UI components, sets up Firestore, loads selected entrants,
+     * and configures back button, search bar, and send notifications checkbox.
+     * @param savedInstanceState Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,6 +112,10 @@ public class LotteryList extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads the selected entrants for the lottery event from Firestore.
+     * Filters out entrants who have declined the lottery, and adds the remaining entrants to the list.
+     */
     private void loadSelectedEntrants() {
         db.collection("notifications")
                 .whereEqualTo("type", "declined")
@@ -186,6 +193,43 @@ public class LotteryList extends AppCompatActivity {
                     Log.w("LotteryList", "Error fetching declined profiles", e);
                     Toast.makeText(this, "Failed to load declined profiles.", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    /**
+     * Deletes an entrant from the lottery list by removing them from the "selected_entrants" collection
+     * and updating their status in the "notifications" collection.
+     * @param profileId The ID of the profile to be removed.
+     */
+    public void deleteEntrantFromLotteryList(String profileId) {
+        // Remove from `selected_entrants`
+        db.collection("selected_entrants")
+                .whereEqualTo("eventName", eventName)
+                .whereEqualTo("profileId", profileId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        db.collection("selected_entrants").document(doc.getId())
+                                .delete()
+                                .addOnSuccessListener(aVoid -> Log.d("LotteryList", "Entrant removed from selected_entrants"))
+                                .addOnFailureListener(e -> Log.e("LotteryList", "Error removing entrant from selected_entrants", e));
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("LotteryList", "Error fetching entrant from selected_entrants", e));
+
+        // Update status in `notifications` to "not-selected"
+        db.collection("notifications")
+                .whereEqualTo("eventName", eventName)
+                .whereEqualTo("profileId", profileId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        db.collection("notifications").document(doc.getId())
+                                .update("status", "not-selected")
+                                .addOnSuccessListener(aVoid -> Log.d("LotteryList", "Entrant status updated in notifications"))
+                                .addOnFailureListener(e -> Log.e("LotteryList", "Error updating entrant status in notifications", e));
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("LotteryList", "Error fetching entrant from notifications", e));
     }
 
     /**

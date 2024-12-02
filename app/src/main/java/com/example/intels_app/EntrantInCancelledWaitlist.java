@@ -1,16 +1,4 @@
-/**
- * This class extends AppCompatActivity and provides a user interface to manage
- * entrants who have been cancelled/declined themselves from a waitlist. This activity
- * allows organizers to view, filter, and send notifications to cancelled entrants
- * using a ListView and search functionality.
- * @author Aayushi Shah, Katrina Alejo
- * @see com.example.intels_app.Profile Profile object
- * @see com.example.intels_app.EntrantInWaitlist Entrant information for an event
- * @see com.example.intels_app.EventGridOrganizerActivity Organizer's gridview of events
- */
-
 package com.example.intels_app;
-
 import static android.content.ContentValues.TAG;
 
 import android.app.AlertDialog;
@@ -39,6 +27,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+/**
+ * This activity handles the display and management of cancelled entrants in an event waitlist.
+ * It allows for searching cancelled entrants, sending custom notifications to those entrants,
+ * and initiating a redraw process to replace cancelled entrants with other eligible individuals.
+ * The activity interacts with Firestore to fetch data related to entrants, send notifications,
+ * and update the status of entrants within the event.
+ * @author Aayushi Shah, Katrina Alejo
+ * @see com.example.intels_app.EventGridOrganizerActivity Activity for managing event grid and its operations
+ * @see com.example.intels_app.Entrant Adapter for displaying entrants
+ */
 
 public class EntrantInCancelledWaitlist extends AppCompatActivity {
     private Button waitlist_button, cancelled_button;
@@ -47,6 +45,10 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
     private String eventName;
     private CheckBox sendNotificationCheckbox;
 
+    /**
+     * Initializes the UI components and sets up event listeners for buttons.
+     * @param savedInstanceState A Bundle containing the activity's previously saved state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,6 +125,9 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         });
     }
 
+    /**
+     * Refreshes the list of cancelled entrants when returning to this activity.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -133,6 +138,10 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
         waitlist_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
     }
 
+    /**
+     * Fetches the list of cancelled entrants for the specified event from Firestore.
+     * Updates the ListView with the retrieved profiles.
+     */
     private void fetchCancelledEntrants() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference notificationsRef = db.collection("notifications");
@@ -208,6 +217,10 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Shows a dialog box that allows the organizer to enter a custom notification message
+     * to be sent to all cancelled entrants.
+     */
     private void showCustomNotificationDialog() {
         EditText input = new EditText(this);
         input.setHint("Enter custom notification message");
@@ -232,6 +245,10 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Sends a notification with a custom message to all eligible cancelled entrants for the event.
+     * @param message The custom message to be sent to the cancelled entrants.
+     */
     private void sendNotificationToCancelledEntrants(String message) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference notificationsRef = db.collection("notifications");
@@ -309,6 +326,13 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Sends a notification to a specific profile.
+     * @param deviceId  The device ID of the profile to receive the notification.
+     * @param profileId The ID of the profile to receive the notification.
+     * @param eventName The name of the event associated with the notification.
+     * @param message   The message to be sent to the profile.
+     */
     private void sendNotificationToProfile(String deviceId, String profileId, String eventName, String message) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -327,6 +351,10 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.e("Notification", "Error sending notification", e));
     }
 
+    /**
+     * Performs a redraw for replacement entrants by selecting eligible entrants from the "not_selected_entrants"
+     * collection, sending notifications to the selected and not-selected entrants, and updating Firestore.
+     */
     private void redrawReplacementEntrant() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference selectedEntrantsRef = db.collection("selected_entrants");
@@ -414,6 +442,14 @@ public class EntrantInCancelledWaitlist extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Sends a notification to a specific profile with additional type information.
+     * @param deviceId  The device ID of the profile to receive the notification.
+     * @param profileId The name of the profile to receive the notification.
+     * @param eventName The name of the event associated with the notification.
+     * @param message   The message to be sent to the profile.
+     * @param type      The type of notification.
+     */
     private void sendNotificationToProfile(String deviceId, String profileId, String eventName, String message, String type) {
         if (deviceId == null || deviceId.isEmpty()) {
             Log.w(TAG, "Device ID is missing for profile: " + profileId);

@@ -5,13 +5,18 @@ import static android.content.ContentValues.TAG;
 import static com.example.intels_app.CreateQR.bitmapToByteArray;
 import static com.example.intels_app.CreateQR.hashImage;
 
-import android.app.AlertDialog;
+import android.Manifest;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,9 +27,13 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -38,13 +47,30 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+/**
+ *
+ * Activity for editing event details, including event name, location, date, description, poster, and QR code.
+ * Allows event poster and QR code to be replaced, and saves the changes to Firebase Firestore and Storage.
+ *
+ * @author Janan Panchal, Dhanshri Patel
+ * @see com.example.intels_app.Event Event model used for event data
+ * @see com.example.intels_app.EventDetailsOrganizer Activity that shows event details after editing
+ * @see com.google.firebase.firestore.FirebaseFirestore Firebase Firestore for storing event details
+ * @see com.google.firebase.storage.FirebaseStorage Firebase Storage for storing event images (poster, QR)
+ */
 
 public class EditEventActivity extends AppCompatActivity {
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_IMAGE_PICK = 2;
+    private static final int PERMISSION_REQUEST_CODE = 100;
     String eventName;
     Event oldEvent;
     String finalPosterUrl;
     String finalQrUrl;
-
+    private boolean isCameraOption = false;
     Button replacePosterButton;
     Button replaceQRButton;
     Button saveChangesButton;
@@ -63,11 +89,17 @@ public class EditEventActivity extends AppCompatActivity {
     Uri newPosterImage;
     String newPosterImageHash;
     byte[] newQRImageData;
+    byte[] newPosterImageData;
 
     // Flags to track changes
     boolean isQRChanged = false;
     boolean isPosterChanged = false;
 
+    /**
+     * Initializes the UI components, loads the existing event details from Firestore,
+     * and sets up click listeners for buttons.
+     * @param savedInstanceState contains the data it most recently supplied in {@link #onSaveInstanceState}.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,10 +145,7 @@ public class EditEventActivity extends AppCompatActivity {
         replacePosterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Open gallery and glide image into view
-                Intent intent = new Intent(Intent.ACTION_PICK);
-                intent.setType("image/*");
-                openGallery.launch(intent);
+                showPosterDialog();
                 isPosterChanged = true;
             }
         });
@@ -156,14 +185,18 @@ public class EditEventActivity extends AppCompatActivity {
                                     Log.d(TAG, "Old poster deleted successfully");
 
                                     // Upload new poster to storage
-                                    FirebaseStorage.getInstance().getReference().child("posters").child(newPosterImageHash).putFile(newPosterImage)
+                                    FirebaseStorage.getInstance().getReference().child("posters")
+                                            .child(newPosterImageHash)
+                                            .putBytes(newPosterImageData)
                                             .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                                 @Override
                                                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                                     Log.d(TAG, "New poster uploaded successfully");
 
                                                     // Get URL of new poster
-                                                    FirebaseStorage.getInstance().getReference("posters").child(newPosterImageHash).getDownloadUrl()
+                                                    FirebaseStorage.getInstance().getReference("posters")
+                                                            .child(newPosterImageHash)
+                                                            .getDownloadUrl()
                                                             .addOnSuccessListener(new OnSuccessListener<Uri>() {
                                                                 @Override
                                                                 public void onSuccess(Uri uri) {
@@ -225,8 +258,21 @@ public class EditEventActivity extends AppCompatActivity {
                 }
             }
         });
+
+        dateTime = findViewById(R.id.dateTimeEditText);
+        dateTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Open date picker dialog
+                showDateTimePickerDialog();
+            }
+        });
     }
 
+    /**
+     * Validates whether all required fields are filled out before saving changes.
+     * @return true if all required fields are filled, false otherwise.
+     */
     private boolean areFieldsValid() {
         if (eventNameText.getText().toString().trim().isEmpty()) return false;
         if (maxAttendees.getText().toString().trim().isEmpty()) return false;
@@ -236,6 +282,9 @@ public class EditEventActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Loads the current event details from Firestore and populates the UI components.
+     */
     public void loadProfileData() {
         FirebaseFirestore.getInstance().collection("events").document(eventName).get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -287,6 +336,50 @@ public class EditEventActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Opens a Date and Time picker dialog to select and update the event's date and time.
+     */
+    private void showDateTimePickerDialog() {
+        final Calendar calendar = Calendar.getInstance();
+
+        // Parse the existing date and time from the EditText
+        String existingDateTime = dateTime.getText().toString();
+        SimpleDateFormat dateTimeFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a", Locale.getDefault());
+        try {
+            if (!existingDateTime.isEmpty()) {
+                calendar.setTime(dateTimeFormat.parse(existingDateTime));
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error parsing date/time: " + e.getMessage());
+        }
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            // Update calendar with the selected date
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, month);
+            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+            TimePickerDialog timePickerDialog = new TimePickerDialog(this, (timeView, hourOfDay, minute) -> {
+                // Update calendar with the selected time
+                calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                calendar.set(Calendar.MINUTE, minute);
+
+                String formattedDateTime = dateTimeFormat.format(calendar.getTime());
+
+                // Set the formatted date and time to the EditText
+                dateTime.setText(formattedDateTime);
+            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false);
+
+            timePickerDialog.show();
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+
+        datePickerDialog.show();
+    }
+
+    /**
+     * Generates a new QR code for the event using ZXing and displays it in the ImageView.
+     * @throws WriterException if there is an error generating the QR code.
+     */
     public void generateQRCode() throws WriterException {
         // Use ZXing to generate QR code with only the event name
         BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
@@ -303,40 +396,10 @@ public class EditEventActivity extends AppCompatActivity {
         Glide.with(getApplicationContext()).load(newQRbitmap).into(qrImageView);
     }
 
-    ActivityResultLauncher<Intent> openGallery = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result != null && result.getResultCode() == RESULT_OK) {
-                    // Get the URI of the selected image
-                    newPosterImage = result.getData().getData();
-
-                    // Set the selected image into the ImageView
-                    Glide.with(getApplicationContext()).load(newPosterImage).into(posterImageView);
-
-                    // Get Bitmap from Uri
-                    Bitmap newPosterBitmap = null;
-                    try {
-                        newPosterBitmap = getBitmapFromUri(newPosterImage, getContentResolver());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    // Convert Bitmap to byte array
-                    byte[] posterImageData = bitmapToByteArray(newPosterBitmap);
-
-                    // Hash the byte array
-                    newPosterImageHash = hashImage(posterImageData);
-                } else {
-                    Toast.makeText(EditEventActivity.this, "Please select an image", Toast.LENGTH_LONG).show();
-                }
-            }
-    );
-
-    public Bitmap getBitmapFromUri(Uri uri, ContentResolver contentResolver) throws IOException {
-        InputStream inputStream = contentResolver.openInputStream(uri);
-        return BitmapFactory.decodeStream(inputStream);
-    }
-
+    /**
+     * Checks if both the new poster and QR code URLs are ready, and if so, updates the Firestore
+     * event document with the new details.
+     */
     public void checkAndUpdateFirestore() {
 
         // Ensure both URLs are ready
@@ -375,6 +438,120 @@ public class EditEventActivity extends AppCompatActivity {
         Intent intent = new Intent(EditEventActivity.this, EventDetailsOrganizer.class);
         intent.putExtra("Event Name", updatedEventName); // Pass the updated event name back
         startActivity(intent);
+    }
+
+    /**
+     * Opens a dialog to allow the user to select a new event poster, either by taking a photo
+     * or selecting an image from the gallery.
+     */
+    private void showPosterDialog() {
+        String[] options = {"Take Photo", "Choose from Gallery"};
+        androidx.appcompat.app.AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Event Poster");
+        builder.setItems(options, (dialog, which) -> {
+            switch (which) {
+                case 0: // Take Photo
+                    isCameraOption = true;
+                    if (checkAndRequestPermissions()) {
+                        openCamera();
+                    }
+                    break;
+                case 1: // Choose from Gallery
+                    isCameraOption = false;
+                    if (checkAndRequestPermissions()) {
+                        openGallery();
+                    }
+                    break;
+            }
+        });
+        builder.show();
+    }
+
+    /**
+     * Checks if the required permissions (Camera and Storage) are granted.
+     * Requests permissions if they are not already granted.
+     * @return true if all required permissions are granted, false otherwise.
+     */
+    private boolean checkAndRequestPermissions() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Handles the result of the permission request.
+     * @param requestCode  The request code passed in {@link #requestPermissions}.
+     * @param permissions  The requested permissions.
+     * @param grantResults The grant results for the corresponding permissions.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (isCameraOption) {
+                    openCamera();
+                } else {
+                    openGallery();
+                }
+            } else {
+                Toast.makeText(this, "Permissions denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    /**
+     * Opens the device camera to capture a new image for the event poster.
+     */
+    private void openCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
+    }
+
+    /**
+     * Opens the device's gallery to select a new image for the event poster.
+     */
+    private void openGallery() {
+        Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK);
+    }
+
+    /**
+     * Handles the result of activities such as image capture or gallery selection.
+     * @param requestCode  The request code identifying which activity is returning data.
+     * @param resultCode   The result code returned by the child activity.
+     * @param data         An Intent containing the data from the activity.
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_IMAGE_CAPTURE && data != null) {
+                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                if (bitmap != null) {
+                    posterImageView.setImageBitmap(bitmap); // Display the image in ImageView
+                    newPosterImageData = bitmapToByteArray(bitmap);
+                    newPosterImageHash = hashImage(newPosterImageData);// Convert to byte array if needed
+                }
+            } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
+                Uri selectedImage = data.getData();
+                try {
+                    // Decode and scale the selected image to fit within the ImageView
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                    posterImageView.setImageBitmap(bitmap);
+                    newPosterImageData = bitmapToByteArray(bitmap); // Convert to byte array if needed
+                    newPosterImageHash = hashImage(newPosterImageData);
+                    Log.d(TAG, "Gallery Image Set - imageHash: " + newPosterImageHash);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
     }
 
 }

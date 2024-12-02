@@ -6,6 +6,22 @@
     android:layout_height="match_parent"
     android:background="#16181F">
 
+    <EditText
+        android:id="@+id/limit_entrants"
+        android:layout_width="349dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/rounded_corner_rectangle_light_black"
+        android:fontFamily="@font/poppins_semibold"
+        android:hint="Limit Entrants (Optional)"
+        android:paddingStart="10dp"
+        android:textColor="@color/white"
+        android:textColorHint="#848A94"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dateTimeEditText" />
+
     <ImageButton
         android:id="@+id/back_button"
         android:layout_width="wrap_content"
@@ -151,7 +167,7 @@
         android:id="@+id/descriptionEditText"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="64dp"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="@string/description"
@@ -167,8 +183,9 @@
         android:id="@+id/geolocationRequirementTextView"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="56dp"
         android:background="@drawable/rounded_corner_rectangle_light_gray"
+        android:backgroundTint="@color/zxing_transparent"
         android:fontFamily="@font/poppins_semibold"
         android:paddingStart="10dp"
         android:paddingEnd="15dp"
@@ -176,11 +193,13 @@
         android:textAlignment="viewEnd"
         android:textColor="#848A94"
         android:textSize="15sp"
-        android:backgroundTint="@color/zxing_transparent"
         app:flow_horizontalAlign="start"
         app:flow_verticalAlign="center"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.483"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/descriptionEditText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
