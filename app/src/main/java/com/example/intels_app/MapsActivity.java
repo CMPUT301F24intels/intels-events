@@ -102,6 +102,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
 
+        // Enable zoom controls and gestures
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setZoomGesturesEnabled(true);
+
+        // Set minimum and maximum zoom levels
+        mMap.setMinZoomPreference(2.0f);
+        mMap.setMaxZoomPreference(21.0f);
+
         // Enable My Location layer if permission is granted
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
