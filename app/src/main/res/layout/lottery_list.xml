@@ -42,24 +42,6 @@
             app:layout_constraintTop_toTopOf="parent" />
     </LinearLayout>
 
-    <EditText
-        android:id="@+id/search_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="5dp"
-        android:background="@android:drawable/edit_text"
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:hint="Search"
-        android:fontFamily="@font/poppins_semibold"
-        android:padding="10dp"
-        android:textColor="@android:color/black"
-        android:textColorHint="@android:color/darker_gray"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button2" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
