@@ -106,33 +106,42 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
 
-            // Query the `waitlisted_entrants` collection
+            // Clear the map to avoid displaying old markers
+            mMap.clear();
+
+            // Query the `waitlisted_entrants` collection and filter by the clicked event
             db.collection("waitlisted_entrants")
                     .get()
                     .addOnSuccessListener(queryDocumentSnapshots -> {
                         LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
                         boolean hasLocations = false;
 
+                        // Normalize the event name to handle case differences and whitespace
+                        String normalizedEventName = eventName != null ? eventName.trim().toLowerCase() : "";
+
                         // Iterate through documents in the collection
                         for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                             String entrantName = document.getId(); // Document ID is the entrant's name
                             List<Map<String, Object>> events = (List<Map<String, Object>>) document.get("events");
 
-                            // Ensure events is not null or empty
                             if (events != null && !events.isEmpty()) {
                                 for (Map<String, Object> event : events) {
-                                    String currentEventName = (String) event.get("eventName");
-                                    Double latitude = (Double) event.get("latitude");
-                                    Double longitude = (Double) event.get("longitude");
+                                    // Safely retrieve event details
+                                    String currentEventName = event.get("eventName") instanceof String ?
+                                            ((String) event.get("eventName")).trim().toLowerCase() : null;
+                                    Double latitude = event.get("latitude") instanceof Double ?
+                                            (Double) event.get("latitude") : null;
+                                    Double longitude = event.get("longitude") instanceof Double ?
+                                            (Double) event.get("longitude") : null;
 
-                                    // Ensure all necessary fields are available
-                                    if (currentEventName != null && latitude != null && longitude != null) {
+                                    // Add marker if the event matches the clicked event and coordinates are valid
+                                    if (normalizedEventName.equals(currentEventName) && latitude != null && longitude != null) {
                                         LatLng position = new LatLng(latitude, longitude);
 
                                         // Add a marker for the entrant's location
                                         mMap.addMarker(new MarkerOptions()
                                                 .position(position)
-                                                .title(currentEventName)
+                                                .title(eventName)
                                                 .snippet("Signed up by: " + entrantName));
 
                                         // Include the marker in the bounds
@@ -144,7 +153,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                 ", Entrant: " + entrantName +
                                                 ", Location: " + latitude + ", " + longitude);
                                     } else {
-                                        Log.w("MapsActivity", "Missing latitude/longitude/eventName for event in entrant: " + entrantName);
+                                        Log.w("MapsActivity", "No match or missing data for event in entrant: " + entrantName);
                                     }
                                 }
                             } else {
@@ -158,7 +167,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100)); // Adjust padding
                         } else {
                             Toast.makeText(this, "No locations available for this event.", Toast.LENGTH_SHORT).show();
-                            Log.d("MapsActivity", "No locations found for any entrants.");
+                            Log.d("MapsActivity", "No locations found for the selected event.");
                         }
                     })
                     .addOnFailureListener(e -> {
@@ -167,7 +176,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     });
 
         } else {
-            Toast.makeText(this, "Permission denied, unable to show map. Please change permissions in settings", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Permission denied, unable to show map. Please change permissions in settings.", Toast.LENGTH_SHORT).show();
         }
     }
 
