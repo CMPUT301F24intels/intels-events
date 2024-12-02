@@ -24,6 +24,11 @@ import java.util.List;
 
 public class CancelledProfileAdapter extends ProfileAdapter {
 
+    /**
+     * Constructor
+     * @param context Context of the current state of the application
+     * @param profileList List of Profile objects to be used by the adapter
+     */
     public CancelledProfileAdapter(Context context, List<Profile> profileList) {
         super(context, profileList);
     }
