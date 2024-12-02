@@ -68,6 +68,11 @@ public class ManageFacility extends AppCompatActivity {
     private Button makeChanges;
     private ImageView poster;
 
+    /**
+     * Called when the activity is first created. Initializes views and listeners, sets up Firestore,
+     * and loads facility details from the database.
+     * @param savedInstanceState The saved state of the application.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,6 +116,10 @@ public class ManageFacility extends AppCompatActivity {
         });
     }
 
+    /**
+     * Saves the changes made to the facility, including uploading a new poster if necessary.
+     * This method updates the facility information in Firestore.
+     */
     private void savePosterChanges() {
 
         // Validate fields
@@ -215,6 +224,10 @@ public class ManageFacility extends AppCompatActivity {
         }
     }
 
+    /**
+     * Validates the input fields for the facility details.
+     * @return True if all fields are valid, otherwise false.
+     */
     private boolean areFieldsValid() {
         if (facilityName.getText().toString().trim().isEmpty()) {
             Toast.makeText(this, "Facility name is required", Toast.LENGTH_SHORT).show();
@@ -239,6 +252,9 @@ public class ManageFacility extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Loads the current facility details from Firestore and populates the UI fields with these details.
+     */
     private void loadFacilityDetails(){
         FirebaseFirestore.getInstance()
                 .collection("facilities")
@@ -274,6 +290,10 @@ public class ManageFacility extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Displays a dialog allowing the user to choose between taking a photo with the camera or
+     * selecting an image from the gallery.
+     */
     private void showImagePickerDialog() {
         String[] options = {"Use Camera", "Choose from Gallery"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -297,6 +317,10 @@ public class ManageFacility extends AppCompatActivity {
         builder.show();
     }
 
+    /**
+     * Checks and requests permissions for using the camera and accessing external storage.
+     * @return True if permissions are already granted, otherwise false.
+     */
     private boolean checkAndRequestPermissions() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -306,6 +330,12 @@ public class ManageFacility extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Handles the result of permission requests for accessing camera and storage.
+     * @param requestCode The request code passed when requesting permission.
+     * @param permissions The requested permissions.
+     * @param grantResults The grant results for the requested permissions.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -322,16 +352,28 @@ public class ManageFacility extends AppCompatActivity {
         }
     }
 
+    /**
+     * Opens the camera to allow the user to take a photo.
+     */
     private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
     }
 
+    /**
+     * Opens the gallery to allow the user to pick an image.
+     */
     private void openGallery() {
         Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK);
     }
 
+    /**
+     * Handles the result from an activity, such as selecting an image or taking a photo.
+     * @param requestCode The request code for identifying which activity returned the result.
+     * @param resultCode The result code indicating the success or failure of the operation.
+     * @param data The intent data containing the result.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -361,12 +403,22 @@ public class ManageFacility extends AppCompatActivity {
         }
     }
 
+    /**
+     * Converts a Bitmap image to a byte array.
+     * @param bitmap The Bitmap image to be converted.
+     * @return A byte array representing the bitmap.
+     */
     public static byte[] bitmapToByteArray(Bitmap bitmap) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         return baos.toByteArray();
     }
 
+    /**
+     * Generates a SHA-256 hash of the given image data.
+     * @param imageData The image data to hash.
+     * @return The SHA-256 hash of the image data as a hexadecimal string.
+     */
     public static String hashImage(byte[] imageData) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

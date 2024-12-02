@@ -27,12 +27,25 @@ public class EntrantAdapter extends ArrayAdapter<Entrant> {
     private Context context;
     private List<Entrant> entrantList;
 
+    /**
+     * Constructor for creating an instance of {@code EntrantAdapter}.
+     * @param context    The context of the calling activity.
+     * @param entrantList The list of {@link Entrant} objects to be displayed.
+     */
     public EntrantAdapter(Context context, List<Entrant> entrantList) {
         super(context, 0, entrantList);
         this.context = context;
         this.entrantList = entrantList;
     }
 
+    /**
+     * Provides a custom view for each entrant in the adapter's data set.
+     * This method inflates a layout that displays the entrant's name and profile image.
+     * @param position    The position of the item within the adapter's data set.
+     * @param convertView The old view to reuse, if possible.
+     * @param parent      The parent view that this view will eventually be attached to.
+     * @return A {@link View} corresponding to the data at the specified position.
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {

@@ -37,23 +37,49 @@ public class ProfileAdapterAdmin extends BaseAdapter {
     private Context context;
     private List<Profile> profiles;
 
+    /**
+     * Constructor to create an instance of ProfileAdapterAdmin.
+     * @param context  The context in which the adapter is used.
+     * @param profiles The list of Profile objects to be displayed.
+     */
     public ProfileAdapterAdmin(Context context, List<Profile> profiles) {
         this.context = context;
         this.profiles = profiles;
     }
 
+    /**
+     * Returns the number of profiles in the list.
+     * @return The size of the profiles list.
+     */
     public int getCount() {
         return profiles.size();
     }
 
+    /**
+     * Returns the Profile object at the specified position in the list.
+     * @param i The position of the profile in the list.
+     * @return The Profile object at the specified position.
+     */
     public Object getItem(int i) {
         return profiles.get(i);
     }
 
+    /**
+     * Returns the item ID for the specified position.
+     * @param i The position of the profile.
+     * @return The position value as the item ID.
+     */
     public long getItemId(int i) {
         return i;
     }
 
+    /**
+     * Returns the view for a specific item in the list.
+     * @param position    The position of the item in the list.
+     * @param convertView The old view to reuse, if possible.
+     * @param parent      The parent ViewGroup that this view will be attached to.
+     * @return The View corresponding to the data at the specified position.
+     */
     public View getView(int position, View convertView, ViewGroup parent) {
         Log.d("Adapter", "Hi");
         if (convertView == null) {

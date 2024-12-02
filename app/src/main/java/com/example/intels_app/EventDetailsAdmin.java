@@ -49,6 +49,10 @@ public class EventDetailsAdmin extends AppCompatActivity {
     private TextView eventNameEditText, facilityEditText, locationEditText, dateTimeEditText,
             descriptionEditText, maxAttendeesTextView, geolocationRequirementTextView, notificationPreferenceTextView;
 
+    /**
+     * Initializes the layout, retrieves event details from Firestore, and sets up the UI elements and click listeners.
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down, this Bundle contains the saved data.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +98,10 @@ public class EventDetailsAdmin extends AppCompatActivity {
 
         deleteQRButton = findViewById(R.id.remove_qr_button);
         deleteQRButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Deletes the event's QR code from Firestore and Firebase Storage.
+             * Prompts the user for confirmation before deleting.
+             */
             @Override
             public void onClick(View view) {
                 new AlertDialog.Builder(EventDetailsAdmin.this)
@@ -144,6 +152,10 @@ public class EventDetailsAdmin extends AppCompatActivity {
 
         deletePosterButton = findViewById(R.id.remove_poster_button);
         deletePosterButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Deletes the event's poster from Firestore and Firebase Storage.
+             * Prompts the user for confirmation before deleting.
+             */
             @Override
             public void onClick(View view) {
 
@@ -193,6 +205,10 @@ public class EventDetailsAdmin extends AppCompatActivity {
         });
     }
 
+    /**
+     * Displays the event's name, location, date and time, description, maximum attendees, geolocation requirement,
+     * poster image, and QR code image.
+     */
     private void loadEventDetails() {
         if (event != null) {
             // Populate the UI with event details
@@ -234,6 +250,10 @@ public class EventDetailsAdmin extends AppCompatActivity {
         }
     }
 
+    /**
+     * Shows an image dialog to enlarge an image when clicked.
+     * @param imageDrawable The Drawable object to be displayed in an enlarged view.
+     */
     private void showImageDialog(Drawable imageDrawable) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_expand_image, null);

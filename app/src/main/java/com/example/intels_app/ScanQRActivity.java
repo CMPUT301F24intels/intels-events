@@ -19,6 +19,10 @@ public class ScanQRActivity extends AppCompatActivity {
 
     private QRCodeScanner qrCodeScanner;
 
+    /**
+     * Called when the activity is first created. Sets up the layout and initializes the QR code scanner.
+     * @param savedInstanceState A Bundle containing the activity's previously saved state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +66,12 @@ public class ScanQRActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Handles the result of the QR code scan.
+     * @param requestCode The request code originally supplied to startActivityForResult().
+     * @param resultCode  The result code returned by the child activity.
+     * @param data        The intent returned by the child activity.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

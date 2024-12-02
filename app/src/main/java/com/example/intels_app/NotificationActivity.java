@@ -56,6 +56,10 @@ public class NotificationActivity extends AppCompatActivity {
     private final List<Map<String, Object>> notificationCache = new ArrayList<>();
     private int loadedEventDetailsCount = 0;
 
+    /**
+     * Initializes views and loads notifications for the specific device.
+     * @param savedInstanceState The saved state of the application.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,6 +100,10 @@ public class NotificationActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Loads notifications from Firestore for the given device ID.
+     * @param deviceId The unique identifier of the device.
+     */
     private void loadNotificationsFromFirestore(String deviceId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference notificationsRef = db.collection("notifications");
@@ -138,6 +146,11 @@ public class NotificationActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads additional event details for a specific notification such as the poster URL.
+     * @param eventName The name of the event for which details are to be loaded.
+     * @param notificationData The notification data map where event details are added.
+     */
     private void loadEventDetailsForNotification(String eventName, Map<String, Object> notificationData) {
         DocumentReference eventRef = db.collection("events").document(eventName);
         eventRef.get().addOnSuccessListener(eventDoc -> {
@@ -157,6 +170,9 @@ public class NotificationActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Checks if all event details have been loaded and displays all cached notifications in the UI.
+     */
     private void checkAndDisplayNotifications() {
         if (loadedEventDetailsCount == notificationCache.size()) {
             for (Map<String, Object> notificationData : notificationCache) {
@@ -179,6 +195,14 @@ public class NotificationActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Adds a notification to the notification list layout in the UI.
+     * @param posterUrl The URL of the event poster image.
+     * @param title The title of the notification (event name).
+     * @param message The notification message.
+     * @param type The type of notification (e.g., selected, accepted, declined).
+     * @param profileId The profile ID related to the notification.
+     */
     private void addNotification(String posterUrl, String title, String message, String type, String profileId) {
         // Inflate the notification item layout
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -242,6 +266,10 @@ public class NotificationActivity extends AppCompatActivity {
         showSystemNotification(title, message);
     }
 
+    /**
+     * Handles the acceptance of a notification by updating the entrant status and notification message in Firestore.
+     * @param profileId The profile ID of the entrant accepting the invitation.
+     */
     private void handleAcceptNotification(String profileId) {
         if (profileId == null || profileId.trim().isEmpty()) {
             Toast.makeText(NotificationActivity.this, "Profile ID is invalid or empty.", Toast.LENGTH_SHORT).show();
@@ -274,6 +302,10 @@ public class NotificationActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Handles the decline of a notification by updating the entrant status and notification message in Firestore.
+     * @param profileId The profile ID of the entrant declining the invitation.
+     */
     private void handleDeclineNotification(String profileId) {
         DocumentReference entrantDocRef = db.collection("waitlisted_entrants").document(profileId);
         entrantDocRef.update("status", "cancelled")
@@ -301,6 +333,9 @@ public class NotificationActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Clears all notifications both from the UI and Firestore.
+     */
     private void clearAllNotifications() {
         // Remove all views from the notification layout in the UI
         notificationListLayout.removeAllViews();
@@ -332,6 +367,9 @@ public class NotificationActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Creates a notification channel for Android devices running API level 26 and above.
+     */
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Notification Channel";
@@ -345,6 +383,11 @@ public class NotificationActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Displays a system notification with the given title and message.
+     * @param title The title of the notification.
+     * @param message The message content of the notification.
+     */
     private void showSystemNotification(String title, String message) {
         // Create an Intent to open NotificationActivity when the notification is clicked
         Intent intent = new Intent(this, NotificationActivity.class);

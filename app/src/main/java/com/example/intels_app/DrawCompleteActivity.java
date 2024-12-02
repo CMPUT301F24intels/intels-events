@@ -22,6 +22,12 @@ public class DrawCompleteActivity extends AppCompatActivity {
     private String eventName;
     private LottieAnimationView animationView;
 
+    /**
+     * Initializes the layout, starts the completion animation, and sets up a button to navigate
+     * to the list of entrants selected in the lottery.
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this Bundle contains the data it most recently supplied in {@link #onSaveInstanceState}.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,12 +52,20 @@ public class DrawCompleteActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Called when the activity is paused.
+     * Pauses the animation to conserve resources.
+     */
     @Override
     protected void onPause() {
         super.onPause();
         animationView.pauseAnimation();
     }
 
+    /**
+     * Called when the activity is resumed.
+     * Resumes the animation when the activity becomes active.
+     */
     @Override
     protected void onResume() {
         super.onResume();

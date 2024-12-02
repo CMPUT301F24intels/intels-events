@@ -44,6 +44,11 @@ public class EventGridEntrantActivity extends AppCompatActivity {
     private List<Event> eventData;
     private Dialog progressDialog;
 
+    /**
+     * Called when the activity is starting. Initializes the layout, views, and fetches events
+     * that the current device has signed up for.
+     * @param savedInstanceState Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,6 +112,11 @@ public class EventGridEntrantActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Fetches the events that the current device has signed up for from Firestore.
+     * Updates the GridView with the list of signed-up events.
+     * @param deviceId The ID of the current device.
+     */
     private void fetchSignedUpEvents(String deviceId) {
         showProgressDialog();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -175,6 +185,9 @@ public class EventGridEntrantActivity extends AppCompatActivity {
          */
     }
 
+    /**
+     * Displays a custom progress dialog to indicate that data is being loaded.
+     */
     private void showProgressDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View customLayout = getLayoutInflater().inflate(R.layout.dialog_progress_bar, null);
@@ -195,6 +208,9 @@ public class EventGridEntrantActivity extends AppCompatActivity {
         progressDialog.show();
     }
 
+    /**
+     * Dismisses the progress dialog if it is currently showing.
+     */
     private void dismissProgressDialog() {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();

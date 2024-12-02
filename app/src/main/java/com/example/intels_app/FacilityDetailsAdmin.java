@@ -40,6 +40,12 @@ public class FacilityDetailsAdmin extends AppCompatActivity {
     Button removeImageButton;
     ImageButton backButton;
 
+    /**
+     * This method sets up the layout and initializes the UI components,
+     * storing the facility details for admins to view. Allows for facility
+     * deletion and facility image deletion.
+     * @param savedInstanceState A Bundle object containing the activity's previously saved state.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,6 +140,10 @@ public class FacilityDetailsAdmin extends AppCompatActivity {
         });
     }
 
+    /**
+     * Shows the facility image in an expanded dialog.
+     * @param imageDrawable The Drawable representing the facility image.
+     */
     private void showImageDialog(Drawable imageDrawable) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_expand_image, null);

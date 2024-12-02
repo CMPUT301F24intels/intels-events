@@ -190,7 +190,12 @@ public class CustomAdapterManageEvents extends BaseAdapter {
         return convertView;
     }
 
-    // Method to delete event data from Firestore and Storage
+    /**
+     * Deletes an event from Firestore and Firebase Storage.
+     * This method removes the event document from the "events" collection in Firestore and deletes
+     * associated images (poster and QR code) from Firebase Storage and adapter's data set.
+     * @param position The position of the event in the adapter's data list.
+     */
     private void deleteEvent(int position) {
         Log.d(TAG, "Deleting event: " + eventData.get(position).getEventName());
         String eventToDelete = eventData.get(position).getEventName();
@@ -237,7 +242,13 @@ public class CustomAdapterManageEvents extends BaseAdapter {
                 .addOnFailureListener(e -> Log.w(TAG, "Failed to fetch event details for deletion", e));
     }
 
-    // Method to delete facility data from FireStore and Storage
+    /**
+     * Deletes a facility and its related events from Firestore and Firebase Storage.
+     * This method removes the facility document from the "facilities" collection in Firestore,
+     * deletes the associated facility image from Firebase Storage, and deletes all events
+     * under that facility from the "events" collection in Firestore.
+     * @param position The position of the facility in the adapter's data list.
+     */
     private void deleteFacility(int position) {
         FirebaseFirestore.getInstance().collection("facilities")
                 .document(facilityData.get(position).getDeviceId())

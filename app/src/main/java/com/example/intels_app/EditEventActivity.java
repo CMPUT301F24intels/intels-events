@@ -95,6 +95,11 @@ public class EditEventActivity extends AppCompatActivity {
     boolean isQRChanged = false;
     boolean isPosterChanged = false;
 
+    /**
+     * Initializes the UI components, loads the existing event details from Firestore,
+     * and sets up click listeners for buttons.
+     * @param savedInstanceState contains the data it most recently supplied in {@link #onSaveInstanceState}.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -264,6 +269,10 @@ public class EditEventActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Validates whether all required fields are filled out before saving changes.
+     * @return true if all required fields are filled, false otherwise.
+     */
     private boolean areFieldsValid() {
         if (eventNameText.getText().toString().trim().isEmpty()) return false;
         if (maxAttendees.getText().toString().trim().isEmpty()) return false;
@@ -273,6 +282,9 @@ public class EditEventActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Loads the current event details from Firestore and populates the UI components.
+     */
     public void loadProfileData() {
         FirebaseFirestore.getInstance().collection("events").document(eventName).get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -324,6 +336,9 @@ public class EditEventActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Opens a Date and Time picker dialog to select and update the event's date and time.
+     */
     private void showDateTimePickerDialog() {
         final Calendar calendar = Calendar.getInstance();
 
@@ -361,6 +376,10 @@ public class EditEventActivity extends AppCompatActivity {
         datePickerDialog.show();
     }
 
+    /**
+     * Generates a new QR code for the event using ZXing and displays it in the ImageView.
+     * @throws WriterException if there is an error generating the QR code.
+     */
     public void generateQRCode() throws WriterException {
         // Use ZXing to generate QR code with only the event name
         BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
@@ -377,6 +396,10 @@ public class EditEventActivity extends AppCompatActivity {
         Glide.with(getApplicationContext()).load(newQRbitmap).into(qrImageView);
     }
 
+    /**
+     * Checks if both the new poster and QR code URLs are ready, and if so, updates the Firestore
+     * event document with the new details.
+     */
     public void checkAndUpdateFirestore() {
 
         // Ensure both URLs are ready
@@ -417,6 +440,10 @@ public class EditEventActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Opens a dialog to allow the user to select a new event poster, either by taking a photo
+     * or selecting an image from the gallery.
+     */
     private void showPosterDialog() {
         String[] options = {"Take Photo", "Choose from Gallery"};
         androidx.appcompat.app.AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -440,6 +467,11 @@ public class EditEventActivity extends AppCompatActivity {
         builder.show();
     }
 
+    /**
+     * Checks if the required permissions (Camera and Storage) are granted.
+     * Requests permissions if they are not already granted.
+     * @return true if all required permissions are granted, false otherwise.
+     */
     private boolean checkAndRequestPermissions() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -449,6 +481,12 @@ public class EditEventActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Handles the result of the permission request.
+     * @param requestCode  The request code passed in {@link #requestPermissions}.
+     * @param permissions  The requested permissions.
+     * @param grantResults The grant results for the corresponding permissions.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -465,16 +503,28 @@ public class EditEventActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Opens the device camera to capture a new image for the event poster.
+     */
     private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
     }
 
+    /**
+     * Opens the device's gallery to select a new image for the event poster.
+     */
     private void openGallery() {
         Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK);
     }
 
+    /**
+     * Handles the result of activities such as image capture or gallery selection.
+     * @param requestCode  The request code identifying which activity is returning data.
+     * @param resultCode   The result code returned by the child activity.
+     * @param data         An Intent containing the data from the activity.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

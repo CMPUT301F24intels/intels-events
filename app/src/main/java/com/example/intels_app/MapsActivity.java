@@ -49,6 +49,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private String eventName;
 
+    /**
+     * Called when the activity is first created.
+     * Initializes views, Firestore, and checks permissions for location access.
+     * @param savedInstanceState The saved state of the application.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +83,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    /**
+     * Loads the map fragment asynchronously. Called after permission for accessing location is granted.
+     */
     private void loadMap() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
@@ -85,6 +93,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    /**
+     * Called when the Google Map is ready to be used. Sets up map settings and fetches waitlisted entrant locations
+     * to display as markers on the map.
+     * @param googleMap The GoogleMap instance.
+     */
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
@@ -158,6 +171,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    /**
+     * Fetches waitlist entries and marks them on the map if coordinates are available.
+     * This is used to display additional waitlisted events based on different collection.
+     */
     private void fetchWaitlistEntries() {
         db.collection("waitlist")
                 .get()
@@ -199,6 +216,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
+    /**
+     * Handles the result of permission requests for accessing location.
+     * @param requestCode The request code used to request the permission.
+     * @param permissions The requested permissions.
+     * @param grantResults The results of the permission requests.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);

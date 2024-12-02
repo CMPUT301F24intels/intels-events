@@ -17,6 +17,11 @@ import androidx.appcompat.app.AppCompatActivity;
  * @see com.example.intels_app.MainActivity
  */
 public class SuccessWaitlistJoin extends AppCompatActivity {
+    /**
+     * Called when the activity is first created.
+     * Sets up the UI components and initializes button listeners for navigation actions.
+     * @param savedInstanceState Contains the most recent data.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

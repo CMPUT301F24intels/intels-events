@@ -32,27 +32,50 @@ public class ProfileAdapter extends BaseAdapter implements Filterable {
     public List<Profile> filteredProfiles;
     private Filter ProfileFilter;
 
+    /**
+     * Constructor to create an instance of ProfileAdapter.
+     * @param context The context in which the adapter is used.
+     * @param profileList The list of Profile objects to display.
+     */
     public ProfileAdapter(Context context, List<Profile> profileList) {
         this.context = context;
         this.originalProfiles = new ArrayList<>(profileList);
         this.filteredProfiles = new ArrayList<>(profileList);
     }
 
+    /**
+     * Returns the number of profiles in the filtered list.
+     * @return The size of the filteredProfiles list.
+     */
     @Override
     public int getCount() {
         return filteredProfiles.size();
     }
 
+    /**
+     * Returns the Profile object at the specified position in the filtered list.
+     * @param position The position of the profile in the filtered list.
+     * @return The Profile object at the specified position.
+     */
     @Override
     public Profile getItem(int position) {
         return filteredProfiles.get(position);
     }
 
+    /**
+     * Returns the item ID for the specified position.
+     * @param position The position of the profile.
+     * @return The position value as the item ID.
+     */
     @Override
     public long getItemId(int position) {
         return position;
     }
 
+    /**
+     * Returns the filter used to filter profiles based on their name.
+     * @return The ProfileFilter object used to perform filtering.
+     */
     public Filter getFilter() {
         if (ProfileFilter == null) {
             ProfileFilter = new ProfileFilter();
@@ -60,6 +83,13 @@ public class ProfileAdapter extends BaseAdapter implements Filterable {
         return ProfileFilter;
     }
 
+    /**
+     * Returns the view for a specific item in the list.
+     * @param position The position of the item in the list.
+     * @param convertView The old view to reuse, if possible.
+     * @param parent The parent ViewGroup that this view will be attached to.
+     * @return The View corresponding to the data at the specified position.
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
@@ -86,7 +116,16 @@ public class ProfileAdapter extends BaseAdapter implements Filterable {
         return convertView;
     }
 
+    /**
+     * ProfileFilter is an inner class that provides filtering capabilities for the ProfileAdapter.
+     * It filters profiles based on their name.
+     */
     private class ProfileFilter extends Filter {
+        /**
+         * Performs the filtering based on the search constraint.
+         * @param constraint The constraint to filter by.
+         * @return A FilterResults object containing the filtered profiles.
+         */
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             FilterResults results = new FilterResults();
@@ -109,6 +148,11 @@ public class ProfileAdapter extends BaseAdapter implements Filterable {
             return results;
         }
 
+        /**
+         * Publishes the filtering results to update the filteredProfiles list and notify changes.
+         * @param constraint The constraint used for filtering.
+         * @param results The FilterResults containing the filtered data.
+         */
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
             filteredProfiles = (List<Profile>) results.values;
@@ -116,7 +160,11 @@ public class ProfileAdapter extends BaseAdapter implements Filterable {
         }
     }
 
-        public void updateData(List<Profile> newProfiles) {
+    /**
+     * Updates the filteredProfiles list with new data and refreshes the adapter.
+     * @param newProfiles The new list of Profile objects to update the adapter with.
+     */
+    public void updateData(List<Profile> newProfiles) {
             this.filteredProfiles = newProfiles;
             notifyDataSetChanged();
         }

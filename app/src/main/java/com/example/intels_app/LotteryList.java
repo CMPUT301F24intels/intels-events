@@ -43,6 +43,11 @@ public class LotteryList extends AppCompatActivity {
     private String eventName;
     private CheckBox sendNotifications;
 
+    /**
+     * Initializes UI components, sets up Firestore, loads selected entrants,
+     * and configures back button, search bar, and send notifications checkbox.
+     * @param savedInstanceState Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,6 +112,10 @@ public class LotteryList extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads the selected entrants for the lottery event from Firestore.
+     * Filters out entrants who have declined the lottery, and adds the remaining entrants to the list.
+     */
     private void loadSelectedEntrants() {
         db.collection("notifications")
                 .whereEqualTo("type", "declined")
@@ -186,6 +195,11 @@ public class LotteryList extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Deletes an entrant from the lottery list by removing them from the "selected_entrants" collection
+     * and updating their status in the "notifications" collection.
+     * @param profileId The ID of the profile to be removed.
+     */
     public void deleteEntrantFromLotteryList(String profileId) {
         // Remove from `selected_entrants`
         db.collection("selected_entrants")
