@@ -20,16 +20,19 @@ import androidx.core.content.ContextCompat;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.installations.FirebaseInstallations;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import android.Manifest;
 
@@ -54,7 +57,7 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
     private boolean geolocationRequirement;
     private String eventName;
     private String facilityName, location, dateTime, description, posterUrl;
-    private int maxAttendees;
+    private int maxAttendees, limitEntrants;
 
     /**
      * Called when the activity is first created.
@@ -81,6 +84,7 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         maxAttendees = getIntent().getIntExtra("maxAttendees", 0);
         geolocationRequirement = getIntent().getBooleanExtra("geolocationRequirement", false);
         posterUrl = getIntent().getStringExtra("posterUrl");
+        limitEntrants= getIntent().getIntExtra("limitEntrants",1000000);
 
         setupEventDetailsUI(eventName, facilityName, location, dateTime, description, maxAttendees, geolocationRequirement, posterUrl);
 
@@ -213,30 +217,61 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         profileData.put("name", profile.getName());
         profileData.put("notifPref", profile.isNotifPref());
 
-        entrantDocRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                if (document.exists()) {
-                    // If the document exists, update the events array
-                    entrantDocRef.update("events", FieldValue.arrayUnion(eventData))
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(this, "Successfully joined the waitlist!", Toast.LENGTH_SHORT).show();
-                                navigateToSuccessScreen();
-                            });
-                } else {
-                    // Create a new document
-                    Map<String, Object> waitlistEntry = new HashMap<>();
-                    waitlistEntry.put("profile", profileData);
-                    waitlistEntry.put("events", Collections.singletonList(eventData)); // Add event to the list
+        // Query the `waitlisted_entrants` collection
+        db.collection("waitlisted_entrants")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int entrantCount = 0;
 
-                    entrantDocRef.set(waitlistEntry)
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(this, "Successfully joined the waitlist!", Toast.LENGTH_SHORT).show();
-                                navigateToSuccessScreen();
-                            });
-                }
-            }
-        });
+                    // Iterate through documents in the collection
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        List<Map<String, Object>> events = (List<Map<String, Object>>) document.get("events");
+
+                        // Ensure events is not null or empty
+                        if (events != null && !events.isEmpty()) {
+                            // Check if any event in the list matches the target event name
+                            for (Map<String, Object> event : events) {
+                                String currentEventName = (String) event.get("eventName");
+                                if (eventName.equals(currentEventName)) {
+                                    entrantCount++;
+                                    break; // No need to check further events for this entrant
+                                }
+                            }
+                        }
+                    }
+
+                    // Display the count
+                    Log.d("EventEntrants", "Number of entrants for " + eventName + ": " + entrantCount);
+
+                    if( entrantCount <= limitEntrants) {
+                        entrantDocRef.get().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) {
+                                    // If the document exists, update the events array
+                                    entrantDocRef.update("events", FieldValue.arrayUnion(eventData))
+                                            .addOnSuccessListener(aVoid -> {
+                                                Toast.makeText(this, "Successfully joined the waitlist!", Toast.LENGTH_SHORT).show();
+                                                navigateToSuccessScreen();
+                                            });
+                                } else {
+                                    // Create a new document
+                                    Map<String, Object> waitlistEntry = new HashMap<>();
+                                    waitlistEntry.put("profile", profileData);
+                                    waitlistEntry.put("events", Collections.singletonList(eventData)); // Add event to the list
+
+                                    entrantDocRef.set(waitlistEntry)
+                                            .addOnSuccessListener(aVoid -> {
+                                                Toast.makeText(this, "Successfully joined the waitlist!", Toast.LENGTH_SHORT).show();
+                                                navigateToSuccessScreen();
+                                            });
+                                }
+                            }
+                        });
+                    }
+                    else {Toast.makeText(this, "Waitlist is full!", Toast.LENGTH_SHORT).show();};
+                });
+
     }
 
     /**
