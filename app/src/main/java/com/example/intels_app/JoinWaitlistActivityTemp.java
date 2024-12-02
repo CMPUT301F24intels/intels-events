@@ -84,7 +84,7 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         maxAttendees = getIntent().getIntExtra("maxAttendees", 0);
         geolocationRequirement = getIntent().getBooleanExtra("geolocationRequirement", false);
         posterUrl = getIntent().getStringExtra("posterUrl");
-        limitEntrants= getIntent().getIntExtra("limitEntrants",1000000);
+        limitEntrants= getIntent().getIntExtra("limitEntrants",0);
 
         setupEventDetailsUI(eventName, facilityName, location, dateTime, description, maxAttendees, geolocationRequirement, posterUrl);
 
@@ -189,12 +189,7 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
                 });
     }
 
-    /**
-     * Adds a user profile to the event's waitlist in Firestore.
-     * @param profile         The user's profile details.
-     * @param geolocationData Optional geolocation data if required by the event.
-     */
-    private void joinWaitlist(Profile profile, @Nullable Map<String, Object> geolocationData) {
+    /*private void joinWaitlist(Profile profile, @Nullable Map<String, Object> geolocationData) {
         String documentId = profile.getName();
         DocumentReference entrantDocRef = waitlistRef.document(documentId);
 
@@ -240,15 +235,13 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
                         }
                     }
 
-                    // Display the count
                     Log.d("EventEntrants", "Number of entrants for " + eventName + ": " + entrantCount);
 
-                    if( entrantCount <= limitEntrants) {
+                    if( entrantCount < limitEntrants) {
                         entrantDocRef.get().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
                                 DocumentSnapshot document = task.getResult();
                                 if (document.exists()) {
-                                    // If the document exists, update the events array
                                     entrantDocRef.update("events", FieldValue.arrayUnion(eventData))
                                             .addOnSuccessListener(aVoid -> {
                                                 Toast.makeText(this, "Successfully joined the waitlist!", Toast.LENGTH_SHORT).show();
@@ -272,6 +265,122 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
                     else {Toast.makeText(this, "Waitlist is full!", Toast.LENGTH_SHORT).show();};
                 });
 
+    }*/
+    /**
+     * Adds a user profile to the event's waitlist in Firestore.
+     * @param profile         The user's profile details.
+     * @param geolocationData Optional geolocation data if required by the event.
+     */
+    private void joinWaitlist(Profile profile, @Nullable Map<String, Object> geolocationData) {
+        String documentId = profile.getName();
+        DocumentReference entrantDocRef = waitlistRef.document(documentId);
+
+        db.collection("events").document(eventName)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        int limitEntrants;
+
+                        if (documentSnapshot.contains("limitEntrants")) {
+                            String limitEntrantsString = documentSnapshot.getString("limitEntrants");
+                            if (limitEntrantsString != null) {
+                                try {
+                                    limitEntrants = Integer.parseInt(limitEntrantsString);
+                                } catch (NumberFormatException e) {
+                                    Log.e("JoinWaitlist", "Invalid format for 'limitEntrants': " + limitEntrantsString, e);
+                                    Toast.makeText(this, "Invalid entrant limit. Please contact support.", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                            } else {
+                                limitEntrants = Integer.MAX_VALUE;
+                            }
+                        } else {
+                            limitEntrants = Integer.MAX_VALUE;
+                        }
+
+                        processJoinWaitlist(profile, geolocationData, entrantDocRef, limitEntrants);
+                    } else {
+                        Toast.makeText(this, "Event not found!", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("JoinWaitlist", "Error fetching event details", e);
+                    Toast.makeText(this, "Error fetching event details. Please try again.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void processJoinWaitlist(Profile profile, @Nullable Map<String, Object> geolocationData,
+                                     DocumentReference entrantDocRef, int limitEntrants) {
+
+        // Construct event data
+        Map<String, Object> eventData = new HashMap<>();
+        eventData.put("eventName", eventName);
+        if (geolocationData != null) {
+            eventData.putAll(geolocationData);
+        }
+
+        Log.d("JoinWaitlist", "Using eventName: " + eventName);
+        Log.d("JoinWaitlist", "Event Data: " + eventData);
+
+        // Construct profile data
+        Map<String, Object> profileData = new HashMap<>();
+        profileData.put("deviceId", profile.getDeviceId());
+        profileData.put("email", profile.getEmail());
+        profileData.put("phone_number", profile.getPhone_number());
+        profileData.put("imageUrl", profile.getImageUrl());
+        profileData.put("name", profile.getName());
+        profileData.put("notifPref", profile.isNotifPref());
+
+        // Query the `waitlisted_entrants` collection
+        db.collection("waitlisted_entrants")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    int entrantCount = 0;
+
+                    // Iterate through documents in the collection
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        List<Map<String, Object>> events = (List<Map<String, Object>>) document.get("events");
+
+                        if (events != null && !events.isEmpty()) {
+                            for (Map<String, Object> event : events) {
+                                String currentEventName = (String) event.get("eventName");
+                                if (eventName.equals(currentEventName)) {
+                                    entrantCount++;
+                                    break; // Count each entrant only once
+                                }
+                            }
+                        }
+                    }
+
+                    Log.d("EventEntrants", "Number of entrants for " + eventName + ": " + entrantCount);
+
+                    if (entrantCount < limitEntrants) {
+                        entrantDocRef.get().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                if (document.exists()) {
+                                    entrantDocRef.update("events", FieldValue.arrayUnion(eventData))
+                                            .addOnSuccessListener(aVoid -> {
+                                                Toast.makeText(this, "Successfully joined the waitlist!", Toast.LENGTH_SHORT).show();
+                                                navigateToSuccessScreen();
+                                            });
+                                } else {
+                                    Map<String, Object> waitlistEntry = new HashMap<>();
+                                    waitlistEntry.put("profile", profileData);
+                                    waitlistEntry.put("events", Collections.singletonList(eventData));
+
+                                    entrantDocRef.set(waitlistEntry)
+                                            .addOnSuccessListener(aVoid -> {
+                                                Toast.makeText(this, "Successfully joined the waitlist!", Toast.LENGTH_SHORT).show();
+                                                navigateToSuccessScreen();
+                                            });
+                                }
+                            }
+                        });
+                    } else {
+                        Toast.makeText(this, "Waitlist is full!", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     /**
