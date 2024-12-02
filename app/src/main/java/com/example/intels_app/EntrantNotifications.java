@@ -14,10 +14,18 @@ public class EntrantNotifications {
 
     private List<String> notifications = new ArrayList<>();
 
+    /**
+     * Adds a notification message to the list of notifications.
+     * @param message The notification message to be added.
+     */
     public void addNotification(String message) {
         notifications.add(message);
     }
 
+    /**
+     * Retrieves the list of notifications for the entrant.
+     * @return A list of notification messages.
+     */
     public List<String> getNotifications() {
         return notifications;
     }

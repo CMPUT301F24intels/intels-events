@@ -46,11 +46,23 @@ public class CustomAdapterOrganizer extends BaseAdapter {
     Event event;
     Facility facility;
 
-    // Define the interface inside the adapter
+    /**
+     * Interface for event click handling.
+     */
     public interface OnEventClickListener {
+        /**
+         * Called when an event item is clicked.
+         * @param position The position of the clicked event.
+         */
         void onEventClick(int position);
     }
 
+    /**
+     * Constructor for creating an adapter for events.
+     * @param context The context in which the adapter is used.
+     * @param data The list of Event objects to be displayed.
+     * @param listener The listener for handling event clicks.
+     */
     public CustomAdapterOrganizer(Context context, ArrayList<Event> data, CustomAdapterOrganizer.OnEventClickListener listener) {
         this.context = context;
         this.eventData = data;
@@ -58,24 +70,54 @@ public class CustomAdapterOrganizer extends BaseAdapter {
         this.isEventAdapter = true;
     }
 
+    /**
+     * Constructor for creating an adapter for facilities.
+     * @deprecated
+     * @param context The context in which the adapter is used.
+     * @param data The list of Facility objects to be displayed.
+     */
     public CustomAdapterOrganizer(Context context, ArrayList<Facility> data) {
         this.context = context;
         this.facilityData = data;
         this.isEventAdapter = false;
     }
 
+    /**
+     * Returns the size of dataset.
+     * @return The number of events or facilities in the data set.
+     */
     public int getCount() {
         return eventData.size();
     }
 
+    /**
+     * Returns the item at the specified position.
+     * @param position The position of the item within the adapter's data set.
+     * @return The Event or Facility object at the specified position.
+     */
     public Object getItem(int position) {
         return eventData.get(position);
     }
 
+    /**
+     * Returns the row ID of the specified position.
+     * @param position The position of the item within the adapter's data set.
+     * @return The row ID of the specified item.
+     */
     public long getItemId(int position) {
         return position;
     }
 
+    /**
+     * Provides a custom view for each item in the adapter's data set, either an event or a facility.
+     * For events, it sets the event name and sets up a click listener to handle event selection via the listener interface.
+     * For facilities, it sets the facility name and sets up a click listener to navigate to the `FacilityDetailsAdmin` activity.
+     *
+     * @param position The position of the item within the adapter's data set.
+     * @param convertView The old view to reuse, if possible.
+     * @param parent The parent view that this view will eventually be attached to.
+     * @return A View corresponding to the data at the specified position.
+     */
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.grid_item_organizer, parent, false);

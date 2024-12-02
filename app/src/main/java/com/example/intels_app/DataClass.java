@@ -12,18 +12,32 @@ package com.example.intels_app;
 public class DataClass {
     private String imageUrl;
 
-    // Default constructor for Firebase
+    /**
+     * Default constructor required for Firebase serialization.
+     */
     public DataClass() {
     }
 
+    /**
+     * Constructor that initializes the imageUrl field.
+     * @param imageUrl The URL of the image to be set.
+     */
     public DataClass(String imageUrl) {
         this.imageUrl = imageUrl;
     }
 
+    /**
+     * Returns the URL of the image.
+     * @return The URL of the image as a String.
+     */
     public String getImageUrl() {
         return imageUrl;
     }
 
+    /**
+     * Sets the URL of the image.
+     * @param imageUrl The URL of the image to be set.
+     */
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }

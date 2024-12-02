@@ -48,6 +48,10 @@ public class EntrantInWaitlist extends AppCompatActivity {
     private String eventName;
     private ProfileAdapter adapter;
 
+    /**
+     * Initializes the UI components, sets up event listeners, and fetches the list of waitlisted entrants.
+     * @param savedInstanceState A Bundle containing the activity's previously saved state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -149,6 +153,9 @@ public class EntrantInWaitlist extends AppCompatActivity {
         });
     }
 
+    /**
+     * Updates the color of the buttons to indicate the current state when returning to this activity.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -157,6 +164,10 @@ public class EntrantInWaitlist extends AppCompatActivity {
         cancelled_button.setBackgroundTintList(getResources().getColorStateList(R.color.default_color));
     }
 
+    /**
+     * Shows a custom notification dialog where the user can enter a custom message to be sent
+     * to all waitlisted entrants.
+     */
     private void showCustomNotificationDialog() {
         EditText input = new EditText(this);
         input.setHint("Enter custom notification message");
@@ -181,6 +192,10 @@ public class EntrantInWaitlist extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Sends a notification with a custom message to all eligible waitlisted entrants for the event.
+     * @param message The custom message to be sent to the waitlisted entrants.
+     */
     private void sendNotificationToEntrants(String message) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference waitlistRef = db.collection("waitlisted_entrants");
@@ -247,6 +262,13 @@ public class EntrantInWaitlist extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Sends a notification to a specific profile.
+     * @param deviceId  The device ID of the profile to receive the notification.
+     * @param profileId The ID of the profile to receive the notification.
+     * @param eventName The name of the event associated with the notification.
+     * @param message   The message to be sent to the profile.
+     */
     private void sendNotificationToProfile(String deviceId, String profileId, String eventName, String message) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -265,6 +287,10 @@ public class EntrantInWaitlist extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.e("Notification", "Error sending notification", e));
     }
 
+    /**
+     * Fetches the list of waitlisted entrants for the specified event from Firestore.
+     * Updates the ListView with the retrieved profiles.
+     */
     private void fetchEntrants() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference waitlistRef = db.collection("waitlisted_entrants");
