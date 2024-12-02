@@ -283,7 +283,7 @@ public class SignUp extends AppCompatActivity {
         paint.setStyle(Paint.Style.FILL);
         canvas.drawCircle(size / 2, size / 2, size / 2, paint);
 
-        paint.setColor(Color.BLACK);
+        paint.setColor(getResources().getColor(R.color.default_color));
         paint.setTextSize(64);
         paint.setTextAlign(Paint.Align.CENTER);
         paint.setAntiAlias(true);
