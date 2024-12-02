@@ -88,6 +88,8 @@ public class AddEvent extends AppCompatActivity {
     private Button addPosterButton;
     private Button addEvent;
     private Dialog progressDialog;
+    private EditText limitEntrantsButton;
+
 
     /**
      * Opens the Add Event layout that allows organizers to enter details for their new event
@@ -114,6 +116,7 @@ public class AddEvent extends AppCompatActivity {
             Intent intent = new Intent(AddEvent.this, ManageEventsActivity.class);
             startActivity(intent);
         });
+        limitEntrantsButton = findViewById(R.id.limit_entrants);
 
         // Select image from gallery if Add Poster Button is clicked
         addPosterButton = findViewById(R.id.edit_poster_button);
@@ -133,6 +136,8 @@ public class AddEvent extends AppCompatActivity {
                 EditText dateTime = findViewById(R.id.dateTimeEditText);
                 EditText description = findViewById(R.id.descriptionEditText);
                 SwitchCompat geolocationRequirement = findViewById(R.id.geolocationRequirementTextView);
+                String limitEntrantsText = limitEntrantsButton.getText().toString();
+
 
                 // Get device ID so we know which organizer is adding an event
                 // During creation, the event will be added for the organizer with this device ID
@@ -174,14 +179,28 @@ public class AddEvent extends AppCompatActivity {
                                                                                 );
 
                                                                                 // Save new event to FireStore under the events collection. Name it by the event name
+                                                                                // Create a map to store event details
+                                                                                Map<String, Object> eventDetails = new HashMap<>();
+                                                                                eventDetails.put("eventName", eventName.getText().toString());
+                                                                                eventDetails.put("facilityName", facilityName);
+                                                                                eventDetails.put("location", location.getText().toString());
+                                                                                eventDetails.put("dateTime", dateTimeEditText.getText().toString());
+                                                                                eventDetails.put("description", description.getText().toString());
+                                                                                eventDetails.put("maxAttendees", Integer.parseInt(maxAttendees.getText().toString()));
+                                                                                eventDetails.put("geolocationRequirement", geolocationRequirement.isChecked());
+                                                                                eventDetails.put("posterUrl", posterUrl);
+                                                                                eventDetails.put("deviceId", deviceId);
+                                                                                eventDetails.put("limitEntrants", limitEntrantsText); // Add this line
+
                                                                                 FirebaseFirestore.getInstance().collection("events").document(eventName.getText().toString())
-                                                                                        .set(newEvent)
-                                                                                        .addOnSuccessListener(documentReference -> {
+                                                                                        .set(eventDetails)
+                                                                                        .addOnSuccessListener(aVoid -> {
                                                                                             Intent intent = new Intent(AddEvent.this, CreateQR.class);
                                                                                             intent.putExtra("Event Name", eventName.getText().toString());
                                                                                             startActivity(intent);
                                                                                         })
                                                                                         .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
+
                                                                             }
                                                                         });
                                                             })
