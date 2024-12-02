@@ -174,6 +174,42 @@ public class AdminProfiles extends AppCompatActivity {
         });
     }
 
+    /**
+     * Displays the dialog with the loading circle while data is being fetched from Firestore
+     */
+    private void showProgressDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View customLayout = getLayoutInflater().inflate(R.layout.dialog_progress_bar, null);
+        builder.setView(customLayout);
+        builder.setCancelable(false);
+
+        // Create and show the dialog
+        progressDialog = builder.create();
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        // Ensure the dialog appears as a square
+        progressDialog.setOnShowListener(dialog -> {
+            if (progressDialog.getWindow() != null) {
+                progressDialog.getWindow().setLayout(400, 400); // Set width and height to match layout
+            }
+        });
+
+        progressDialog.show();
+    }
+
+    /**
+     * Stops the dialog with the loading circle
+     */
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
+
+    /**
+     * Deletes a random facility from the FireStore "facilities" collection.
+     * @deprecated Facilities are no longer deleted from the profiles page. They should not be deleted randomly.
+     */
     private void deleteFacility() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference facilitiesRef = db.collection("facilities");
@@ -209,6 +245,10 @@ public class AdminProfiles extends AppCompatActivity {
                 });
     }
 
+    /**
+     * @deprecated This function was used to display options when clicking three dots. The 3 dots no longer exist.
+     * @param v View to show the popup menu
+     */
     private void showPopupMenu(View v) {
         PopupMenu popup = new PopupMenu(this, v);
         popup.inflate(R.menu.popup_menu);
@@ -225,31 +265,5 @@ public class AdminProfiles extends AppCompatActivity {
         });
 
         popup.show();
-    }
-
-    private void showProgressDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View customLayout = getLayoutInflater().inflate(R.layout.dialog_progress_bar, null);
-        builder.setView(customLayout);
-        builder.setCancelable(false);
-
-        // Create and show the dialog
-        progressDialog = builder.create();
-        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-
-        // Ensure the dialog appears as a square
-        progressDialog.setOnShowListener(dialog -> {
-            if (progressDialog.getWindow() != null) {
-                progressDialog.getWindow().setLayout(400, 400); // Set width and height to match layout
-            }
-        });
-
-        progressDialog.show();
-    }
-
-    private void dismissProgressDialog() {
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
     }
 }
