@@ -24,28 +24,11 @@
         android:layout_marginTop="25dp"
         android:layout_marginEnd="20dp"
         android:backgroundTint="#3580FF"
-        android:text="Final List"
         android:fontFamily="@font/poppins_semibold"
+        android:text="Final List"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/back_button"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/search_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:background="@android:drawable/edit_text"
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:hint="Search"
-        android:fontFamily="@font/poppins_semibold"
-        android:padding="10dp"
-        android:textColor="@android:color/black"
-        android:textColorHint="@android:color/darker_gray"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button2" />
 
     <CheckBox
         android:id="@+id/send_notifications"
@@ -61,15 +44,15 @@
 
     <ListView
         android:id="@+id/entrant_list"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_width="415dp"
+        android:layout_height="483dp"
         android:layout_marginStart="1dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="30dp"
         android:layout_marginEnd="1dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/search_bar">
+        app:layout_constraintTop_toBottomOf="@+id/button2">
 
     </ListView>
 

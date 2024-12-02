@@ -70,20 +70,6 @@ public class FinalList extends AppCompatActivity {
             finish();
         });
 
-        EditText searchBar = findViewById(R.id.search_bar);
-        searchBar.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                adapter.getFilter().filter(s);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) { }
-        });
-
         sendNotifications = findViewById(R.id.send_notifications);
         sendNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {

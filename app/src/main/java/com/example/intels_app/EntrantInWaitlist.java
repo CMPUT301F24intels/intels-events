@@ -67,7 +67,6 @@ public class EntrantInWaitlist extends AppCompatActivity {
 
         Log.d("EntrantInWaitlist", "Retrieved eventName: " + eventName);
 
-        EditText searchBar = findViewById(R.id.search_bar);
         listView = findViewById(R.id.profile_list);
         sendNotificationCheckbox = findViewById(R.id.checkbox_notify);
 
@@ -85,21 +84,6 @@ public class EntrantInWaitlist extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(EntrantInWaitlist.this, EventGridOrganizerActivity.class);
                 startActivity(intent);
-            }
-        });
-
-        searchBar.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                adapter.getFilter().filter(s); // Filter the adapter based on search input
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
             }
         });
 
