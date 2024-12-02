@@ -87,7 +87,7 @@ public class JoinWaitlistActivity extends AppCompatActivity {
         geolocationSwitch.setClickable(false);
 
         // Load the poster image
-        ImageView posterImageView = findViewById(R.id.qrCodeImage_2);
+        ImageView posterImageView = findViewById(R.id.camera_image);
         if (posterUrl != null && !posterUrl.isEmpty()) {
             Glide.with(this)
                     .load(posterUrl)

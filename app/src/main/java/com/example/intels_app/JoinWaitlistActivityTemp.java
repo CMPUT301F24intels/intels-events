@@ -133,7 +133,7 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         geolocationSwitch.setChecked(geolocationRequirement);
         geolocationSwitch.setClickable(false);
 
-        ImageView posterImageView = findViewById(R.id.qrCodeImage_2);
+        ImageView posterImageView = findViewById(R.id.camera_image);
         if (posterUrl != null && !posterUrl.isEmpty()) {
             Glide.with(this).load(posterUrl).into(posterImageView);
         }

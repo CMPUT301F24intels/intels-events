@@ -32,21 +32,21 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/qrCodeImage_2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:scaleType="centerCrop"
+        android:id="@+id/camera_image"
+        android:layout_width="234dp"
+        android:layout_height="208dp"
+        android:layout_marginTop="40dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/eventDetailssTextview"
-        tools:srcCompat="@drawable/pfp_placeholder_image" />
+        app:layout_constraintTop_toBottomOf="@+id/eventDetailssTextview"
+        app:srcCompat="@drawable/camera_image" />
 
     <TextView
         android:id="@+id/eventNameEdit"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="11dp"
+        android:layout_marginTop="44dp"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="Event Name"
@@ -56,7 +56,7 @@
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/qrCodeImage_2" />
+        app:layout_constraintTop_toBottomOf="@+id/camera_image" />
 
     <TextView
         android:id="@+id/facilityEdit"
@@ -142,7 +142,7 @@
         android:id="@+id/geolocationRequirementText"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/rounded_corner_rectangle_light_gray"
         android:fontFamily="@font/poppins_semibold"
         android:paddingStart="10dp"
@@ -152,6 +152,7 @@
         android:textColor="#848A94"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.483"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/max_attendees" />
 
@@ -159,7 +160,7 @@
         android:id="@+id/join_waitlist_button"
         android:layout_width="347dp"
         android:layout_height="51dp"
-        android:layout_marginBottom="15dp"
+        android:layout_marginBottom="25dp"
         android:backgroundTint="#17AF42"
         android:fontFamily="@font/poppins_semibold"
         android:text="Join Waitlist"
