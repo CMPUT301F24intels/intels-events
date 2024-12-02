@@ -97,6 +97,7 @@ public class CreateFacility extends AppCompatActivity {
             showImagePickerDialog();
             imageUploaded = true;
         });
+
         ImageButton back_button = findViewById(R.id.back_button_facility);
         back_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -222,6 +223,11 @@ public class CreateFacility extends AppCompatActivity {
                     Toast.makeText(CreateFacility.this, "Failed to save facility", Toast.LENGTH_SHORT).show();
                 });
     }
+
+    /**
+     * Opens a dialog to select an image from the camera or gallery.
+     * Calls the functions to opens the camera or the gallery.
+     */
     private void showImagePickerDialog() {
         String[] options = {"Take Photo", "Choose from Gallery"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -245,6 +251,10 @@ public class CreateFacility extends AppCompatActivity {
         builder.show();
     }
 
+    /**
+     * Checks if the app has all the necessary permissions
+     * @return True if all permissions are granted, false otherwise
+     */
     private boolean checkAndRequestPermissions() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -254,6 +264,14 @@ public class CreateFacility extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Handles the result of the permission request
+     * @param requestCode The request code passed
+     * @param permissions The requested permissions. Never null.
+     * @param grantResults The grant results for the corresponding permissions
+     *     which is either {@link android.content.pm.PackageManager#PERMISSION_GRANTED}
+     *     or {@link android.content.pm.PackageManager#PERMISSION_DENIED}. Never null.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -270,16 +288,28 @@ public class CreateFacility extends AppCompatActivity {
         }
     }
 
+    /**
+     * Opens the camera to take a picture
+     */
     private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
     }
 
+    /**
+     * Opens the gallery to select an image
+     */
     private void openGallery() {
         Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK);
     }
 
+    /**
+     * Processes an image selected from gallery or camera
+     * @param requestCode Identifies the request type (e.g., camera capture, gallery pick) using a predefined constant
+     * @param resultCode Indicates the result status, typically RESULT_OK or RESULT_CANCELED
+     * @param data Intent that contains the result data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

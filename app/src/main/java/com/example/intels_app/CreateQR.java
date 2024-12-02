@@ -49,7 +49,6 @@ public class CreateQR extends AppCompatActivity {
      * Creates a QR code for the event
      * @param savedInstanceState Bundle to save the state of the activity
      */
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -151,6 +150,9 @@ public class CreateQR extends AppCompatActivity {
         }
     }
 
+    /**
+     * Stops the dialog with the loading circle
+     */
     private void dismissProgressDialog() {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();

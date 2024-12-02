@@ -141,6 +141,9 @@ public class AdminFacilities extends AppCompatActivity {
         });
     }
 
+    /**
+     * Displays the dialog with the loading circle while data is being fetched from Firestore
+     */
     private void showProgressDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View customLayout = getLayoutInflater().inflate(R.layout.dialog_progress_bar, null);
@@ -161,6 +164,9 @@ public class AdminFacilities extends AppCompatActivity {
         progressDialog.show();
     }
 
+    /**
+     * Stops the dialog with the loading circle
+     */
     private void dismissProgressDialog() {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
