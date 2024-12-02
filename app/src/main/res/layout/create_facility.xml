@@ -6,49 +6,47 @@
     android:layout_height="match_parent"
     android:background="#16181F">
 
-    <TextView
-        android:id="@+id/welcomeTextview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:fontFamily="@font/poppins_semibold"
-        android:text="Welcome"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textSize="28sp"
-        app:layout_constraintEnd_toEndOf="parent"
+    <ImageButton
+        android:id="@+id/back_button_facility"
+        android:layout_width="45dp"
+        android:layout_height="43dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="#16181F"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/back_button" />
 
     <TextView
         android:id="@+id/facilityDetailsTextview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="80dp"
         android:fontFamily="@font/poppins_semibold"
-        android:text="Create your Facility Profile"
+        android:text="Please create your facility profile!"
         android:textAlignment="center"
         android:textColor="@color/white"
-        android:textSize="22sp"
+        android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.506"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/welcomeTextview" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/pfpPlaceholder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="28dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/facilityDetailsTextview"
         app:srcCompat="@drawable/pfp_placeholder_image" />
 
     <ImageView
         android:id="@+id/camera_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="93dp"
+        android:layout_height="93dp"
         app:layout_constraintBottom_toBottomOf="@+id/pfpPlaceholder"
         app:layout_constraintEnd_toEndOf="@+id/pfpPlaceholder"
         app:layout_constraintHorizontal_bias="0.516"
@@ -59,24 +57,22 @@
 
     <Button
         android:id="@+id/edit_poster_button"
-        android:layout_width="143dp"
-        android:layout_height="55dp"
-        android:layout_marginTop="72dp"
-        android:layout_marginEnd="32dp"
+        android:layout_width="197dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="20dp"
         android:backgroundTint="#3580FF"
         android:fontFamily="@font/poppins_semibold"
         android:text="Add Facility Image"
-        android:textSize="11sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/facilityDetailsTextview"
-        app:layout_constraintVertical_bias="0.025" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pfpPlaceholder" />
 
     <Button
         android:id="@+id/edit_facility_details_button"
         android:layout_width="347dp"
-        android:layout_height="51dp"
-        android:layout_marginBottom="16dp"
+        android:layout_height="45dp"
+        android:layout_marginBottom="15dp"
         android:backgroundTint="#17AF42"
         android:fontFamily="@font/poppins_semibold"
         android:text="Create Facility Profile"
@@ -89,7 +85,7 @@
         android:id="@+id/facilityNameEditText"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="11dp"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="Facility Name"
@@ -100,13 +96,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.516"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pfpPlaceholder" />
+        app:layout_constraintTop_toBottomOf="@+id/edit_poster_button" />
 
     <EditText
         android:id="@+id/locationEditText"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="@string/location"
@@ -123,7 +119,7 @@
         android:id="@+id/emailEditText"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="Email"
@@ -140,11 +136,12 @@
         android:id="@+id/telephoneEditText"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="Phone Number"
         android:paddingStart="10dp"
+        android:inputType="number"
         android:textColor="@color/white"
         android:textColorHint="#848A94"
         android:textSize="15sp"

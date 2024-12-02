@@ -1,30 +1,48 @@
 package com.example.intels_app;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.installations.FirebaseInstallations;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * This class extends AppCompatActivity and provides a grid view of events for
+ * the organizer, displaying events they created in Manage Events. This activity
+ * retrieves and displays the events associated with the current device ID from
+ * Firestore and includes navigation options between entrant and organizer views."
+ * @author Aayushi Shah
+ * @see com.example.intels_app.Event Event object
+ * @see com.example.intels_app.CustomAdapterOrganizer Adapter for Organizer gridview
+ * @see com.example.intels_app.EventGridEntrantActivity Entrant Event gridview
+ * @see com.example.intels_app.MainActivity Main screen of app
+ * @see FirebaseFirestore
+ */
 public class EventGridOrganizerActivity extends AppCompatActivity {
 
     private Button entrant_button, organizer_button;
     private CustomAdapterOrganizer adapter;
-    private List<Event> eventData;
+    private ArrayList<Event> eventData;
+    private Dialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +62,11 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
         // Initialize the GridView and set the adapter
         GridView gridView = findViewById(R.id.grid_view);
         eventData = new ArrayList<>();
-        adapter = new CustomAdapterOrganizer(this, eventData);
+        adapter = new CustomAdapterOrganizer(this, eventData, position -> {
+            Intent intent = new Intent(EventGridOrganizerActivity.this, EntrantInWaitlist.class);
+            intent.putExtra("eventName", eventData.get(position).getEventName());
+            startActivity(intent);
+        });
         gridView.setAdapter(adapter);
 
         /*List<Event> eventData = new ArrayList<>();
@@ -58,12 +80,12 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Event selectedEvent = (Event) parent.getItemAtPosition(position);
-                String selectedEventId = selectedEvent.getId(); // Get event ID
+                String selectedEventName = selectedEvent.getEventName(); // Get event ID
 
-                Log.d("EventGridOrganizerActivity", "Selected Event ID: " + selectedEventId);
+                Log.d("EventGridOrganizerActivity", "Selected Event ID: " + selectedEventName);
 
                 Intent intent = new Intent(EventGridOrganizerActivity.this, EntrantInWaitlist.class);
-                intent.putExtra("eventId", selectedEventId); // Pass the event ID
+                intent.putExtra("eventName", selectedEventName); // Pass the event ID
                 startActivity(intent);
             }
         });
@@ -72,7 +94,7 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(EventGridOrganizerActivity.this, MainPageActivity.class);
+                Intent intent = new Intent(EventGridOrganizerActivity.this, MainActivity.class);
                 startActivity(intent);
             }
         });
@@ -106,9 +128,43 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
     }
 
     private void fetchEventsForDevice(String deviceId) {
+        showProgressDialog();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference eventsRef = db.collection("events");
 
+        eventsRef.whereEqualTo("deviceId", deviceId)
+                .get()  // Use `.get()` to fetch data once instead of listening for changes
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        if (task.getResult() != null && !task.getResult().isEmpty()) {
+                            Log.d("Firestore", "Data received: " + task.getResult().size() + " documents");
+
+                            // Clear the list to avoid duplicates
+                            eventData.clear();
+
+                            // Loop through the documents in the query result
+                            for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                                Event event = documentSnapshot.toObject(Event.class);
+                                if (event != null) {
+                                    event.setId(documentSnapshot.getId()); // Set the document ID
+                                    Log.d("Firestore", "Event added: " + event.getId());
+                                    eventData.add(event); // Add the event to the list
+                                    dismissProgressDialog();
+                                }
+                            }
+                            // Notify the adapter of the data change to refresh the UI
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            dismissProgressDialog();
+                            Log.d("Firestore", "No documents found.");
+                        }
+                    } else {
+                        dismissProgressDialog();
+                        Log.w("Firestore", "Error fetching documents", task.getException());
+                    }
+                });
+
+        /*
         eventsRef.whereEqualTo("deviceId", deviceId)
             .addSnapshotListener((queryDocumentSnapshots, e) -> {
                 if (e != null) {
@@ -132,5 +188,32 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
                     Log.d("Firestore", "No documents found.");
                 }
             });
+         */
+    }
+
+    private void showProgressDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View customLayout = getLayoutInflater().inflate(R.layout.dialog_progress_bar, null);
+        builder.setView(customLayout);
+        builder.setCancelable(false);
+
+        // Create and show the dialog
+        progressDialog = builder.create();
+        progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        // Ensure the dialog appears as a square
+        progressDialog.setOnShowListener(dialog -> {
+            if (progressDialog.getWindow() != null) {
+                progressDialog.getWindow().setLayout(400, 400); // Set width and height to match layout
+            }
+        });
+
+        progressDialog.show();
+    }
+
+    private void dismissProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 }

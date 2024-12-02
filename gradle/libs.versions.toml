@@ -1,5 +1,5 @@
 [versions]
-agp = "8.5.0"
+agp = "8.6.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -15,8 +15,11 @@ activityCompose = "1.9.3"
 composeBom = "2024.04.01"
 firebaseFirestore = "25.1.1"
 firebaseStorage = "21.0.1"
+firebaseDatabase = "21.0.0"
 firebaseMessaging = "24.0.3"
 firebaseInstallations = "18.0.0"
+espressoIntents = "3.6.1"
+activity = "1.9.3"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -42,8 +45,11 @@ ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
 firebase-installations = { group = "com.google.firebase", name = "firebase-installations", version.ref = "firebaseInstallations" }
+espresso-intents = { group = "androidx.test.espresso", name = "espresso-intents", version.ref = "espressoIntents" }
+activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -22,35 +22,49 @@
         android:id="@+id/adminModeTextview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="136dp"
+        android:layout_marginTop="24dp"
         android:fontFamily="@font/poppins_semibold"
         android:text="Admin Mode"
         android:textAlignment="center"
         android:textColor="@color/white"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.96"
+        app:layout_constraintHorizontal_bias="0.316"
         app:layout_constraintStart_toEndOf="@+id/back_button"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.045" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/adminModeTextview2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Enter the admin details"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.18"
+        app:layout_constraintStart_toEndOf="@+id/back_button"
+        app:layout_constraintTop_toBottomOf="@+id/adminModeTextview" />
 
     <EditText
         android:id="@+id/nameEditText"
         android:layout_width="349dp"
         android:layout_height="45dp"
-        android:layout_marginTop="89dp"
+        android:layout_marginTop="11dp"
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="Name"
+        android:inputType="text"
         android:paddingStart="10dp"
         android:textColor="@color/white"
         android:textColorHint="#848A94"
-        android:inputType="text"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.516"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/adminModeTextview" />
+        app:layout_constraintTop_toBottomOf="@+id/adminModeTextview2" />
 
     <EditText
         android:id="@+id/adminPasswordEditText"
@@ -60,26 +74,27 @@
         android:background="@drawable/rounded_corner_rectangle_light_black"
         android:fontFamily="@font/poppins_semibold"
         android:hint="Enter Admin Password"
+        android:inputType="textPassword"
         android:paddingStart="10dp"
         android:textColor="@color/white"
         android:textColorHint="#848A94"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.516"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/nameEditText" />
 
     <Button
         android:id="@+id/continue_button"
         android:layout_width="347dp"
-        android:layout_height="51dp"
+        android:layout_height="45dp"
+        android:layout_marginBottom="15dp"
         android:backgroundTint="#17AF42"
         android:fontFamily="@font/poppins_semibold"
         android:text="Continue"
         android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/adminPasswordEditText"
-        app:layout_constraintVertical_bias="0.962" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

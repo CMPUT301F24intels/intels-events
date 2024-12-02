@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#16181F">
+
+    <ImageButton
+        android:id="@+id/back_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:background="?attr/selectableItemBackground"
+        android:src="@drawable/ic_arrow_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/profile_button"
+        android:layout_width="129dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="11dp"
+        android:backgroundTint="#0A0C16"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Profiles"
+        android:textSize="15sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/back_button" />
+
+    <Button
+        android:id="@+id/events_button"
+        android:layout_width="129dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginEnd="132dp"
+        android:backgroundTint="#0A0C16"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Events"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="@+id/facilities_button"
+        app:layout_constraintStart_toEndOf="@+id/profile_button"
+        app:layout_constraintTop_toBottomOf="@+id/back_button" />
+
+    <Button
+        android:id="@+id/facilities_button"
+        android:layout_width="129dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginEnd="8dp"
+        android:backgroundTint="#0A0C16"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="Facilities"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/back_button" />
+
+    <GridView
+        android:id="@+id/events_gridview"
+        android:layout_width="389dp"
+        android:layout_height="611dp"
+        android:layout_marginTop="10dp"
+        android:horizontalSpacing="8dp"
+        android:numColumns="2"
+        android:scrollbars="none"
+        android:verticalSpacing="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/events_button" />
+    <Button
+        android:id="@+id/image_browser_button"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginBottom="24dp"
+        android:text="Image Browser"
+        android:textColor="@android:color/white"
+        android:drawableLeft="@android:drawable/ic_menu_search"
+        android:drawablePadding="8dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center"
+        android:scaleType="centerInside"
+        android:textSize="16sp"
+        android:contentDescription="Image Browser Button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

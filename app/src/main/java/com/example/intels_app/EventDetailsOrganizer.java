@@ -1,91 +1,421 @@
 package com.example.intels_app;
 
-import static android.content.ContentValues.TAG;
-
+import android.app.AlertDialog;
 import android.content.Intent;
-import android.nfc.Tag;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FirebaseStorage;
 
-import org.w3c.dom.Text;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+/**
+ * This class displays the details of a specific event to the organizer,
+ * allowing them to view event information, view the event poster, and
+ * perform a lottery draw for selecting attendees. The class retrieves data
+ * from Firebase Firestore and provides functionality to notify both selected
+ * and unselected entrants.
+ * @author Janan Panchal, Aayushi Shah, Katrina Alejo
+ * @see com.example.intels_app.Profile Profile object
+ * @see com.example.intels_app.ManageEventsActivity Manage events screen
+ * @see com.example.intels_app.DrawCompleteActivity Draw completed activity
+ */
 public class EventDetailsOrganizer extends AppCompatActivity {
+
+    private static final String TAG = "EventDetailsOrganizer";
+
+    private ImageButton backButton, drawButton, editButton, deleteButton;
+    private ImageView posterImageView, qrImageView;
+    private TextView eventNameEditText, facilityEditText, locationEditText, dateTimeEditText,
+            descriptionEditText, maxAttendeesTextView, geolocationRequirementTextView;
+
+    private FirebaseFirestore db;
+    private String eventName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_details);
+        // Get the event name from the intent
+        eventName = getIntent().getStringExtra("Event Name");
 
-        String eventName = getIntent().getStringExtra("Event Name");
+        if (eventName == null) {
+            Log.e(TAG, "Event Name is missing");
+            finish();
+            return;
+        }
 
         // Get views from layout
-        TextView eventNameTextView = findViewById(R.id.eventNameEditText);
-        TextView facilityTextView = findViewById(R.id.facilityEditText);
-        TextView locationTextView = findViewById(R.id.locationEditText);
-        TextView dateTimeTextView = findViewById(R.id.dateTimeEditText);
-        TextView descriptionTextView = findViewById(R.id.descriptionEditText);
-        TextView maxAttendeesTextView = findViewById(R.id.max_attendees_textview);
-        TextView geolocationRequirementTextView = findViewById(R.id.geolocationRequirementTextView);
-        TextView notificationPreferenceTextView = findViewById(R.id.notificationPreferenceTextView);
-        ImageView posterImageView = findViewById(R.id.posterImageView);
-        //ImageView qrCodeImageView = findViewById(R.id.qrCodeImageView);
+        eventNameEditText = findViewById(R.id.eventNameEditText);
+        facilityEditText = findViewById(R.id.facilityEditText);
+        locationEditText = findViewById(R.id.locationEditText);
+        dateTimeEditText = findViewById(R.id.dateTimeEditText);
+        descriptionEditText = findViewById(R.id.descriptionEditText);
+        maxAttendeesTextView = findViewById(R.id.max_attendees_textview);
+        geolocationRequirementTextView = findViewById(R.id.geolocationRequirementTextView);
+        posterImageView = findViewById(R.id.posterImageView);
+        qrImageView = findViewById(R.id.qrImageView);
+        drawButton = findViewById(R.id.drawButton);
 
-        // Get event info from Firestore
-        DocumentReference documentRef = FirebaseFirestore.getInstance().collection("events").document(eventName);
-        documentRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                Event event = documentSnapshot.toObject(Event.class);
-                String eventName = event.getEventName();
-                String facility = event.getFacilityName();
-                String location = event.getLocation();
-                String dateTime = event.getDateTime();
-                String description = event.getDescription();
-                int maxAttendees = event.getMaxAttendees();
-                boolean geolocationRequirement = event.isGeolocationRequirement();
-                boolean notificationPreference = event.isNotifPreference();
-                String posterUrl = event.getPosterUrl();
-                //String qrCodeUrl = event.getQrCodeUrl();
+        // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
 
-                eventNameTextView.setText("Event Name: " + eventName);
-                facilityTextView.setText("Facility: " + facility);
-                locationTextView.setText("Location: " + location);
-                dateTimeTextView.setText("Date and Time: " + dateTime);
-                descriptionTextView.setText("Description: " + description);
-                maxAttendeesTextView.setText("Max Attendees: " + maxAttendees);
-                geolocationRequirementTextView.setText("Geolocation Requirement: " + geolocationRequirement);
-                notificationPreferenceTextView.setText("Notification Preference: " + notificationPreference);
+        // Load event details from Firestore
+        loadEventDetails();
 
-                if (posterUrl != null) {
-                    Glide.with(getApplicationContext()).load(posterUrl).into(posterImageView); // Put image into imageView
-                } else {
-                    Log.w(TAG, "No poster URL found in the document");
-                }
+        // Set up Draw Button functionality
+        drawButton.setOnClickListener(view -> performLotteryDraw());
 
+        // Back button to navigate back to the manage events screen
+        backButton = findViewById(R.id.back_button);
+        backButton.setOnClickListener(view -> {
+            Intent intent = new Intent(EventDetailsOrganizer.this, ManageEventsActivity.class);
+            startActivity(intent);
+        });
 
-            }
-        }).addOnFailureListener(e -> Log.w(TAG, "Error getting document", e));
+        editButton = findViewById(R.id.editButton);
+        editButton.setOnClickListener(view -> {
+            Intent intent = new Intent(EventDetailsOrganizer.this, EditEventActivity.class);
+            intent.putExtra("Event Name", eventName);
+            startActivity(intent);
+        });
 
-        ImageButton backButton = findViewById(R.id.back_button);
-        backButton.setOnClickListener(new View.OnClickListener() {
+        deleteButton = findViewById(R.id.infoButton);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(EventDetailsOrganizer.this, ManageEventsActivity.class);
-                startActivity(intent);
+                new AlertDialog.Builder(EventDetailsOrganizer.this)
+                        .setTitle("Confirm Deletion")
+                        .setMessage("Are you sure you want to delete this event?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            // Delete event-related operations
+                            deleteEvent();
+                            Intent intent = new Intent(EventDetailsOrganizer.this, ManageEventsActivity.class);
+                            startActivity(intent);
+                        })
+                        .setNegativeButton("No", (dialog, which) -> {
+                            // Dismiss the dialog if the user cancels
+                            dialog.dismiss();
+                        })
+                        .show();
             }
         });
+
+        posterImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageDialog(((ImageView) view).getDrawable());
+            }
+        });
+
+        qrImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageDialog(((ImageView) view).getDrawable());
+            }
+        });
+
+        // Get the navigation button
+        ImageButton navigationButton = findViewById(R.id.navigationButton);
+        navigationButton.setOnClickListener(v -> {
+            if (eventName != null && !eventName.isEmpty()) {
+                Intent intent = new Intent(EventDetailsOrganizer.this, MapsActivity.class);
+                intent.putExtra("eventName", eventName);
+                startActivity(intent);
+            } else {
+                Toast.makeText(EventDetailsOrganizer.this, "Event name is missing. Cannot open map.", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Event name is missing for navigation to MapsActivity.");
+            }
+        });
+
+    }
+
+    private void loadEventDetails() {
+        DocumentReference documentRef = db.collection("events").document(eventName);
+        documentRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Event event = documentSnapshot.toObject(Event.class);
+                if (event != null) {
+                    // Populate the UI with event details
+                    eventNameEditText.setText("Event Name: " + event.getEventName());
+                    facilityEditText.setText("Facility: " + event.getFacilityName());
+                    locationEditText.setText("Location: " + event.getLocation());
+                    dateTimeEditText.setText("Date and Time: " + event.getDateTime());
+                    descriptionEditText.setText("Description: " + event.getDescription());
+                    maxAttendeesTextView.setText("Max Attendees: " + event.getMaxAttendees());
+                    geolocationRequirementTextView.setText("Geolocation Requirement: " + event.isGeolocationRequirement());
+
+                    // Load event poster image using Glide
+                    if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
+                        Glide.with(getApplicationContext())
+                                .load(event.getPosterUrl())
+                                .placeholder(R.drawable.pfp_placeholder_image)
+                                .error(R.drawable.person_image)
+                                .into(posterImageView);
+                    } else {
+                        Log.w(TAG, "No poster URL found in the document");
+                        posterImageView.setImageResource(R.drawable.person_image);
+                    }
+
+                    // Load qr code image using Glide
+                    if (event.getQrCodeUrl() != null && !event.getQrCodeUrl().isEmpty()) {
+                        Glide.with(getApplicationContext())
+                                .load(event.getQrCodeUrl())
+                                .placeholder(R.drawable.pfp_placeholder_image)
+                                .error(R.drawable.person_image)
+                                .into(qrImageView);
+                    } else {
+                        Log.w(TAG, "No poster URL found in the document");
+                        qrImageView.setImageResource(R.drawable.pfp_placeholder_image);
+                    }
+                }
+            } else {
+                Log.e(TAG, "No such document exists");
+            }
+        }).addOnFailureListener(e -> Log.w(TAG, "Error getting document", e));
+    }
+
+    // Method to delete event data from Firestore and Storage
+    private void deleteEvent() {
+        Log.d(TAG, "Deleting event: " + eventName);
+        String eventToDelete = eventName;
+
+        FirebaseFirestore.getInstance().collection("events")
+                .document(eventToDelete)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    Event event = documentSnapshot.toObject(Event.class);
+                    Log.d(TAG, "Event data retrieved: " + event.getEventName());
+
+                    if (event != null) {
+                        Log.d(TAG, "Event data is not null.");
+
+                        if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
+                            // Delete poster and QR code from Firebase Storage
+                            FirebaseStorage.getInstance().getReferenceFromUrl(event.getPosterUrl()).delete()
+                                    .addOnSuccessListener(unused -> Log.d(TAG, "Poster successfully deleted."))
+                                    .addOnFailureListener(e -> Log.w(TAG, "Failed to delete poster.", e));
+                        }
+
+                        if (event.getQrCodeUrl() != null && !event.getQrCodeUrl().isEmpty()) {
+                            FirebaseStorage.getInstance().getReferenceFromUrl(event.getQrCodeUrl()).delete()
+                                    .addOnSuccessListener(unused -> Log.d(TAG, "QR successfully deleted."))
+                                    .addOnFailureListener(e -> Log.w(TAG, "Failed to delete QR code.", e));
+                        }
+
+                        // Delete event from Firestore
+                        FirebaseFirestore.getInstance().collection("events")
+                                .document(eventToDelete)
+                                .delete()
+                                .addOnSuccessListener(unused -> {
+                                    Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                    Toast.makeText(EventDetailsOrganizer.this, "Event deleted", Toast.LENGTH_SHORT).show();
+                                })
+                                .addOnFailureListener(e -> Log.w(TAG, "Error deleting document", e));
+                    } else {
+                        Log.w(TAG, "Event data is null, cannot delete.");
+                        Toast.makeText(EventDetailsOrganizer.this, "Failed to retrieve event data", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> Log.w(TAG, "Failed to fetch event details for deletion", e));
+    }
+
+    private void performLotteryDraw() {
+        CollectionReference waitlistedEntrantsRef = db.collection("waitlisted_entrants");
+        CollectionReference selectedEntrantsRef = db.collection("selected_entrants");
+        CollectionReference notSelectedEntrantsRef = db.collection("not_selected_entrants");
+
+        // Clear previous `selected_entrants` and `not_selected_entrants`
+        selectedEntrantsRef.whereEqualTo("eventName", eventName)
+                .get()
+                .addOnSuccessListener(selectedSnapshot -> {
+                    WriteBatch batch = db.batch();
+
+                    for (DocumentSnapshot doc : selectedSnapshot) {
+                        batch.delete(doc.getReference());
+                    }
+
+                    batch.commit().addOnSuccessListener(aVoid -> {
+                        Log.d(TAG, "Cleared previous selected entrants for event: " + eventName);
+
+                        notSelectedEntrantsRef.whereEqualTo("eventName", eventName)
+                                .get()
+                                .addOnSuccessListener(notSelectedSnapshot -> {
+                                    WriteBatch notSelectedBatch = db.batch();
+
+                                    for (DocumentSnapshot doc : notSelectedSnapshot) {
+                                        notSelectedBatch.delete(doc.getReference());
+                                    }
+
+                                    notSelectedBatch.commit().addOnSuccessListener(clearVoid -> {
+                                        Log.d(TAG, "Cleared previous not_selected entrants for event: " + eventName);
+
+                                        // Fetch all waitlisted entrants and filter locally
+                                        waitlistedEntrantsRef.get().addOnSuccessListener(waitlistQuery -> {
+                                            List<DocumentSnapshot> waitlist = new ArrayList<>();
+
+                                            for (DocumentSnapshot document : waitlistQuery.getDocuments()) {
+                                                // Extract the `events` array and filter locally
+                                                List<Map<String, Object>> events = (List<Map<String, Object>>) document.get("events");
+                                                if (events != null) {
+                                                    for (Map<String, Object> event : events) {
+                                                        if (eventName.equals(event.get("eventName"))) {
+                                                            waitlist.add(document);
+                                                            break; // Stop checking other events for this document
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            if (waitlist.isEmpty()) {
+                                                Toast.makeText(this, "No waitlisted profiles for this event.", Toast.LENGTH_SHORT).show();
+                                                return;
+                                            }
+
+                                            int numberOfSpots = Integer.parseInt(maxAttendeesTextView.getText().toString().split(": ")[1]);
+                                            Collections.shuffle(waitlist);
+
+                                            // Select only up to maxAttendees entrants
+                                            List<DocumentSnapshot> selectedProfiles = waitlist.subList(0, Math.min(numberOfSpots, waitlist.size()));
+                                            List<DocumentSnapshot> notSelectedProfiles = waitlist.subList(Math.min(numberOfSpots, waitlist.size()), waitlist.size());
+
+                                            sendNotificationsToProfiles(waitlist, selectedProfiles);
+                                            saveSelectedProfiles(selectedProfiles);
+                                            storeNotSelectedEntrants(db, notSelectedProfiles, eventName);
+
+                                            // After the draw, redirect to the DrawCompleteActivity
+                                            Intent intent = new Intent(EventDetailsOrganizer.this, DrawCompleteActivity.class);
+                                            intent.putExtra("eventName", eventName);
+                                            startActivity(intent);
+                                        }).addOnFailureListener(e -> {
+                                            Log.e(TAG, "Error fetching waitlisted entrants", e);
+                                            Toast.makeText(this, "Failed to fetch waitlisted entrants for this event.", Toast.LENGTH_SHORT).show();
+                                        });
+                                    }).addOnFailureListener(e -> Log.e(TAG, "Failed to clear not_selected_entrants", e));
+                                }).addOnFailureListener(e -> Log.e(TAG, "Error fetching not_selected_entrants", e));
+                    }).addOnFailureListener(e -> Log.e(TAG, "Failed to delete old selected entrants", e));
+                }).addOnFailureListener(e -> Log.e(TAG, "Error loading previous selected entrants", e));
+    }
+
+    private void showImageDialog(Drawable imageDrawable) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_expand_image, null);
+        ImageView enlargedImageView = dialogView.findViewById(R.id.enlargedImageView);
+
+        enlargedImageView.setImageDrawable(imageDrawable);
+
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+
+        // Close dialog when clicked
+        enlargedImageView.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
+    private void storeNotSelectedEntrants(FirebaseFirestore db, List<DocumentSnapshot> notSelectedProfiles, String eventName) {
+        for (DocumentSnapshot document : notSelectedProfiles) {
+            String deviceId = document.getString("deviceId");
+            String profileId = document.getId();
+
+            if (deviceId != null && profileId != null) {
+                Map<String, Object> notSelectedData = new HashMap<>();
+                notSelectedData.put("eventName", eventName);
+                notSelectedData.put("deviceId", deviceId);
+                notSelectedData.put("profileId", profileId);
+                notSelectedData.put("reconsiderForDraw", false); // Default to false
+                notSelectedData.put("timestamp", FieldValue.serverTimestamp());
+
+                db.collection("not_selected_entrants")
+                        .document(profileId) // Use profile ID as the document ID
+                        .set(notSelectedData)
+                        .addOnSuccessListener(aVoid -> Log.d("storeNotSelectedEntrants", "Stored not_selected entrant: " +
+                                "Profile ID: " + profileId + ", Event Name: " + eventName))
+                        .addOnFailureListener(e -> Log.e("storeNotSelectedEntrants", "Error storing not_selected entrant: ", e));
+            } else {
+                Log.w("storeNotSelectedEntrants", "Missing deviceId or profileId for event: " + eventName);
+            }
+        }
+    }
+
+    private void sendNotificationsToProfiles(List<DocumentSnapshot> allProfiles, List<DocumentSnapshot> selectedProfiles) {
+        List<DocumentSnapshot> unselectedProfiles = new ArrayList<>(allProfiles);
+        unselectedProfiles.removeAll(selectedProfiles);
+
+        for (DocumentSnapshot selectedProfile : selectedProfiles) {
+            String profileId = selectedProfile.getId();
+            String deviceId = selectedProfile.getString("deviceId");
+            Log.d(TAG, "Selected Profile ID: " + profileId + ", Device ID: " + deviceId);
+
+            String message = "Congratulations! You have been selected for the event!";
+            sendNotificationToProfile(deviceId, profileId, eventName, message, "selected");
+        }
+
+        for (DocumentSnapshot unselectedProfile : unselectedProfiles) {
+            String profileId = unselectedProfile.getId();
+            String deviceId = unselectedProfile.getString("deviceId");
+            Log.d(TAG, "Unselected Profile ID: " + profileId + ", Device ID: " + deviceId);
+
+            String message = "Sorry, you were not selected this time. Please stay tuned for more events.";
+            sendNotificationToProfile(deviceId, profileId, eventName, message, "not_selected");
+        }
+
+        Toast.makeText(this, "Lottery draw complete. Notifications sent.", Toast.LENGTH_SHORT).show();
+    }
+
+    private void sendNotificationToProfile(String deviceId, String profileId, String eventName, String message, String type) {
+        if (deviceId == null || deviceId.isEmpty()) {
+            Log.w(TAG, "Device ID is missing for profile: " + profileId);
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Map<String, Object> notificationData = new HashMap<>();
+        notificationData.put("deviceId", deviceId);
+        notificationData.put("profileId", profileId);
+        notificationData.put("eventName", eventName);
+        notificationData.put("message", message);
+        notificationData.put("timestamp", FieldValue.serverTimestamp());
+        notificationData.put("type", type);
+
+        db.collection("notifications")
+                .add(notificationData)
+                .addOnSuccessListener(documentReference -> Log.d(TAG, "Notification sent with ID: " + documentReference.getId()))
+                .addOnFailureListener(e -> Log.w(TAG, "Error sending notification", e));
+    }
+
+    private void saveSelectedProfiles(List<DocumentSnapshot> selectedProfiles) {
+        CollectionReference selectedEntrantsRef = db.collection("selected_entrants");
+
+        for (DocumentSnapshot profile : selectedProfiles) {
+            Map<String, Object> entrantData = new HashMap<>();
+            entrantData.put("profileId", profile.getId());
+            entrantData.put("eventName", eventName);
+            entrantData.put("timestamp", FieldValue.serverTimestamp());
+
+            selectedEntrantsRef.add(entrantData)
+                    .addOnSuccessListener(documentReference -> Log.d(TAG, "Selected entrant saved with ID: " + documentReference.getId()))
+                    .addOnFailureListener(e -> Log.w(TAG, "Error saving selected entrant", e));
+        }
     }
 }

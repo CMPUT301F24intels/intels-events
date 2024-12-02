@@ -2,6 +2,8 @@ package com.example.intels_app;
 
 import static android.content.ContentValues.TAG;
 
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.BaseAdapter;
@@ -15,12 +17,21 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 import java.util.List;
+
+/**
+ * Adapter for the profile list view to take the data list and inflate it into the view.
+ * @author Janan Panchal, Dhanshri Patel
+ * @see com.example.intels_app.Profile Profile object
+ * @see com.example.intels_app.AdminProfiles Get the data list from the admin profiles page
+ */
 
 public class ProfileAdapterAdmin extends BaseAdapter {
     private Context context;
@@ -50,38 +61,58 @@ public class ProfileAdapterAdmin extends BaseAdapter {
         }
 
         Profile profile = profiles.get(position);
-        Log.d("Adapter", profile.getName() + " " + profile.getImageResId());
 
         TextView nameTextView = convertView.findViewById(R.id.profile_name);
         ImageView profileImageView = convertView.findViewById(R.id.profile_image);
 
         nameTextView.setText(profile.getName());
-        profileImageView.setImageResource(profile.getImageResId());
+        Glide.with(context.getApplicationContext()).load(profile.getImageUrl()).into(profileImageView);
 
         ImageButton deleteButton = convertView.findViewById(R.id.delete_button);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Remove item from Firestore, data list, and notify adapter
-
-                FirebaseFirestore.getInstance().collection("profiles").document(profile.getName())
-                        .delete()
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void unused) {
-                                Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                new AlertDialog.Builder(context)
+                        .setTitle("Confirm Deletion")
+                        .setMessage("Are you sure you want to delete this profile?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            // Remove item from Firestore, data list, and notify adapter
+                            if (profile.getImageUrl() != null && !profile.getImageUrl().isEmpty()) {
+                                FirebaseStorage.getInstance().getReferenceFromUrl(profile.getImageUrl()).delete()
+                                        .addOnSuccessListener(unused -> Log.d(TAG, "Image successfully deleted."))
+                                        .addOnFailureListener(e -> Log.w(TAG, "Failed to delete image.", e));
                             }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Error deleting document", e);
-                            }
-                        });
 
-                profiles.remove(position);
-                notifyDataSetChanged();
-                Toast.makeText(context, "Event deleted", Toast.LENGTH_SHORT).show();
+                            FirebaseFirestore.getInstance().collection("profiles").document(profile.getDeviceId())
+                                    .delete()
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(TAG, "Error deleting document", e);
+                                        }
+                                    });
+
+                            profiles.remove(position);
+                            notifyDataSetChanged();
+                            Toast.makeText(context, "Profile deleted", Toast.LENGTH_SHORT).show();
+                        })
+                        .setNegativeButton("No", (dialog, which) -> {
+                            // Dismiss the dialog if the user cancels
+                            dialog.dismiss();
+                        })
+                        .show();
             }
+        });
+
+        convertView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ProfileDetailsAdmin.class);
+            intent.putExtra("deviceId", profiles.get(position).getDeviceId());
+            context.startActivity(intent);
         });
 
         return convertView;

@@ -4,14 +4,23 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-11-05T06:36:10.303111900Z">
+        <DropdownSelection timestamp="2024-12-02T04:45:57.310807700Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\kanis\.android\avd\Kanishka_phone.avd" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Dhanshri_205\.android\avd\Medium_Phone_API_35_2.avd" />
             </handle>
           </Target>
         </DropdownSelection>
         <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="Tests in 'com.example.intels_app'">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="testBackButton() (1)">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="testInitialUIElementsDisplayed()">
+        <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
   </component>

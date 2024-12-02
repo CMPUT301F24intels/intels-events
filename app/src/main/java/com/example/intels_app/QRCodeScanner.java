@@ -7,7 +7,16 @@ import android.widget.Toast;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
-
+/**
+ * This class provides functionality to initiate a QR code scan within an
+ * activity and handle the result to retrieve event details from Firebase
+ * Firestore. If a valid QR code is scanned, the class fetches the event
+ * details and shows the event information.
+ *
+ * @author Het Patel
+ * @see com.google.firebase.firestore.FirebaseFirestore Firebase
+ * @see com.example.intels_app.JoinWaitlistActivity Joining waitlist
+ */
 public class QRCodeScanner {
 
     private final Activity activity;
@@ -46,7 +55,7 @@ public class QRCodeScanner {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         // Create an intent to start JoinWaitlistActivity
-                        Intent intent = new Intent(activity, JoinWaitlistActivity.class);
+                        Intent intent = new Intent(activity, JoinWaitlistActivityTemp.class);
 
                         // Add all event details to the intent
                         intent.putExtra("eventName", eventName);

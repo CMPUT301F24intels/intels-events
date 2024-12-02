@@ -13,13 +13,23 @@ import android.widget.TextView;
 import android.content.Context;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * ProfileAdapter is a custom adapter for displaying and filtering a list of Profile objects
+ * in a ListView. It supports search functionality through filtering, updating the displayed
+ * list based on user input. This adapter inflates a custom layout for each list item and binds profile data, such as
+ * the name, to the corresponding view elements.
+ * @author Aayushi Shah
+ * @see Profile profile object
+ */
 public class ProfileAdapter extends BaseAdapter implements Filterable {
-    private Context context;
-    private List<Profile> originalProfiles;
-    private List<Profile> filteredProfiles;
+    public Context context;
+    public List<Profile> originalProfiles;
+    public List<Profile> filteredProfiles;
     private Filter ProfileFilter;
 
     public ProfileAdapter(Context context, List<Profile> profileList) {
@@ -53,7 +63,7 @@ public class ProfileAdapter extends BaseAdapter implements Filterable {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.profile_list_view, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.profile_list_view_entrant, parent, false);
         }
 
         Profile profile = filteredProfiles.get(position);
@@ -62,7 +72,16 @@ public class ProfileAdapter extends BaseAdapter implements Filterable {
         ImageView profileImageView = convertView.findViewById(R.id.profile_image);
 
         nameTextView.setText(profile.getName());
-        profileImageView.setImageResource(profile.getImageResId());
+
+        if (profile.getImageUrl() != null && !profile.getImageUrl().isEmpty()) {
+            Glide.with(context)
+                    .load(profile.getImageUrl())
+                    .placeholder(R.drawable.person_image) // Default placeholder image
+                    .error(R.drawable.person_image) // Fallback image in case of an error
+                    .into(profileImageView);
+        } else {
+            profileImageView.setImageResource(R.drawable.person_image); // Default image if no URL
+        }
 
         return convertView;
     }
@@ -96,6 +115,12 @@ public class ProfileAdapter extends BaseAdapter implements Filterable {
             notifyDataSetChanged();
         }
     }
+
+        public void updateData(List<Profile> newProfiles) {
+            this.filteredProfiles = newProfiles;
+            notifyDataSetChanged();
+        }
+
 
 }
 

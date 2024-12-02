@@ -6,7 +6,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
-
+/**
+ * This class allows for users to scan a QR code and navigate
+ * based on the scan result. It uses QRCodeScanner class to initiate
+ * the scan and handle the results.
+ * @author Het Patel
+ * @see com.example.intels_app.JoinWaitlistActivity Joining waitlist for event
+ * @see com.example.intels_app.QRCodeScanner Scans QR code
+ * @see com.example.intels_app.MainActivity Main screen of app
+ */
 public class ScanQRActivity extends AppCompatActivity {
 
     private QRCodeScanner qrCodeScanner;
@@ -43,7 +51,7 @@ public class ScanQRActivity extends AppCompatActivity {
 
         });
 
-        // Sets up the back button to return to MainPageActivity
+        // Sets up the back button to return to MainActivity
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override

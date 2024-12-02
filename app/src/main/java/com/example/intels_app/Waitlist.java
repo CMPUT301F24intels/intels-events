@@ -2,6 +2,14 @@ package com.example.intels_app;
 
 import java.util.ArrayList;
 import java.util.List;
+/**
+ * This class manages a list of entrants for an event waitlist with
+ * methods to add, remove, and retrieve entrants on the waitlist,
+ * ensuring no duplicate entrants are added.
+ * @author Katrina Alejo
+ * @deprecated
+ * @see com.example.intels_app.Entrant Entrant object
+ */
 
 public class Waitlist {
 

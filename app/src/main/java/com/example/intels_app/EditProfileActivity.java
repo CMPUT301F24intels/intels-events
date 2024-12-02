@@ -1,6 +1,7 @@
 package com.example.intels_app;
 
-import android.content.DialogInterface;
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -10,10 +11,7 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.text.Editable;
-import android.text.InputFilter;
-import android.text.Spanned;
-import android.view.View;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -24,102 +22,233 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import android.content.SharedPreferences;
 
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.installations.FirebaseInstallations;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.Random;
+/**
+ * This class allows users to edit their profile information, including name,
+ * email, phone number, and profile picture. The activity provides options
+ * for capturing or selecting a profile picture, input validation based on set
+ * parameters, and saving profile changes.
+ * @author Dhanshri Patel
+ * @see com.example.intels_app.MainActivity Main screen of app
+ */
 public class EditProfileActivity extends AppCompatActivity {
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_IMAGE_PICK = 2;
     private static final int PERMISSION_REQUEST_CODE = 100;
+    private FirebaseFirestore db;
 
-    ImageButton back_button;
-    Button edit_pfp_button, save_changes_button;
-    ImageView profile_pic;
+    private ImageButton back_button;
+    private Button edit_pfp_button, save_changes_button;
+    private ImageView profile_pic;
     private boolean isCameraOption = false;
-    EditText name, email, phone_number, password;
-    private boolean isPasswordSet = false; // Track if the password is set
+    private EditText name, email, phone_number;
+    private String finalImageUrl;
+    private String oldImageUrl;
+    private Profile oldProfile;
+    private Profile profile;
+    private String deviceId;
+    private String imageHash;
+    private byte[] imageData;
+    private boolean imageUploaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_profile_page);
+        db = FirebaseFirestore.getInstance();
+
+        FirebaseInstallations.getInstance().getId()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        deviceId = task.getResult();
+                        Log.d("Device ID", "Device ID in EditProfile: " + deviceId);
+                        loadProfileDetails();
+                        save_changes_button.setOnClickListener(view -> saveProfileChanges());
+                    } else {
+                        Log.e("Device ID Error", "Unable to get Device ID in EditProfile", task.getException());
+                        Toast.makeText(this, "Error retrieving Device ID", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
 
         back_button = findViewById(R.id.back_button);
         back_button.setOnClickListener(view -> {
-            Intent intent = new Intent(EditProfileActivity.this, MainPageActivity.class);
+            Intent intent = new Intent(EditProfileActivity.this, MainActivity.class);
             startActivity(intent);
         });
 
         name = findViewById(R.id.enter_name);
         email = findViewById(R.id.enter_email);
         phone_number = findViewById(R.id.enter_phone_number);
-        password = findViewById(R.id.enter_password); // Initialize password field
         profile_pic = findViewById(R.id.camera_image);
         edit_pfp_button = findViewById(R.id.edit_button);
         save_changes_button = findViewById(R.id.save_changes_button);
 
-        // Set input filters
-        name.setFilters(new InputFilter[]{new NameInputFilter()});
-        email.setFilters(new InputFilter[]{new EmailInputFilter()});
-        phone_number.setFilters(new InputFilter[]{new PhoneInputFilter()});
-
-        // Load existing profile data
-        loadProfileData();
-
-        // Set up the password entry dialog
-        password.setOnClickListener(view -> {
-            if (!isPasswordSet) {
-                showPasswordDialog(); // Show dialog to enter password
-            } else {
-                Toast.makeText(this, "Password is already set and cannot be edited.", Toast.LENGTH_SHORT).show();
-            }
+        edit_pfp_button.setOnClickListener(view -> {
+                showImagePickerDialog();
+                imageUploaded = true;
         });
-
-        edit_pfp_button.setOnClickListener(view -> showImagePickerDialog());
-        save_changes_button.setOnClickListener(view -> saveProfileChanges());
     }
 
-    private void loadProfileData() {
-        SharedPreferences sharedPreferences = getSharedPreferences("UserProfile", MODE_PRIVATE);
-        String savedName = sharedPreferences.getString("name", "");
-        String savedEmail = sharedPreferences.getString("email", "");
-        String savedPassword = sharedPreferences.getString("password", ""); // Load saved password
-        String savedPhone = sharedPreferences.getString("phone", "");
+    private void loadProfileDetails(){
+        FirebaseFirestore.getInstance()
+                .collection("profiles")
+                .whereEqualTo("deviceId", deviceId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+            if (!queryDocumentSnapshots.isEmpty()) {
+                DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                Profile profile = documentSnapshot.toObject(Profile.class);
+                if (profile != null) {
+                    // Populate the UI with event details
+                    name.setText(profile.getName());
+                    email.setText(profile.getEmail());
+                    phone_number.setText(profile.getPhone_number());
 
-        name.setText(savedName);
-        email.setText(savedEmail);
-        phone_number.setText(savedPhone);
+                    // Load event poster image using Glide
+                    if (profile.getImageUrl() != null && !profile.getImageUrl().isEmpty()) {
+                        Glide.with(getApplicationContext())
+                                .load(profile.getImageUrl())
+                                .placeholder(R.drawable.pfp_placeholder_image)
+                                .error(R.drawable.person_image)
+                                .into(profile_pic);
+                    } else {
+                        Log.w(TAG, "No poster URL found in the document");
+                        profile_pic.setImageResource(R.drawable.person_image);
+                    }
 
-        // Set password field if a password is saved
-        if (!savedPassword.isEmpty()) {
-            password.setText(savedPassword); // Set saved password
-            isPasswordSet = true; // Update password set state
-            password.setEnabled(false); // Disable editing
+                    boolean notifPref = profile.isNotifPref();
+                    SwitchCompat notificationSwitch = findViewById(R.id.notification_switch);
+                    notificationSwitch.setChecked(notifPref);
+                    Log.d("EditProfile", "Notification Preference Loaded: " + notifPref);
+                }
+            } else {
+                Log.e(TAG, "No such document exists");
+            }
+        }).addOnFailureListener(e ->
+                        Log.w(TAG, "Error getting document", e));
+    }
+
+    private void saveProfileChanges() {
+        SwitchCompat notificationSwitch = findViewById(R.id.notification_switch);
+        boolean updatedNotifPref = notificationSwitch.isChecked();
+
+        if (imageUploaded) {
+            db.collection("profiles")
+                    .whereEqualTo("deviceId", deviceId)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                            oldProfile = documentSnapshot.toObject(Profile.class);
+                            if (oldProfile != null) {
+                                oldImageUrl = oldProfile.getImageUrl();
+                            }
+                        }
+                        FirebaseStorage.getInstance().getReferenceFromUrl(oldImageUrl).delete()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        Log.d(TAG, "Old profile picture deleted successfully");
+
+                                        FirebaseStorage.getInstance().getReference().child("profile_pics")
+                                                .child(imageHash)
+                                                .putBytes(imageData)
+                                                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                        Log.d(TAG, "New profile picture uploaded successfully");
+
+                                                        FirebaseStorage.getInstance().getReference()
+                                                                .child("profile_pics")
+                                                                .child(imageHash).getDownloadUrl()
+                                                                .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                                    @Override
+                                                                    public void onSuccess(Uri uri) {
+                                                                        finalImageUrl = uri.toString();
+                                                                        Log.d(TAG, "New Profile URL: " + finalImageUrl);
+
+                                                                        profile = new Profile(
+                                                                                deviceId,
+                                                                                name.getText().toString(),
+                                                                                email.getText().toString(),
+                                                                                phone_number.getText().toString(),
+                                                                                finalImageUrl,
+                                                                                updatedNotifPref
+                                                                        );
+
+                                                                        db.collection("profiles")
+                                                                                .document(deviceId)
+                                                                                .set(profile)
+                                                                                .addOnSuccessListener(documentReference -> {
+                                                                                    Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
+                                                                                    updateWaitlistedEntrants(updatedNotifPref);
+                                                                                    finish();
+                                                                                })
+                                                                                .addOnFailureListener(e -> {
+                                                                                    Log.w(TAG, "Image upload failed", e);
+                                                                                    Toast.makeText(EditProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                                                                                });
+
+                                                                    }
+                                                                });
+
+                                                    }
+                                                });
+                                    }
+                                });
+                    });
         }
-    }
-
-    private void showPasswordDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Set Password");
-
-        final EditText input = new EditText(this);
-        input.setTransformationMethod(null); // Show typed characters
-        builder.setView(input);
-
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            String enteredPassword = input.getText().toString().trim();
-            if (!enteredPassword.isEmpty()) {
-                password.setText(enteredPassword); // Set the password
-                isPasswordSet = true; // Update the state
-                password.setEnabled(false); // Make password field non-editable
-                Toast.makeText(this, "Password set successfully", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Password cannot be empty", Toast.LENGTH_SHORT).show();
-            }
-        });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-        builder.show();
+        else {
+            db.collection("profiles")
+                    .whereEqualTo("deviceId", deviceId)
+                    .get()
+                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            DocumentSnapshot documentSnapshot = queryDocumentSnapshots.getDocuments().get(0);
+                            oldProfile = documentSnapshot.toObject(Profile.class);
+                            if (oldProfile != null){
+                                finalImageUrl = oldProfile.getImageUrl();
+                            }
+                        }
+                        profile = new Profile(
+                                deviceId,
+                                name.getText().toString(),
+                                email.getText().toString(),
+                                phone_number.getText().toString(),
+                                finalImageUrl,
+                                updatedNotifPref
+                        );
+                        FirebaseFirestore.getInstance().collection("profiles").document(deviceId)
+                                .set(profile)
+                                .addOnSuccessListener(documentReference -> {
+                                    Toast.makeText(EditProfileActivity.this, "Profile updated", Toast.LENGTH_SHORT).show();
+                                    updateWaitlistedEntrants(updatedNotifPref);
+                                    finish();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.w(TAG, "Image upload failed", e);
+                                    Toast.makeText(EditProfileActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
+                                });
+                    });
+        }
     }
 
     private void showImagePickerDialog() {
@@ -127,15 +256,25 @@ public class EditProfileActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select Profile Picture");
         builder.setItems(options, (dialog, which) -> {
-            isCameraOption = (which == 0);
-            if (which == 2) {
-                profile_pic.setImageBitmap(generateProfilePicture(name.getText().toString()));
-            } else if (checkAndRequestPermissions()) {
-                if (isCameraOption) {
-                    openCamera();
-                } else {
-                    openGallery();
-                }
+            switch (which) {
+                case 0: // Take Photo
+                    isCameraOption = true;
+                    if (checkAndRequestPermissions()) {
+                        openCamera();
+                    }
+                    break;
+                case 1: // Choose from Gallery
+                    isCameraOption = false;
+                    if (checkAndRequestPermissions()) {
+                        openGallery();
+                    }
+                    break;
+                case 2: // Generate with Initials
+                    Bitmap generatedImage = generateProfilePicture(name.getText().toString());
+                    profile_pic.setImageBitmap(generatedImage);
+                    imageData = bitmapToByteArray(generatedImage); // Convert generated image to byte array if needed
+                    imageHash = hashImage(imageData);
+                    break;
             }
         });
         builder.show();
@@ -168,7 +307,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void openCamera() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
     }
 
     private void openGallery() {
@@ -179,13 +318,28 @@ public class EditProfileActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_IMAGE_CAPTURE && data != null) {
-                Bitmap photo = (Bitmap) data.getExtras().get("data");
-                profile_pic.setImageBitmap(photo);
+                Bitmap bitmap = (Bitmap) data.getExtras().get("data");
+                if (bitmap != null) {
+                    profile_pic.setImageBitmap(bitmap); // Display the image in ImageView
+                    imageData = bitmapToByteArray(bitmap);
+                    imageHash = hashImage(imageData);// Convert to byte array if needed
+                }
             } else if (requestCode == REQUEST_IMAGE_PICK && data != null) {
                 Uri selectedImage = data.getData();
-                profile_pic.setImageURI(selectedImage);
+                try {
+                    // Decode and scale the selected image to fit within the ImageView
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                    profile_pic.setImageBitmap(bitmap);
+                    imageData = bitmapToByteArray(bitmap); // Convert to byte array if needed
+                    imageHash = hashImage(imageData);
+                    Log.d(TAG, "Gallery Image Set - imageHash: " + imageHash);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
@@ -197,7 +351,10 @@ public class EditProfileActivity extends AppCompatActivity {
         Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint();
-        paint.setColor(ContextCompat.getColor(this, R.color.custom_blue));
+
+        Random random = new Random();
+        int randomcolor = Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+        paint.setColor(randomcolor);
         paint.setStyle(Paint.Style.FILL);
         canvas.drawCircle(size / 2, size / 2, size / 2, paint);
 
@@ -214,79 +371,55 @@ public class EditProfileActivity extends AppCompatActivity {
         return bitmap;
     }
 
-    private void saveProfileChanges() {
-        String enteredName = name.getText().toString().trim();
-        String enteredEmail = email.getText().toString().trim();
-        String enteredPhone = phone_number.getText().toString().trim();
-
-        // Validate inputs
-        if (enteredName.isEmpty()) {
-            Toast.makeText(this, "Name cannot be empty", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (enteredEmail.isEmpty()) {
-            Toast.makeText(this, "email cannot be empty", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        // Password is not editable, so we skip validation for it.
-        if (!isValidPhoneNumber(enteredPhone)) {
-            Toast.makeText(this, "Invalid phone number", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Save data to SharedPreferences
-        SharedPreferences sharedPreferences = getSharedPreferences("UserProfile", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("name", enteredName);
-        editor.putString("email", enteredEmail);
-        editor.putString("phone", enteredPhone);
-        // Save password only if it has been set
-        if (isPasswordSet) {
-            String savedPassword = password.getText().toString().trim();
-            editor.putString("password", savedPassword); // Save the password
-        }
-        editor.apply();
-
-        Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
+    private byte[] bitmapToByteArray(Bitmap bitmap) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        return baos.toByteArray();
     }
 
-    private boolean isValidPhoneNumber(String phoneNumber) {
-        return phoneNumber.matches("\\d{10}"); // Example validation for a 10-digit number
-    }
+    public static String hashImage(byte[] imageData) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(imageData);
 
-    private static class NameInputFilter implements InputFilter {
-        @Override
-        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-            for (int i = start; i < end; i++) {
-                if (!Character.isLetter(source.charAt(i)) && !Character.isSpaceChar(source.charAt(i))) {
-                    return "";
-                }
+            // Convert bytes to hex string
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashBytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
             }
+            return hexString.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
             return null;
         }
     }
 
-    private static class EmailInputFilter implements InputFilter {
-        @Override
-        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-            for (int i = start; i < end; i++) {
-                if (Character.isWhitespace(source.charAt(i))) {
-                    return "";
-                }
-            }
-            return null;
-        }
-    }
+    private void updateWaitlistedEntrants(boolean updatedNotifPref) {
+        db.collection("waitlisted_entrants")
+                .whereEqualTo("profile.name", name.getText().toString()) // Assuming "profile.name" matches the profile's name
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments()) {
+                            Map<String, Object> profileMap = (Map<String, Object>) documentSnapshot.get("profile");
+                            if (profileMap != null) {
+                                profileMap.put("notifPref", updatedNotifPref);
 
-    private static class PhoneInputFilter implements InputFilter {
-        @Override
-        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-            for (int i = start; i < end; i++) {
-                if (!Character.isDigit(source.charAt(i))) {
-                    return "";
-                }
-            }
-            return null;
-        }
+                                db.collection("waitlisted_entrants")
+                                        .document(documentSnapshot.getId())
+                                        .update("profile", profileMap)
+                                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Updated notifPref in waitlisted_entrants successfully"))
+                                        .addOnFailureListener(e -> Log.w(TAG, "Failed to update notifPref in waitlisted_entrants", e));
+                            }
+                        }
+                    } else {
+                        Log.d(TAG, "No matching documents found in waitlisted_entrants for profile name: " + name.getText().toString());
+                    }
+                })
+                .addOnFailureListener(e -> Log.w(TAG, "Error fetching waitlisted_entrants", e));
     }
 }
+

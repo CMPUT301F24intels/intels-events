@@ -1,7 +1,13 @@
 package com.example.intels_app;
 
 import java.io.Serializable;
-
+/**
+ * This class represents an event and contains details such as the
+ * event name, facility name, location, date and time, description,
+ * and other settings. This class is designed to be used with Firebase
+ * Firestore for storing event information.
+ * @author Aayushi Shah
+ */
 public class Event implements Serializable {
     private String id;
     private String eventName;
@@ -11,7 +17,6 @@ public class Event implements Serializable {
     private String description;
     private int maxAttendees;
     private boolean geolocationRequirement;
-    private boolean notifPreference;
     private String posterUrl;
     private String qrCodeUrl;
     private String deviceId;
@@ -21,7 +26,7 @@ public class Event implements Serializable {
 
     // Constructor with posterUrl
     public Event(String eventName, String facilityName, String location, String dateTime, String description,
-                 int maxAttendees, boolean geolocationRequirement, boolean notifPreference, String posterUrl, String deviceId) {
+                 int maxAttendees, boolean geolocationRequirement, String posterUrl, String deviceId) {
         this.eventName = eventName;
         this.facilityName = facilityName;
         this.location = location;
@@ -29,7 +34,6 @@ public class Event implements Serializable {
         this.description = description;
         this.maxAttendees = maxAttendees;
         this.geolocationRequirement = geolocationRequirement;
-        this.notifPreference = notifPreference;
         this.posterUrl = posterUrl;
         this.deviceId = deviceId;
         //this.qrCode = qrCode;
@@ -37,7 +41,7 @@ public class Event implements Serializable {
 
     // Constructor with no images
     public Event(String eventName, String facilityName, String location, String dateTime, String description,
-                 int maxAttendees, boolean geolocationRequirement, boolean notifPreference, String deviceId) {
+                 int maxAttendees, boolean geolocationRequirement, String deviceId) {
         this.eventName = eventName;
         this.facilityName = facilityName;
         this.location = location;
@@ -45,10 +49,34 @@ public class Event implements Serializable {
         this.description = description;
         this.maxAttendees = maxAttendees;
         this.geolocationRequirement = geolocationRequirement;
-        this.notifPreference = notifPreference;
         this.deviceId = deviceId;
         //this.posterUrl = posterUrl;
         //this.qrCode = qrCode;
+    }
+
+    // Constructor without facility name for event creation
+    public Event(String EventName, String Location, String DateTime, String Description, int MaxAttendees, boolean GeolocationRequirement, String PosterUrl, String deviceId) {
+        this.eventName = EventName;
+        this.location = Location;
+        this.dateTime = DateTime;
+        this.description = Description;
+        this.maxAttendees = MaxAttendees;
+        this.geolocationRequirement = GeolocationRequirement;
+        this.posterUrl = PosterUrl;
+        this.deviceId = deviceId;
+    }
+
+    // Constructor without facility name for event creation
+    public Event(String EventName, String Location, String DateTime, String Description, int MaxAttendees, boolean GeolocationRequirement, String PosterUrl, String QrCodeUrl, String deviceId) {
+        this.eventName = EventName;
+        this.location = Location;
+        this.dateTime = DateTime;
+        this.description = Description;
+        this.maxAttendees = MaxAttendees;
+        this.geolocationRequirement = GeolocationRequirement;
+        this.posterUrl = PosterUrl;
+        this.qrCodeUrl = QrCodeUrl;
+        this.deviceId = deviceId;
     }
 
     // Getters and setters
@@ -123,14 +151,6 @@ public class Event implements Serializable {
 
     public void setGeolocationRequirement(boolean geolocationRequirement) {
         this.geolocationRequirement = geolocationRequirement;
-    }
-
-    public boolean isNotifPreference() {
-        return notifPreference;
-    }
-
-    public void setNotifPreference(boolean notifPreference) {
-        this.notifPreference = notifPreference;
     }
 
     public String getPosterUrl() {

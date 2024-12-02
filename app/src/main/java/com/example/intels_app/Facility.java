@@ -1,19 +1,32 @@
 package com.example.intels_app;
+/**
+ * Represents a facility with its details.
+ * @author Janan Panchal
+ */
 
 public class Facility {
     private String facilityName;
     private String location;
     private String organizerName;
     private String email;
-    private int telephone;
+    private String telephone;
     private String imageUrl;
     private String deviceID;
 
-    // No argument constructor for Firebase
+    /**
+     * No argument constructor for Firebase
+     */
     public Facility() {}
 
-    // Constructor with all fields except imageUrl for CreateFacility
-    public Facility(String facilityName, String location, String email, int telephone, String deviceID) {
+    /**
+     * To create a Facility with no Facility image
+     * @param facilityName Name of the facility
+     * @param location Location of the facility
+     * @param email Email of the facility
+     * @param telephone Telephone number of the facility
+     * @param deviceID Device ID of the facility
+     */
+    public Facility(String facilityName, String location, String email, String telephone, String deviceID) {
         this.facilityName = facilityName;
         this.location = location;
         this.email = email;
@@ -21,8 +34,16 @@ public class Facility {
         this.deviceID = deviceID;
     }
 
-    // Constructor with all fields for CreateFacility
-    public Facility(String facilityName, String location, String email, int telephone, String imageUrl, String deviceID) {
+    /**
+     * Create a Facility with a Facility image
+     * @param facilityName Name of the facility
+     * @param location Location of the facility
+     * @param email Email of the facility
+     * @param telephone Telephone number of the facility
+     * @param deviceID Device ID of the facility
+     * @param imageUrl Image URL of the facility
+     */
+    public Facility(String facilityName, String location, String email, String telephone, String imageUrl, String deviceID) {
         this.facilityName = facilityName;
         this.location = location;
         this.email = email;
@@ -31,6 +52,7 @@ public class Facility {
         this.deviceID = deviceID;
     }
 
+    // Getters and setters
     public String getFacilityName() {
         return facilityName;
     }
@@ -63,11 +85,11 @@ public class Facility {
         this.email = email;
     }
 
-    public int getTelephone() {
+    public String getTelephone() {
         return telephone;
     }
 
-    public void setTelephone(int telephone) {
+    public void setTelephone(String telephone) {
         this.telephone = telephone;
     }
 
