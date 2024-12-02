@@ -29,6 +29,11 @@ public class ImageFacilityBrowserActivity extends AppCompatActivity {
     private FirebaseStorage firebaseStorage;
     private EventIBadapter imageAdapter;
 
+    /**
+     * Called when the activity is first created.
+     * Initializes UI components and sets up Firebase for loading facility images.
+     * @param savedInstanceState Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +60,9 @@ public class ImageFacilityBrowserActivity extends AppCompatActivity {
     });
     }
 
+    /**
+     * Loads facility images from Firebase Storage and adds them to the GridView.
+     */
     private void loadEventPostersFromFirebase() {
         StorageReference storageReference = firebaseStorage.getReference().child("facilities/");
 
@@ -71,6 +79,10 @@ public class ImageFacilityBrowserActivity extends AppCompatActivity {
         Toast.makeText(ImageFacilityBrowserActivity.this, "Failed to load posters.", Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * Shows a confirmation dialog to confirm if the user wants to delete the selected facility image.
+     * @param position The position of the facility image in the GridView that the user wants to delete.
+     */
     private void showDeleteConfirmationDialog(final int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Delete Poster")
@@ -80,6 +92,10 @@ public class ImageFacilityBrowserActivity extends AppCompatActivity {
         .show();
     }
 
+    /**
+     * Deletes the facility image from Firebase Storage and removes it from the GridView.
+     * @param position The position of the facility image in the GridView that the user wants to delete.
+     */
     private void deleteFacilitiesImages(int position) {
         EventDataClass posterToDelete = imageUrls.get(position);
         StorageReference posterRef = FirebaseStorage.getInstance().getReferenceFromUrl(posterToDelete.getImageUrl());

@@ -41,6 +41,10 @@ public class FinalList extends AppCompatActivity {
     private CheckBox sendNotifications;
     private String eventName;
 
+    /**
+     * Initializes the UI elements and sets up the list of accepted entrants.
+     * @param savedInstanceState Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +95,11 @@ public class FinalList extends AppCompatActivity {
         fetchAcceptedEntrants((ProfileAdapter) entrantList.getAdapter());
     }
 
+    /**
+     * Fetches the list of accepted entrants from Firestore and
+     * updates the UI with the profiles.
+     * @param adapter The adapter used to display the profiles in the ListView.
+     */
     private void fetchAcceptedEntrants(ProfileAdapter adapter) {
         Log.d("AcceptedEntrants", "Fetching accepted entrants for event: " + eventName);
 
@@ -158,6 +167,9 @@ public class FinalList extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Displays a custom notification dialog for the user to enter a notification message.
+     */
     private void showCustomNotificationDialog() {
         EditText input = new EditText(this);
         input.setHint("Enter custom notification message");
@@ -182,6 +194,10 @@ public class FinalList extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Sends a notification to all accepted entrants for the event.
+     * @param message The message to be sent to all accepted entrants.
+     */
     private void sendNotificationToEntrants(String message) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference notificationsRef = db.collection("notifications");
@@ -240,6 +256,13 @@ public class FinalList extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Sends a notification to a specific profile.
+     * @param deviceId  The device ID of the profile to send the notification to.
+     * @param profileId The profile ID of the recipient.
+     * @param eventName The event name for which the notification is being sent.
+     * @param message   The message to be sent.
+     */
     private void sendNotificationToProfile(String deviceId, String profileId, String eventName, String message) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 

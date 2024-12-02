@@ -56,6 +56,11 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
     private String facilityName, location, dateTime, description, posterUrl;
     private int maxAttendees;
 
+    /**
+     * Called when the activity is first created.
+     * Initializes UI components, retrieves event details, and sets up click listeners for joining the waitlist.
+     * @param savedInstanceState Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,6 +118,18 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         });
     }
 
+    /**
+     * Displays the event details in the UI, including event name, facility, location, date/time,
+     * description, and geolocation requirement.
+     * @param eventName            The name of the event.
+     * @param facilityName         The name of the facility where the event takes place.
+     * @param location             The location of the event.
+     * @param dateTime             The date and time of the event.
+     * @param description          The description of the event.
+     * @param maxAttendees         The maximum number of attendees allowed for the event.
+     * @param geolocationRequirement Whether geolocation is required for the event.
+     * @param posterUrl            URL for the poster image of the event.
+     */
     private void setupEventDetailsUI(String eventName, String facilityName, String location, String dateTime,
                                      String description, int maxAttendees, boolean geolocationRequirement, String posterUrl) {
         TextView eventNameTextView = findViewById(R.id.eventNameEdit);
@@ -139,6 +156,12 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         }
     }
 
+    /**
+     * Checks if a user profile already exists in Firestore and either joins the waitlist or
+     * redirects to profile creation if it doesn't exist.
+     * @param deviceId        The device ID of the user.
+     * @param geolocationData Optional geolocation data (latitude and longitude) if the event requires geolocation tracking.
+     */
     private void checkIfProfileExists(String deviceId, @Nullable Map<String, Object> geolocationData) {
         profilesRef.document(deviceId)
                 .get()
@@ -162,6 +185,11 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Adds a user profile to the event's waitlist in Firestore.
+     * @param profile         The user's profile details.
+     * @param geolocationData Optional geolocation data if required by the event.
+     */
     private void joinWaitlist(Profile profile, @Nullable Map<String, Object> geolocationData) {
         String documentId = profile.getName();
         DocumentReference entrantDocRef = waitlistRef.document(documentId);
@@ -211,6 +239,11 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         });
     }
 
+    /**
+     * Redirects the user to the profile creation activity if their profile doesn't exist.
+     * @param deviceId        The device ID of the user.
+     * @param geolocationData Optional geolocation data if required by the event.
+     */
     private void redirectToCreateProfile(String deviceId, @Nullable Map<String, Object> geolocationData) {
         Intent intent = new Intent(JoinWaitlistActivityTemp.this, SignUp.class);
         intent.putExtra("deviceId", deviceId);
@@ -222,12 +255,21 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         startActivityForResult(intent, 1);
     }
 
+    /**
+     * Navigates to the success screen after the user has successfully joined the waitlist.
+     */
     private void navigateToSuccessScreen() {
         Intent intent = new Intent(JoinWaitlistActivityTemp.this, SuccessWaitlistJoin.class);
         startActivity(intent);
         finish();
     }
 
+    /**
+     * Handles the result from the profile creation activity.
+     * @param requestCode The request code for the activity result.
+     * @param resultCode  The result code returned by the profile creation activity.
+     * @param data        The intent data containing profile information.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -259,6 +301,11 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         }
     }
 
+    /**
+     * Checks if location permissions are granted, and if so, fetches the user's location.
+     * If permissions are not granted, requests them.
+     * @param deviceId The device ID of the user.
+     */
     private void checkLocationPermissionAndFetchLocation(String deviceId) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -270,6 +317,11 @@ public class JoinWaitlistActivityTemp extends AppCompatActivity {
         }
     }
 
+    /**
+     * Fetches the user's current location using the fused location client. Passes the location data
+     * to profile checking logic if available.
+     * @param deviceId The device ID of the user.
+     */
     private void fetchLocation(String deviceId) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;

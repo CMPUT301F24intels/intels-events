@@ -153,7 +153,11 @@ public class MainActivity extends AppCompatActivity {
         });*/
 
     }
-    // Method to display the popup menu
+    /**
+     * Shows a popup menu when the specified view is clicked.
+     * The menu contains options to navigate to the NotificationActivity or EditProfileActivity.
+     * @param view The view that triggers the popup menu.
+     */
     private void showPopupMenu(View view) {
         PopupMenu popupMenu = new PopupMenu(this, view);
         MenuInflater inflater = popupMenu.getMenuInflater();
@@ -179,6 +183,13 @@ public class MainActivity extends AppCompatActivity {
         // Show the popup menu
         popupMenu.show();
     }
+
+    /**
+     * Handles the result from a started activity of the QR code scanner.
+     * @param requestCode The request code passed to the activity.
+     * @param resultCode  The result code returned by the activity.
+     * @param data        An Intent containing any returned data.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -187,6 +198,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Handles the result of a permission request.
+     * Specifically handles notification permission requests, showing a toast message indicating success or failure.
+     * @param requestCode  The request code passed to the permission request.
+     * @param permissions  The requested permissions.
+     * @param grantResults The results of the permission requests.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -199,6 +217,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Creates a notification channel to support notifications on Android versions O and above.
+     * The channel is used for general notifications with default importance.
+     */
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Default Channel";
@@ -212,6 +234,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Displays a notification with a title, content, and an intent to open NotificationActivity.
+     * The notification has a pending intent that navigates the user to NotificationActivity when clicked.
+     */
     private void showNotification() {
         Intent intent = new Intent(this, NotificationActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

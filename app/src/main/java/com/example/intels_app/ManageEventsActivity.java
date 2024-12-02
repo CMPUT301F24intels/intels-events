@@ -42,6 +42,13 @@ public class ManageEventsActivity extends AppCompatActivity {
     CustomAdapterOrganizer adapter;
     private Dialog progressDialog;
 
+    /**
+     * Sets up the event management screen, retrieves the current device ID,
+     * checks if a facility exists for the device, and fetches events associated
+     * with the device. Initializes UI elements such as the GridView, back button,
+     * add event button, and manage facility button.
+     * @param savedInstanceState Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,6 +145,12 @@ public class ManageEventsActivity extends AppCompatActivity {
         finish(); // Close MainActivity
     }
 
+    /**
+     * Fetches events associated with the specified device ID from Firestore.
+     * Shows a progress dialog while data is being fetched and updates the
+     * event list once data is retrieved.
+     * @param deviceId The ID of the device to filter events for.
+     */
     private void fetchEventsForDevice(String deviceId) {
         showProgressDialog(); // Show progress dialog
 
@@ -178,6 +191,10 @@ public class ManageEventsActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Displays a progress dialog to indicate that a background task (such as data loading) is in progress.
+     * The dialog appears as a square with a transparent background, preventing user interaction.
+     */
     private void showProgressDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View customLayout = getLayoutInflater().inflate(R.layout.dialog_progress_bar, null);
@@ -198,6 +215,10 @@ public class ManageEventsActivity extends AppCompatActivity {
         progressDialog.show();
     }
 
+    /**
+     * Dismisses the progress dialog if it is currently being shown.
+     * Ensures that the progress indicator is removed after a background task has completed.
+     */
     private void dismissProgressDialog() {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();

@@ -44,6 +44,11 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
     private ArrayList<Event> eventData;
     private Dialog progressDialog;
 
+    /**
+     * Called when the activity is starting. Initializes the layout, views, and fetches events
+     * created by the current device (organizer).
+     * @param savedInstanceState Bundle contains the data it most recently supplied.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,6 +132,11 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Fetches the events that the current device has created from Firestore.
+     * Updates the GridView with the list of events.
+     * @param deviceId The ID of the current device.
+     */
     private void fetchEventsForDevice(String deviceId) {
         showProgressDialog();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -191,6 +201,9 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
          */
     }
 
+    /**
+     * Displays a custom progress dialog to indicate that data is being loaded.
+     */
     private void showProgressDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View customLayout = getLayoutInflater().inflate(R.layout.dialog_progress_bar, null);
@@ -211,6 +224,9 @@ public class EventGridOrganizerActivity extends AppCompatActivity {
         progressDialog.show();
     }
 
+    /**
+     * Dismisses the progress dialog if it is currently showing.
+     */
     private void dismissProgressDialog() {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();

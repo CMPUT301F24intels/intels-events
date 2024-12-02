@@ -51,6 +51,10 @@ public class EventDetailsOrganizer extends AppCompatActivity {
     private FirebaseFirestore db;
     private String eventName;
 
+    /**
+     * Initializes the layout, retrieves event details from Firestore, and sets up UI elements and click listeners.
+     * @param savedInstanceState Bundle contains the saved data.
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -149,6 +153,9 @@ public class EventDetailsOrganizer extends AppCompatActivity {
 
     }
 
+    /**
+     * Loads event details from Firestore and populates the UI components with the retrieved data.
+     */
     private void loadEventDetails() {
         DocumentReference documentRef = db.collection("events").document(eventName);
         documentRef.get().addOnSuccessListener(documentSnapshot -> {
@@ -194,7 +201,9 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         }).addOnFailureListener(e -> Log.w(TAG, "Error getting document", e));
     }
 
-    // Method to delete event data from Firestore and Storage
+    /**
+     * Deletes the event from Firestore and Firebase Storage.
+     */
     private void deleteEvent() {
         Log.d(TAG, "Deleting event: " + eventName);
         String eventToDelete = eventName;
@@ -239,6 +248,10 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.w(TAG, "Failed to fetch event details for deletion", e));
     }
 
+    /**
+     * Performs a lottery draw to select entrants for the event.
+     * It selects entrants from the waitlisted profiles and stores the selected and not-selected entrants separately.
+     */
     private void performLotteryDraw() {
         CollectionReference waitlistedEntrantsRef = db.collection("waitlisted_entrants");
         CollectionReference selectedEntrantsRef = db.collection("selected_entrants");
@@ -316,6 +329,10 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                 }).addOnFailureListener(e -> Log.e(TAG, "Error loading previous selected entrants", e));
     }
 
+    /**
+     * Displays an enlarged view of the selected image.
+     * @param imageDrawable The Drawable object of the image to be displayed.
+     */
     private void showImageDialog(Drawable imageDrawable) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_expand_image, null);
@@ -332,6 +349,12 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         dialog.show();
     }
 
+    /**
+     * Stores the profiles that were not selected during the lottery draw in the "not_selected_entrants" Firestore collection.
+     * @param db                The Firestore database instance.
+     * @param notSelectedProfiles The list of profiles that were not selected.
+     * @param eventName         The name of the event for which the draw was conducted.
+     */
     private void storeNotSelectedEntrants(FirebaseFirestore db, List<DocumentSnapshot> notSelectedProfiles, String eventName) {
         for (DocumentSnapshot document : notSelectedProfiles) {
             String deviceId = document.getString("deviceId");
@@ -357,6 +380,11 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sends notifications to both the selected and unselected profiles after a lottery draw.
+     * @param allProfiles     The list of all profiles that were considered in the lottery draw.
+     * @param selectedProfiles The list of profiles that were selected during the draw.
+     */
     private void sendNotificationsToProfiles(List<DocumentSnapshot> allProfiles, List<DocumentSnapshot> selectedProfiles) {
         List<DocumentSnapshot> unselectedProfiles = new ArrayList<>(allProfiles);
         unselectedProfiles.removeAll(selectedProfiles);
@@ -382,6 +410,14 @@ public class EventDetailsOrganizer extends AppCompatActivity {
         Toast.makeText(this, "Lottery draw complete. Notifications sent.", Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Sends a notification to a specific profile.
+     * @param deviceId   The unique device ID of the recipient.
+     * @param profileId  The ID of the profile receiving the notification.
+     * @param eventName  The name of the event for which the notification is being sent.
+     * @param message    The message to be sent in the notification.
+     * @param type       The type of the notification (e.g., "selected", "not_selected").
+     */
     private void sendNotificationToProfile(String deviceId, String profileId, String eventName, String message, String type) {
         if (deviceId == null || deviceId.isEmpty()) {
             Log.w(TAG, "Device ID is missing for profile: " + profileId);
@@ -404,6 +440,10 @@ public class EventDetailsOrganizer extends AppCompatActivity {
                 .addOnFailureListener(e -> Log.w(TAG, "Error sending notification", e));
     }
 
+    /**
+     * Saves the profiles that were selected during the lottery draw in the "selected_entrants" Firestore collection.
+     * @param selectedProfiles The list of profiles that were selected.
+     */
     private void saveSelectedProfiles(List<DocumentSnapshot> selectedProfiles) {
         CollectionReference selectedEntrantsRef = db.collection("selected_entrants");
 
