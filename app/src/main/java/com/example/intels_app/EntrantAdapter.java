@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,16 +22,19 @@ import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class EntrantAdapter extends ArrayAdapter<Entrant> {
     private Context context;
-    private List<Entrant> entrantList;
+    private List<Entrant> originalEntrantList;
+    private List<Entrant> filteredEntrantList;
 
     public EntrantAdapter(Context context, List<Entrant> entrantList) {
         super(context, 0, entrantList);
         this.context = context;
-        this.entrantList = entrantList;
+        this.originalEntrantList = new ArrayList<>(entrantList); // Preserve original list
+        this.filteredEntrantList = entrantList; // Working list for filtering
     }
 
     @NonNull
@@ -41,7 +45,7 @@ public class EntrantAdapter extends ArrayAdapter<Entrant> {
         }
 
         // Get the current entrant
-        Entrant entrant = entrantList.get(position);
+        Entrant entrant = filteredEntrantList.get(position);
 
         // Get views
         TextView profileNameTextView = convertView.findViewById(R.id.profile_name);
@@ -63,5 +67,51 @@ public class EntrantAdapter extends ArrayAdapter<Entrant> {
         }
 
         return convertView;
+    }
+
+    @Override
+    public int getCount() {
+        return filteredEntrantList.size();
+    }
+
+    @Nullable
+    @Override
+    public Entrant getItem(int position) {
+        return filteredEntrantList.get(position);
+    }
+
+    @NonNull
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults results = new FilterResults();
+                List<Entrant> filteredList = new ArrayList<>();
+
+                if (constraint == null || constraint.length() == 0) {
+                    filteredList.addAll(originalEntrantList); // No filter applied
+                } else {
+                    String filterPattern = constraint.toString().toLowerCase().trim();
+
+                    for (Entrant entrant : originalEntrantList) {
+                        if (entrant.getName().toLowerCase().contains(filterPattern)) {
+                            filteredList.add(entrant); // Add matching entrants
+                        }
+                    }
+                }
+
+                results.values = filteredList;
+                results.count = filteredList.size();
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                filteredEntrantList.clear();
+                filteredEntrantList.addAll((List<Entrant>) results.values);
+                notifyDataSetChanged(); // Notify adapter about changes
+            }
+        };
     }
 }
