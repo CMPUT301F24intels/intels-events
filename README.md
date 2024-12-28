@@ -1,44 +1,55 @@
-# intels-events
+# Intels Events  
 
-# Overview
-This mobile application is designed for community centers to facilitate fair event registrations through a lottery system. The app ensures accessibility, efficiency, and fairness for entrants, organizers, and administrators.
+## Overview  
+Intels Events is a mobile application designed to simplify and streamline event registrations at community centers through a fair lottery system. The app promotes accessibility, efficiency, and fairness for all users, including entrants, organizers, and administrators.  
 
-# Features
-Entrant Features
-Join/Leave Waiting List: Entrants can register or withdraw from event waiting lists.
-Receive Notifications: Notifications for acceptance, rejection, and redraw opportunities.
-Manage Preferences: Opt-out of notifications from organizers or administrators.
-Event Details via QR Code: View and register for events by scanning promotional QR codes.
+## Features  
 
-Organizer Features
-Create and Manage Events: Generate event listings with details such as capacity, dates, and QR codes.
-Waitlist Management: View entrant waitlists, cancel participants, and redraw replacements from the pool.
-Send Notifications: Notify entrants about event participation, cancellations, and updates.
-Finalized Participant Lists: Access the final list of confirmed participants for an event.
+### Entrant Features  
+- **Join/Leave Waiting List**: Register or withdraw from event waiting lists.  
+- **Receive Notifications**: Stay informed with notifications for acceptance, rejection, and redraw opportunities.  
+- **Manage Preferences**: Customize notification settings, including opting out of messages from organizers or administrators.  
+- **Event Details via QR Code**: Access event details and register by scanning promotional QR codes.  
 
-Admin Features
-Manage Infrastructure: Remove events, profiles, and images that violate policies.
-Browse Content: Review events, profiles, and images uploaded to the system.
+### Organizer Features  
+- **Create and Manage Events**: Publish events with details like capacity, dates, and QR codes.  
+- **Waitlist Management**: View waitlists, cancel participants, and draw replacements using a pooling system.  
+- **Send Notifications**: Communicate event updates, participation confirmations, and cancellations to entrants.  
+- **Finalized Participant Lists**: Generate and review final lists of confirmed participants.  
 
-System Features
-Lottery-Based Selection: Randomly select entrants for event participation from waiting lists.
-Firebase Integration: Store and manage event details, attendee lists, and notifications in real-time.
-QR Code Scanning: Enable users to scan event-specific QR codes for quick access.
-Geolocation Verification: Optionally verify entrant location during registration.
+### Admin Features  
+- **Manage Infrastructure**: Remove inappropriate events, profiles, and images.  
+- **Browse Content**: Review and manage all events, profiles, and images uploaded to the system.  
 
-# Technologies Used
-Language: Java
-Platform: Android Studio
-Database: Firebase
+### System Features  
+- **Lottery-Based Selection**: Randomly select entrants from waitlists for event participation.  
+- **Firebase Integration**: Securely store and manage event details, participant lists, and notifications in real-time.  
+- **QR Code Scanning**: Quickly scan and access event-specific information.  
+- **Geolocation Verification**: Optionally verify entrant locations for specific events.  
 
-# Glossary
-Entrant: Individual registering for an event.
-Organizer: Entity managing events and registrations.
-Administrator: Entity maintaining app infrastructure and content.
-QR Code: Scannable code linking to event details.
-Waiting List: A record of entrants interested in an event.
+## Technologies Used  
+- **Language**: Java  
+- **Platform**: Android Studio  
+- **Database**: Firebase  
 
-# Testing
-Functional Testing: Validated notification systems, redraw processes, and QR code scanning.
-Integration Testing: Ensured seamless interaction between Firebase, waitlists, and notifications.
-User Acceptance Testing: Verified ease of use and compliance with user stories.
+## Glossary  
+- **Entrant**: An individual registering for an event.  
+- **Organizer**: The entity responsible for managing event registrations.  
+- **Administrator**: The entity overseeing app infrastructure and content moderation.  
+- **QR Code**: A scannable code linking to specific event details.  
+- **Waiting List**: A record of entrants expressing interest in an event.  
+
+## Testing  
+
+### Functional Testing  
+- Verified the accuracy and reliability of notification systems for entrants.  
+- Ensured proper functioning of redraw processes for replacements.  
+- Tested QR code scanning for accessing event details and joining waitlists.  
+
+### Integration Testing  
+- Validated seamless interaction between Firebase, waiting lists, and notification systems.  
+
+### User Acceptance Testing  
+- Assessed the app’s usability and confirmed compliance with user stories.  
+
+---
